@@ -1,0 +1,121 @@
+name: Deploy standalone app to GitHub Pages
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    outputs:
+      pages-ready: ${{ steps.pages-status.outputs.ready }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Validate PowerShell syntax and encoding
+        shell: powershell
+        run: .\scripts\check-powershell-syntax.ps1
+
+      - name: Test Graph Core / Compiler
+        shell: pwsh
+        run: node ./tests/graph-core-smoke.mjs
+
+      - name: Test Preview Engine
+        shell: pwsh
+        run: node ./tests/preview-engine-smoke.mjs
+
+      - name: Test Video Filter Set
+        shell: pwsh
+        run: node ./tests/video-filter-set-smoke.mjs
+
+      - name: Test Complex Filtergraph
+        shell: pwsh
+        run: node ./tests/complex-filtergraph-smoke.mjs
+
+      - name: Test Audio Filter Set
+        shell: pwsh
+        run: node ./tests/audio-filter-set-smoke.mjs
+
+      - name: Test Text / Draw Text
+        shell: pwsh
+        run: node ./tests/text-filter-set-smoke.mjs
+
+      - name: Test Recipes / Full Render
+        shell: pwsh
+        run: node ./tests/recipes-full-render-smoke.mjs
+
+      - name: Test JA / EN parity
+        shell: pwsh
+        run: node ./tests/i18n-smoke.mjs
+
+      - name: Test v1.0.0 release UI / metadata
+        shell: pwsh
+        run: node ./tests/release-smoke.mjs
+
+      - name: Build ST and MT standalone HTML
+        shell: pwsh
+        run: ./build-standalone.ps1
+
+      - name: Check whether GitHub Pages is enabled
+        id: pages-status
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/$env:GITHUB_REPOSITORY/pages" --silent 2>$null
+          if ($LASTEXITCODE -eq 0) {
+            "ready=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+            exit 0
+          }
+          "ready=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          Write-Warning "GitHub Pages is not enabled. Build artifacts are still available."
+          exit 0
+
+      - name: Configure GitHub Pages
+        if: steps.pages-status.outputs.ready == 'true'
+        uses: actions/configure-pages@v6
+
+      - name: Upload GitHub Pages artifact
+        if: steps.pages-status.outputs.ready == 'true'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+      - name: Upload standalone build artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ffmpeg-filter-builder-${{ github.sha }}
+          path: |
+            dist/index.html
+            dist/index.mt.html
+            dist/index.self-extract.html
+            dist/index.mt.self-extract.html
+            dist/runtime-manifest*.json
+            dist/build-size-report*.json
+          if-no-files-found: error
+          retention-days: 14
+
+  deploy:
+    if: needs.build.outputs.pages-ready == 'true'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

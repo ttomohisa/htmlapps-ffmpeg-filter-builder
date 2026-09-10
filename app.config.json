@@ -1,0 +1,28 @@
+{
+  "$schema": "./schemas/app-config.schema.json",
+  "name": "FFmpeg Filter Builder",
+  "nameJa": "FFmpeg Filter Builder",
+  "slug": "ffmpeg-filter-builder",
+  "version": "1.0.0",
+  "description": "Build editable FFmpeg filter graphs from recipes or nodes, preview the result, and render/save the complete MP4 in the browser.",
+  "descriptionJa": "RecipeまたはNodeから編集可能なFFmpeg Filter Graphを作り、Previewで確認してMP4全体を書き出し・保存します。",
+  "defaultLanguage": "auto",
+  "repository": {
+    "owner": "ttomohisa",
+    "name": "htmlapps-ffmpeg-filter-builder"
+  },
+  "build": {
+    "output": "dist/index.html",
+    "multiThreadOutput": "dist/index.mt.html",
+    "blockRuntimeNetwork": true,
+    "selfExtract": {
+      "enabled": true,
+      "output": "dist/index.self-extract.html",
+      "multiThreadOutput": "dist/index.mt.self-extract.html"
+    },
+    "sizeBudget": {
+      "readableWarningMb": 60,
+      "selfExtractWarningMb": 30
+    }
+  }
+}
