@@ -3,7 +3,7 @@
   "name": "FFmpeg Filter Builder",
   "nameJa": "FFmpeg Filter Builder",
   "slug": "ffmpeg-filter-builder",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Build editable FFmpeg filter graphs from recipes or nodes, preview the result, and render/save the complete MP4 in the browser.",
   "descriptionJa": "RecipeまたはNodeから編集可能なFFmpeg Filter Graphを作り、Previewで確認してMP4全体を書き出し・保存します。",
   "defaultLanguage": "auto",

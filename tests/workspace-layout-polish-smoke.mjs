@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const source = fs.readFileSync(new URL('../src/index.template.html', import.meta.url), 'utf8');
+assert.ok(source.includes('id="toggleGraphSizeButton"'), 'Graph enlarge toggle missing.');
+assert.ok(source.includes('id="graphWorkspaceBackdrop"'), 'Floating backdrop element missing.');
+assert.ok(source.includes("$('#graphWorkspaceBackdrop').addEventListener('pointerdown'"), 'Backdrop click-to-close missing.');
+assert.ok(source.includes('M9 4H4v5M15 4h5v5M20 15v5h-5M9 20H4v-5'), 'Four-corner enlarge icon missing.');
+assert.ok(source.includes('.editor-grid.graph-expanded { position:fixed; z-index:100;'), 'Floating Graph Workspace surface missing.');
+assert.ok(source.includes("expandGraphCanvas:'Graph Canvasを浮かせて拡大'"), 'Japanese floating copy missing.');
+assert.ok(source.includes("expandGraphCanvas:'Float and enlarge Graph Canvas'"), 'English floating copy missing.');
+assert.ok(source.includes("else if(editor?.classList.contains('graph-expanded'))"), 'Esc must still close floating workspace after toolbar popovers.');
+assert.ok(source.includes('style="top:${top}px"'), 'Port positioning must use fixed pixel rows.');
+assert.ok(!source.includes('style="top:${top}%"'), 'Legacy percentage port positioning remains.');
+assert.ok(source.includes('.field-grid > .field { margin-top:0; }'), 'Two-column inspector fields must share the same top baseline.');
+console.log('[OK] v1.1.0 floating workspace smoke tests passed.');

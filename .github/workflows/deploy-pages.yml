@@ -60,8 +60,28 @@ jobs:
         shell: pwsh
         run: node ./tests/i18n-smoke.mjs
 
-      - name: Test v1.0.0 release UI / metadata
+      - name: Test v1.1.0 workspace core
         shell: pwsh
+        run: node ./tests/workspace-core-smoke.mjs
+      - name: Modern node UI smoke test
+        run: node ./tests/modern-node-ui-smoke.mjs
+
+      - name: Floating workspace smoke test
+        run: node ./tests/workspace-layout-polish-smoke.mjs
+
+      - name: Manual layout and selection smoke test
+        run: node ./tests/manual-layout-selection-smoke.mjs
+
+      - name: Palette and Inspector smoke test
+        run: node ./tests/palette-inspector-smoke.mjs
+
+      - name: Connection UX and MiniMap smoke test
+        run: node ./tests/connection-minimap-smoke.mjs
+
+      - name: Mobile Graph Workspace smoke test
+        run: node ./tests/mobile-workspace-smoke.mjs
+
+      - name: Final release regression smoke test
         run: node ./tests/release-smoke.mjs
 
       - name: Build ST and MT standalone HTML

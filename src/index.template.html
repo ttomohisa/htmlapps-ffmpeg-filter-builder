@@ -258,7 +258,7 @@
     footer { width: min(1180px, 100%); margin: 0 auto; padding: 0 clamp(14px, 2.8vw, 30px) 34px; color: var(--muted); font-size: 12px; }
     /* Reusable toast / Undo component. Canonical source: components/toast.html */
     .app-toast {
-      position: fixed; right: 18px; bottom: calc(18px + env(safe-area-inset-bottom)); z-index: 60;
+      position: fixed; right: 18px; bottom: calc(18px + env(safe-area-inset-bottom)); z-index: 170;
       display: flex; align-items: center; gap: 12px; max-width: min(420px, calc(100vw - 36px));
       padding: 10px 12px 10px 14px; border: 1px solid var(--line); border-radius: 12px;
       background: var(--surface); color: var(--text); box-shadow: var(--shadow-md); opacity: 0;
@@ -441,7 +441,7 @@
       .app-confirm-button { min-height: 48px; font-size: 14px; }
     }
 
-    /* APP: FFmpeg Filter Builder v1.0.0 */
+    /* APP: FFmpeg Filter Builder v1.1.0 */
     .runtime-badge { display:inline-flex; align-items:center; gap:7px; padding:6px 9px; border:1px solid var(--line); border-radius:999px; background:var(--surface); color:var(--muted); font-size:11px; font-weight:750; white-space:nowrap; }
     .runtime-badge strong { color:var(--text); font-weight:800; }
     .runtime-badge.mt { border-color:color-mix(in srgb,var(--accent) 34%,var(--line)); background:var(--accent-soft); color:var(--accent); }
@@ -453,11 +453,30 @@
     .panel-head h2 { margin:0; font-size:15px; letter-spacing:-.02em; }
     .panel-head p { margin:3px 0 0; color:var(--muted); font-size:11px; }
     .panel-body { padding:14px; }
-    .step-label { display:inline-flex; align-items:center; justify-content:center; min-width:23px; height:23px; margin-right:6px; border-radius:7px; background:var(--accent-soft); color:var(--accent); font-size:10px; font-weight:850; vertical-align:1px; }
-    .editor-grid { display:grid; grid-template-columns:190px minmax(0,1fr) 270px; gap:12px; align-items:stretch; }
-    .editor-grid > .panel { min-height:430px; }
-    .palette-panel .panel-body, .inspector-panel .panel-body { height:calc(100% - 56px); }
-    .palette-panel .panel-body { overflow:auto; }
+    .editor-grid { display:grid; grid-template-columns:230px minmax(0,1fr) 300px; gap:0; align-items:stretch; min-height:0; overflow:hidden; border:1px solid var(--line); border-radius:16px; background:var(--surface); box-shadow:var(--shadow-sm); }
+    .editor-grid > .panel { min-height:0; margin:0; border:0; border-radius:0; background:var(--surface); box-shadow:none; }
+    .graph-panel { grid-column:2; grid-row:1; min-width:0; position:relative; border-left:1px solid var(--line) !important; border-right:1px solid var(--line) !important; }
+    .palette-panel { grid-column:1; grid-row:1; min-width:0; }
+    .inspector-panel { grid-column:3; grid-row:1; min-width:0; }
+    .editor-grid.palette-collapsed { grid-template-columns:0 minmax(0,1fr) 300px; }
+    .editor-grid.inspector-collapsed { grid-template-columns:230px minmax(0,1fr) 0; }
+    .editor-grid.palette-collapsed.inspector-collapsed { grid-template-columns:0 minmax(0,1fr) 0; }
+    .editor-grid.palette-collapsed .palette-panel, .editor-grid.inspector-collapsed .inspector-panel { display:none; }
+    .editor-grid.palette-collapsed .graph-panel { border-left:0 !important; }
+    .editor-grid.inspector-collapsed .graph-panel { border-right:0 !important; }
+    .palette-panel .panel-body, .inspector-panel .panel-body { height:calc(100% - 57px); overflow:auto; }
+    .palette-search-wrap { position:sticky; top:0; z-index:4; display:grid; grid-template-columns:18px minmax(0,1fr) 28px; align-items:center; gap:5px; margin:-2px -2px 10px; padding:6px 7px; border:1px solid var(--line); border-radius:10px; background:color-mix(in srgb,var(--surface) 96%,transparent); backdrop-filter:blur(10px); }
+    .palette-search-wrap > svg { width:15px; height:15px; color:var(--muted); }
+    .palette-search-wrap input { min-width:0; width:100%; padding:4px 2px; border:0; outline:0; background:transparent; color:var(--text); font-size:11px; }
+    .palette-search-clear { display:grid; place-items:center; width:28px; height:28px; padding:0; border:0; border-radius:7px; background:transparent; color:var(--muted); cursor:pointer; }
+    .palette-search-clear:hover { background:var(--surface-hover); color:var(--text); }
+    .palette-search-clear svg { width:14px; height:14px; }
+    .palette-search-empty { padding:18px 10px; color:var(--muted); font-size:10.5px; line-height:1.6; text-align:center; }
+    .palette-button[hidden], .palette-group[hidden] { display:none !important; }
+    .sidebar-context { margin:3px 0 0; max-width:210px; overflow:hidden; color:var(--muted); font-size:9.5px; line-height:1.3; text-overflow:ellipsis; white-space:nowrap; }
+    .sidebar-head { min-height:57px; align-items:center; padding:10px 12px; background:#fbfbf9; }
+    .sidebar-head h2 { font-size:13px; }
+    .sidebar-close { flex:0 0 auto; }
     .advanced-options { margin-top:10px; border:1px solid var(--line); border-radius:9px; background:var(--surface-muted); }
     .advanced-options summary { padding:8px 10px; cursor:pointer; color:var(--muted); font-size:10px; font-weight:800; }
     .advanced-options > div { padding:0 10px 10px; }
@@ -475,6 +494,7 @@
     .palette-button:hover { border-color:var(--line-strong); background:var(--surface-hover); }
     .palette-button:disabled { opacity:.48; cursor:not-allowed; }
     .palette-icon { display:grid; place-items:center; width:30px; height:30px; border-radius:8px; background:var(--accent-soft); color:var(--accent); }
+    .palette-button.audio .palette-icon { background:var(--audio-soft); color:var(--audio); }
     .palette-icon svg { width:17px; height:17px; }
     .palette-button strong { display:block; font-size:11px; }
     .palette-button span:last-child { display:block; margin-top:1px; color:var(--muted); font-size:9.5px; line-height:1.35; }
@@ -483,9 +503,45 @@
     .compact-button:hover { background:var(--surface-hover); border-color:var(--line-strong); }
     .compact-button:disabled { opacity:.45; cursor:not-allowed; }
     .compact-button.danger { color:var(--danger); }
-    .graph-panel { position:relative; }
-    .graph-toolbar { display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; align-items:center; padding:10px 12px; border-bottom:1px solid var(--line); background:#fbfbf9; }
-    .graph-toolbar-left,.graph-toolbar-right { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+    .graph-toolbar { position:relative; display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px; align-items:center; min-height:57px; padding:10px 12px; border-bottom:1px solid var(--line); background:#fbfbf9; }
+    .graph-toolbar-title { margin-right:2px; font-size:12px; font-weight:850; letter-spacing:-.01em; white-space:nowrap; }
+    .graph-toolbar-left,.graph-toolbar-right,.graph-toolbar-group { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+    .graph-toolbar-right { margin-left:auto; justify-content:flex-end; }
+    .graph-toolbar-separator { width:1px; height:24px; margin:0 2px; background:var(--line); }
+    .graph-tool-button > svg:first-child:not(:only-child) { width:14px; height:14px; margin-right:5px; }
+    .graph-popover { position:absolute; top:64px; z-index:38; width:min(390px,calc(100vw - 32px)); max-height:min(640px,calc(100vh - 120px)); overflow:auto; border:1px solid var(--line); border-radius:14px; background:var(--surface); box-shadow:0 16px 42px rgba(20,28,24,.18); }
+    .graph-popover[hidden] { display:none !important; }
+    .recipe-popover { left:12px; }
+    .actions-popover { right:12px; width:min(330px,calc(100vw - 32px)); }
+    .graph-popover-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding:13px 14px 11px; border-bottom:1px solid var(--line); }
+    .graph-popover-head strong { display:block; font-size:12px; }
+    .graph-popover-head span { display:block; margin-top:3px; color:var(--muted); font-size:9.5px; line-height:1.45; }
+    .recipe-popover-body { display:grid; gap:9px; padding:12px 14px 14px; }
+    .recipe-popover-body .recipe-select { min-height:40px; }
+    .recipe-popover-body .recipe-description { min-height:52px; }
+    .recipe-popover-body .recipe-note { margin:1px 0 0; }
+    .graph-actions-list { display:grid; padding:7px; }
+    .graph-action-item { display:flex; align-items:center; justify-content:space-between; gap:10px; min-height:40px; padding:8px 10px; border:0; border-radius:9px; background:transparent; color:var(--text); text-align:left; cursor:pointer; font-size:11px; font-weight:720; }
+    .graph-action-item:hover { background:var(--surface-hover); }
+    .graph-action-item:disabled { opacity:.45; cursor:not-allowed; }
+    .graph-action-item > span:last-child { color:var(--muted); font-size:9px; font-weight:700; }
+    .graph-action-item.danger { color:var(--danger); }
+    .graph-action-separator { height:1px; margin:5px 7px; background:var(--line); }
+    .graph-action-meta { display:flex; justify-content:space-between; gap:10px; margin:6px 7px 3px; padding:9px 10px; border-radius:9px; background:var(--surface-muted); color:var(--muted); font-size:9px; }
+    .graph-action-meta strong { color:var(--text); font-size:9px; }
+    .graph-tool-button { display:inline-flex; align-items:center; justify-content:center; gap:5px; min-width:34px; min-height:34px; padding:6px 9px; border:1px solid var(--line); border-radius:9px; background:var(--surface); color:var(--text); font-size:10px; font-weight:750; cursor:pointer; }
+    .graph-tool-button:hover { background:var(--surface-hover); border-color:var(--line-strong); }
+    .graph-tool-button:disabled { opacity:.45; cursor:not-allowed; }
+    .graph-tool-button.icon-only { width:34px; padding:0; }
+    .graph-tool-button.icon-only svg { width:16px; height:16px; display:block; }
+    .graph-zoom-control { display:inline-flex; align-items:stretch; overflow:hidden; border:1px solid var(--line); border-radius:9px; background:var(--surface); }
+    .graph-zoom-control .graph-tool-button { min-width:34px; min-height:34px; border:0; border-radius:0; background:transparent; }
+    .graph-zoom-control .graph-tool-button + .graph-tool-button { border-left:1px solid var(--line); }
+    .graph-zoom-control .graph-tool-button:hover { background:var(--surface-hover); }
+    .graph-zoom-readout { min-width:52px; font-variant-numeric:tabular-nums; }
+    .graph-canvas-sidebar-toggle { position:absolute; z-index:36; top:12px; left:12px; box-shadow:0 3px 12px rgba(20,28,24,.10); }
+    .graph-canvas-inspector-toggle { left:auto; right:12px; }
+    .graph-canvas-sidebar-toggle[hidden] { display:none !important; }
     .graph-status { display:inline-flex; align-items:center; gap:6px; padding:5px 8px; border-radius:999px; background:var(--surface-muted); color:var(--muted); font-size:10px; font-weight:750; }
     .graph-status::before { content:""; width:7px; height:7px; border-radius:50%; background:var(--line-strong); }
     .graph-status.valid { color:#25652d; background:#edf6ed; }
@@ -494,35 +550,75 @@
     .graph-status.invalid::before { background:var(--danger); }
     .connect-hint { color:var(--muted); font-size:9.5px; }
     .connect-hint.active { color:var(--accent); font-weight:750; }
-    .graph-scroll { position:relative; min-height:350px; overflow:auto; overscroll-behavior:contain; background-image:radial-gradient(circle at 1px 1px, #dfe1dc 1px, transparent 0); background-size:20px 20px; background-color:#fafaf8; }
-    .graph-canvas { position:relative; min-width:650px; min-height:350px; }
+    .graph-scroll { position:relative; height:clamp(560px,68vh,820px); min-height:560px; overflow:hidden; overscroll-behavior:contain; touch-action:none; cursor:grab; outline:none; background-image:radial-gradient(circle at 1px 1px, #dfe1dc 1px, transparent 0); background-size:20px 20px; background-position:0 0; background-color:#fafaf8; transition:height .18s ease; }
+    body.graph-workspace-floating { overflow:hidden; }
+    .graph-workspace-backdrop { display:none; position:fixed; inset:0; z-index:90; background:rgba(18,24,21,.42); backdrop-filter:blur(2px); cursor:zoom-out; }
+    body.graph-workspace-floating .graph-workspace-backdrop { display:block; }
+    .mobile-sheet-backdrop { display:none; position:fixed; inset:0; z-index:125; background:rgba(18,24,21,.34); backdrop-filter:blur(1.5px); }
+    body.mobile-workspace-sheet-open .mobile-sheet-backdrop { display:block; }
+    .editor-grid.graph-expanded { position:fixed; z-index:100; inset:clamp(24px,4vh,48px) clamp(24px,4vw,64px); width:auto; height:auto; max-height:none; border-radius:18px; box-shadow:0 22px 70px rgba(13,31,24,.28); }
+    .editor-grid.graph-expanded .graph-panel,.editor-grid.graph-expanded .palette-panel,.editor-grid.graph-expanded .inspector-panel { min-height:0; }
+    .editor-grid.graph-expanded .graph-scroll { height:calc(100dvh - clamp(24px,4vh,48px)*2 - 58px); min-height:0; }
+    .graph-scroll:focus-visible { box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--focus) 65%,transparent); }
+    .graph-scroll.panning { cursor:grabbing; }
+    .graph-canvas { position:absolute; left:0; top:0; min-width:0; min-height:0; transform-origin:0 0; }
+    .graph-zoom-layer { position:relative; left:0; top:0; min-width:0; min-height:0; transform-origin:0 0; }
     .edge-layer { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible; }
-    .edge-path { fill:none; stroke:#a9aca5; stroke-width:2; }
-    .edge-path.active { stroke:var(--accent); stroke-width:2.5; }
+    .edge-path { fill:none; stroke:#a9aca5; stroke-width:2; opacity:.82; transition:stroke .12s ease,stroke-width .12s ease,opacity .12s ease; }
+    .edge-path.active { stroke:var(--accent); stroke-width:2.5; opacity:1; }
     .edge-path.audio { stroke:var(--audio); stroke-dasharray:7 5; }
     .edge-path.audio.active { stroke:var(--audio); stroke-width:2.6; }
-    .node-card { position:absolute; width:152px; min-height:100px; padding:11px 12px; border:1px solid var(--line-strong); border-radius:12px; background:var(--surface); box-shadow:0 4px 16px rgba(25,28,24,.08); cursor:pointer; user-select:none; }
-    .node-card:hover { border-color:color-mix(in srgb,var(--accent) 45%,var(--line)); }
-    .node-card.selected { border-color:var(--accent); box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 14%,transparent),0 5px 20px rgba(25,28,24,.1); }
-    .node-card.error { border-color:#d16a64; background:#fffafa; }
-    .node-kicker { color:var(--muted); font-size:8.5px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; }
-    .node-title { margin-top:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; font-weight:850; }
-    .node-summary { margin-top:5px; overflow:hidden; color:var(--muted); font:9px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace; text-overflow:ellipsis; white-space:nowrap; }
-    .node-port { position:absolute; top:50%; display:grid; place-items:center; width:32px; height:32px; padding:0; border:0; border-radius:50%; background:transparent; transform:translateY(-50%); cursor:pointer; z-index:2; }
-    .node-port::after { content:""; width:10px; height:10px; border:2px solid var(--surface); border-radius:50%; background:var(--accent); box-shadow:0 0 0 1px var(--accent); }
-    .node-port.input { left:-17px; }
-    .node-port.output { right:-17px; }
-    .node-port:hover::after,.node-port.pending::after { width:13px; height:13px; }
+    .edge-hit { fill:none; stroke:transparent; stroke-width:18; pointer-events:stroke; cursor:pointer; }
+    .edge-hit:hover + .edge-path { stroke:var(--accent); stroke-width:3; opacity:1; }
+    .edge-hit:hover + .edge-path.audio { stroke:var(--audio); }
+    .edge-path.selected { stroke:var(--accent); stroke-width:3.4; opacity:1; }
+    .edge-path.audio.selected { stroke:var(--audio); stroke-width:3.4; }
+    .edge-path.connection-preview { stroke:var(--accent); stroke-width:2.5; stroke-dasharray:6 4; pointer-events:none; transition:stroke-width .1s ease; }
+    .edge-path.connection-preview.audio { stroke:var(--audio); }
+    .edge-path.connection-preview.snapped { stroke-width:3.25; stroke-dasharray:none; }
+    .selection-marquee { position:absolute; z-index:30; display:none; border:1px solid var(--accent); background:color-mix(in srgb,var(--accent) 10%,transparent); pointer-events:none; }
+    .selection-marquee.show { display:block; }
+    .graph-minimap { position:absolute; right:14px; bottom:14px; z-index:34; width:188px; height:116px; overflow:hidden; border:1px solid color-mix(in srgb,var(--line-strong) 78%,transparent); border-radius:11px; background:color-mix(in srgb,var(--surface) 94%,transparent); box-shadow:0 6px 20px rgba(20,28,24,.13); backdrop-filter:blur(5px); cursor:crosshair; touch-action:none; user-select:none; }
+    .graph-minimap[hidden] { display:none !important; }
+    .graph-minimap svg { display:block; width:100%; height:100%; }
+    .minimap-node { fill:#c7d8d1; stroke:#8ead9f; stroke-width:1; cursor:pointer; pointer-events:all; }
+    .minimap-node.audio { fill:#d9d3e7; stroke:#9b8fbb; }
+    .minimap-node.selected { fill:var(--accent); stroke:var(--accent); }
+    .minimap-viewport { fill:color-mix(in srgb,var(--accent) 8%,transparent); stroke:var(--accent); stroke-width:1.5; vector-effect:non-scaling-stroke; }
+    .minimap-label { position:absolute; left:8px; top:6px; z-index:2; color:var(--muted); font-size:7.5px; font-weight:850; letter-spacing:.08em; text-transform:uppercase; pointer-events:none; }
+    .node-card { position:absolute; width:218px; height:146px; padding:0; overflow:visible; border:1px solid #c9cbc5; border-radius:11px; background:var(--surface); box-shadow:0 3px 10px rgba(25,28,24,.08); cursor:pointer; user-select:none; transition:border-color .14s ease, box-shadow .14s ease, transform .14s ease; }
+    .node-card:hover { border-color:color-mix(in srgb,var(--accent) 42%,var(--line-strong)); box-shadow:0 5px 16px rgba(25,28,24,.10); }
+    .node-card.selected { border-color:var(--accent); box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 15%,transparent),0 6px 18px rgba(25,28,24,.11); }
+    .node-card.error { border-color:#d16a64; box-shadow:0 0 0 2px rgba(209,106,100,.10),0 5px 16px rgba(25,28,24,.08); }
+    .node-header { display:flex; align-items:center; gap:8px; height:46px; box-sizing:border-box; padding:7px 10px; border-bottom:1px solid color-mix(in srgb,var(--line) 78%,transparent); border-radius:10px 10px 0 0; background:var(--accent-soft); }
+    .node-card.node-audio .node-header { background:var(--audio-soft); }
+    .node-card.node-branch .node-header, .node-card.node-io .node-header { background:var(--surface-muted); }
+    .node-icon { display:grid; place-items:center; width:29px; height:29px; flex:0 0 auto; border-radius:8px; background:color-mix(in srgb,var(--surface) 78%,transparent); color:var(--accent); }
+    .node-audio .node-icon { color:var(--audio); }
+    .node-branch .node-icon, .node-io .node-icon { color:var(--muted); }
+    .node-icon svg { width:17px; height:17px; display:block; }
+    .node-heading { min-width:0; flex:1 1 auto; }
+    .node-title { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12.5px; line-height:1.15; font-weight:850; letter-spacing:-.01em; }
+    .node-category { margin-top:2px; overflow:hidden; color:var(--muted); font-size:7.5px; line-height:1; font-weight:850; letter-spacing:.075em; text-transform:uppercase; text-overflow:ellipsis; white-space:nowrap; }
+    .node-body { height:100px; box-sizing:border-box; padding:10px 14px 44px; }
+    .node-summary { display:-webkit-box; height:32px; overflow:hidden; color:#4f524d; font-size:10.5px; line-height:1.5; font-weight:650; overflow-wrap:anywhere; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+    .node-port { position:absolute; top:50%; display:grid; place-items:center; width:36px; height:36px; padding:0; border:0; border-radius:50%; background:transparent; transform:translateY(-50%); cursor:pointer; z-index:3; }
+    .node-port::after { content:""; width:11px; height:11px; border:2px solid var(--surface); border-radius:50%; background:var(--accent); box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 88%,#0000); transition:width .12s ease,height .12s ease,box-shadow .12s ease; }
+    .node-port.input { left:-19px; }
+    .node-port.output { right:-19px; }
+    .node-port:hover::after,.node-port.pending::after { width:14px; height:14px; box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 28%,transparent); }
     .node-port.pending::after { background:#fff; box-shadow:0 0 0 2px var(--accent); }
     .node-port.audio::after { border-radius:3px; background:var(--audio); box-shadow:0 0 0 1px var(--audio); transform:rotate(45deg); }
     .node-port.audio.pending::after { background:#fff; box-shadow:0 0 0 2px var(--audio); }
-    .node-card.audio-node { border-left:3px solid var(--audio); }
-    .node-card.audio-node .node-kicker { color:var(--audio); }
-    .palette-button.audio .palette-icon { background:var(--audio-soft); color:var(--audio); }
-    .port-caption { position:absolute; z-index:1; color:var(--muted); font-size:8px; font-weight:750; line-height:1; pointer-events:none; transform:translateY(-50%); }
-    .port-caption.input { left:8px; }
-    .port-caption.output { right:8px; text-align:right; }
-    .graph-empty { position:absolute; inset:0; display:grid; place-items:center; padding:30px; color:var(--muted); text-align:center; pointer-events:none; }
+    .node-port.connection-valid::after { width:15px; height:15px; box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 24%,transparent); }
+    .node-port.audio.connection-valid::after { box-shadow:0 0 0 3px color-mix(in srgb,var(--audio) 22%,transparent); }
+    .node-port.connection-magnet { z-index:8; }
+    .node-port.connection-magnet::after { width:19px; height:19px; box-shadow:0 0 0 6px color-mix(in srgb,var(--accent) 18%,transparent),0 0 18px color-mix(in srgb,var(--accent) 34%,transparent); }
+    .node-port.audio.connection-magnet::after { box-shadow:0 0 0 6px color-mix(in srgb,var(--audio) 16%,transparent),0 0 18px color-mix(in srgb,var(--audio) 30%,transparent); }
+    .node-port.connection-invalid { opacity:.3; }
+    .port-caption { position:absolute; z-index:2; max-width:74px; overflow:hidden; color:var(--muted); font-size:7.5px; font-weight:850; letter-spacing:.045em; line-height:1; text-overflow:ellipsis; white-space:nowrap; pointer-events:none; transform:translateY(-50%); }
+    .port-caption.input { left:9px; }
+    .port-caption.output { right:9px; text-align:right; }
     .graph-errors { margin:10px 12px 12px; padding:9px 11px; border:1px solid #ecc1bd; border-radius:10px; background:#fff7f6; color:#7d2822; font-size:10px; }
     .graph-errors[hidden] { display:none !important; }
     .inspector-empty { display:grid; place-items:center; min-height:290px; color:var(--muted); text-align:center; font-size:11px; line-height:1.6; }
@@ -533,7 +629,8 @@
     .field:first-child { margin-top:0; }
     .field-label { display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-bottom:5px; font-size:10.5px; font-weight:800; }
     .field-hint { color:var(--muted); font-size:9px; font-weight:500; }
-    .field-grid { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+    .field-grid { display:grid; grid-template-columns:1fr 1fr; gap:7px; align-items:start; }
+    .field-grid > .field { margin-top:0; }
     .number-control,.select-control { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; overflow:hidden; border:1px solid var(--line); border-radius:9px; background:var(--surface); }
     .number-control:focus-within,.select-control:focus-within { border-color:var(--focus); box-shadow:0 0 0 3px color-mix(in srgb,var(--focus) 20%,transparent); }
     .number-control input,.select-control select { min-width:0; width:100%; height:38px; padding:7px 9px; border:0; outline:0; background:transparent; color:var(--text); }
@@ -565,7 +662,9 @@
     .preview-panel { margin-top:12px; }
     .preview-grid { display:grid; grid-template-columns:minmax(0,1.05fr) minmax(330px,.95fr); gap:12px; }
     .preview-shell { position:relative; display:grid; place-items:center; aspect-ratio:16/9; min-height:280px; border-radius:12px; overflow:hidden; background:#151815; }
+    .preview-shell.has-video { aspect-ratio:auto; min-height:0; }
     .preview-shell video { width:100%; height:100%; object-fit:contain; background:#111; }
+    .preview-shell.has-video video { display:block; width:auto; max-width:100%; height:auto; max-height:min(70vh,720px); object-fit:contain; }
     .preview-stale-badge { position:absolute; top:10px; right:10px; z-index:3; display:none; align-items:center; gap:6px; padding:5px 8px; border-radius:999px; background:rgba(95,63,8,.9); color:#fff5d6; font-size:9.5px; font-weight:800; box-shadow:0 3px 12px rgba(0,0,0,.18); }
     .preview-stale-badge.show { display:inline-flex; }
     .preview-controls { display:grid; grid-template-columns:minmax(130px,.8fr) minmax(220px,1.2fr); gap:8px; margin-top:9px; }
@@ -664,9 +763,13 @@
     .runtime-item strong { display:block; margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:11px; }
     .sr-announcer { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
     @media (max-width:1040px) {
-      .editor-grid { grid-template-columns:170px minmax(0,1fr); }
-      .inspector-panel { grid-column:1 / -1; min-height:0 !important; }
-      .inspector-panel .panel-body { height:auto; }
+      .editor-grid,.editor-grid.palette-collapsed,.editor-grid.inspector-collapsed,.editor-grid.palette-collapsed.inspector-collapsed { grid-template-columns:minmax(0,1fr); }
+      .graph-panel,.palette-panel,.inspector-panel { grid-column:1; height:auto; }
+      .graph-panel { grid-row:1; }
+      .palette-panel { grid-row:2; }
+      .inspector-panel { grid-row:3; min-height:0 !important; }
+      .editor-grid.palette-collapsed .palette-panel,.editor-grid.inspector-collapsed .inspector-panel { display:none; }
+      .palette-panel .panel-body,.inspector-panel .panel-body { height:auto; }
       .inspector-form { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:12px; align-items:start; }
       .preview-grid { grid-template-columns:1fr; }
       .preview-controls { grid-template-columns:1fr; }
@@ -674,6 +777,8 @@
       .full-render-grid { grid-template-columns:1fr; }
     }
     @media (max-width:700px) {
+      html,body { max-width:100%; overflow-x:hidden; }
+      .main { padding-left:14px; padding-right:14px; }
       .page-intro { display:block; }
       .recovery-banner { flex-direction:column; }
       .recovery-actions { width:100%; }
@@ -683,23 +788,75 @@
       .full-render-actions { flex-wrap:wrap; }
       .full-render-actions .button { min-width:calc(50% - 4px); }
       .local-badge { margin-top:10px; }
-      .editor-grid { grid-template-columns:1fr; }
+      .editor-grid,.editor-grid.palette-collapsed,.editor-grid.inspector-collapsed,.editor-grid.palette-collapsed.inspector-collapsed {
+        grid-template-columns:minmax(0,1fr);
+        width:calc(100% + 28px);
+        margin-left:-14px;
+        overflow:hidden;
+        border-right:0;
+        border-left:0;
+        border-radius:0;
+      }
       .editor-grid > .panel { min-height:0; }
-      .palette-panel .panel-body { height:auto; }
-      .palette-buttons { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
-      .palette-button { display:block; min-height:64px; margin:0; padding:8px; text-align:center; }
+      .graph-panel { grid-column:1; grid-row:1; min-width:0; }
+      .graph-toolbar { flex-wrap:nowrap; justify-content:flex-start; gap:6px; overflow-x:auto; padding-left:max(12px,env(safe-area-inset-left)); padding-right:max(12px,env(safe-area-inset-right)); overscroll-behavior-x:contain; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+      .graph-toolbar::-webkit-scrollbar { display:none; }
+      .graph-toolbar-left,.graph-toolbar-right { flex:0 0 auto; flex-wrap:nowrap; gap:4px; }
+      .graph-toolbar-separator { flex:0 0 auto; }
+      .graph-tool-button { min-width:44px; min-height:44px; }
+      .graph-tool-button:not(.icon-only) { padding-inline:11px; }
+      .graph-zoom-control .graph-tool-button { min-width:44px; min-height:44px; }
+      .graph-canvas-sidebar-toggle { top:10px; left:max(10px,env(safe-area-inset-left)); }
+      .connect-hint { display:none; }
+      .graph-scroll { height:clamp(430px,66dvh,680px); min-height:430px; }
+      .node-port { width:48px; height:48px; }
+      .node-port.input { left:-25px; }
+      .node-port.output { right:-25px; }
+      .graph-minimap,#toggleMinimapButton { display:none !important; }
+      .palette-panel,.inspector-panel {
+        position:fixed;
+        z-index:135;
+        left:0;
+        right:0;
+        bottom:0;
+        grid-column:auto;
+        grid-row:auto;
+        width:100%;
+        max-height:min(78dvh,720px);
+        overflow:hidden;
+        border:1px solid var(--line) !important;
+        border-bottom:0 !important;
+        border-radius:20px 20px 0 0 !important;
+        background:var(--surface);
+        box-shadow:0 -16px 46px rgba(19,31,25,.18) !important;
+      }
+      .palette-panel::before,.inspector-panel::before { content:""; position:absolute; z-index:3; top:8px; left:50%; width:38px; height:4px; border-radius:999px; background:var(--line-strong); transform:translateX(-50%); }
+      .palette-panel .sidebar-head,.inspector-panel .sidebar-head { position:sticky; z-index:2; top:0; min-height:64px; padding:18px max(16px,env(safe-area-inset-right)) 10px max(16px,env(safe-area-inset-left)); background:var(--surface); }
+      .palette-panel .panel-body,.inspector-panel .panel-body { height:auto; max-height:calc(min(78dvh,720px) - 64px); overflow:auto; padding:14px max(16px,env(safe-area-inset-right)) calc(18px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left)); overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
+      .sidebar-close { min-width:44px; min-height:44px; }
+      .palette-search-wrap input { min-height:44px; }
+      .palette-search-clear { width:44px; height:44px; }
+      .palette-buttons { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+      .palette-button { display:block; min-height:72px; margin:0; padding:9px; text-align:center; }
       .palette-icon { margin:0 auto 5px; }
-      .history-row { grid-template-columns:repeat(4,minmax(0,1fr)); }
-      .graph-scroll { min-height:310px; }
       .inspector-form { display:block; }
+      .field input,.field select,.field textarea,.preset-button,.compact-button { min-height:44px; }
       .metric-grid,.runtime-grid { grid-template-columns:1fr 1fr; }
       .action-row { position:sticky; bottom:calc(8px + env(safe-area-inset-bottom)); z-index:8; padding:8px; margin:10px -3px -3px; border:1px solid color-mix(in srgb,var(--line) 80%,transparent); border-radius:11px; background:color-mix(in srgb,var(--surface) 94%,transparent); backdrop-filter:blur(10px); box-shadow:var(--shadow-md); }
+      .editor-grid.graph-expanded { inset:max(8px,env(safe-area-inset-top)) 0 max(8px,env(safe-area-inset-bottom)); width:100%; margin:0; grid-template-columns:1fr; overflow:hidden; border-radius:14px; }
+      .editor-grid.graph-expanded .graph-scroll { height:calc(100dvh - 82px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); min-height:460px; }
     }
     @media (max-width:430px) {
       .palette-buttons { grid-template-columns:1fr 1fr; }
       .history-row { grid-template-columns:1fr 1fr; }
       .field-grid,.compiler-meta { grid-template-columns:1fr; }
       .metric-grid,.runtime-grid { grid-template-columns:1fr 1fr; }
+    }
+
+    @media (max-width: 760px) {
+      .graph-popover { position:fixed; left:12px !important; right:12px !important; top:auto; bottom:calc(12px + env(safe-area-inset-bottom)); width:auto; max-height:min(72vh,680px); border-radius:16px; z-index:120; }
+      .graph-toolbar-title { display:none; }
+      .graph-toolbar-left,.graph-toolbar-right { gap:4px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -715,7 +872,7 @@
           <img id="appBrandIcon" src="__APP_ICON_DATA_URI__" alt="">
         </div>
         <div class="brand-copy">
-          <p class="brand-name"><span id="brandName">FFmpeg Filter Builder</span><span class="version-badge" id="versionBadge">v1.0.0</span></p>
+          <p class="brand-name"><span id="brandName">FFmpeg Filter Builder</span><span class="version-badge" id="versionBadge">v1.1.0</span></p>
           <p class="brand-meta" data-i18n="brandMeta">レシピ対応・ノード編集・Previewから書き出し</p>
         </div>
       </div>
@@ -751,39 +908,87 @@
       <div class="recovery-actions"><button class="button" id="discardRecoveryButton" type="button" data-i18n="discardRecovery">破棄</button><button class="button primary" id="restoreRecoveryButton" type="button" data-i18n="restoreRecovery">復元</button></div>
     </div>
 
-    <section class="recipe-panel" aria-labelledby="recipeTitle">
-      <div class="recipe-head"><div><h2 id="recipeTitle" data-i18n="recipeTitle">かんたんレシピ</h2><p data-i18n="recipeBody">やりたい処理を選ぶと、実際のGraphへ展開します。あとから各ノードを自由に編集できます。</p></div></div>
-      <div class="recipe-controls">
-        <select class="recipe-select" id="recipeSelect" aria-label="Recipe">
-          <option value="resize720" data-i18n="recipeResize720">720pへ縮小</option>
-          <option value="squareCrop" data-i18n="recipeSquareCrop">正方形にCrop</option>
-          <option value="vertical" data-i18n="recipeVertical">縦動画へ変換</option>
-          <option value="rotate" data-i18n="recipeRotate">90°回転</option>
-          <option value="fade" data-i18n="recipeFade">Fade In / Out</option>
-          <option value="watermark" data-i18n="recipeWatermark">Watermark</option>
-          <option value="pip" data-i18n="recipePip">Picture in Picture</option>
-          <option value="blurBackground" data-i18n="recipeBlurBackground">背景ぼかし縦動画</option>
-          <option value="speed2x" data-i18n="recipeSpeed2x">2倍速</option>
-          <option value="normalize" data-i18n="recipeNormalize">音量を整える</option>
-        </select>
-        <div class="recipe-description" id="recipeDescription"></div>
-        <button class="button primary" id="applyRecipeButton" type="button" data-i18n="applyRecipe">Graphへ展開</button>
-      </div>
-      <div class="recipe-project-actions">
-        <button class="compact-button" id="saveGraphButton" type="button" data-i18n="saveGraph">Graph JSONを保存</button>
-        <button class="compact-button" id="loadGraphButton" type="button" data-i18n="loadGraph">Graph JSONを開く</button>
-        <input id="graphFileInput" type="file" accept="application/json,.json" hidden>
-        <span class="runtime-badge"><span data-i18n="autosaveLabel">自動保存</span><strong data-i18n="autosaveLocal">この端末内</strong></span>
-      </div>
-      <p class="recipe-note" data-i18n="recipeLimitNote">Watermarkはv0.8.0ではDraw Textによるテキスト透かし、Picture in Pictureは同じ入力動画のbranchを重ねる構成です。別画像・別動画を使うMultiple Inputは今後の対応です。</p>
-    </section>
-
+    <div class="graph-workspace-backdrop" id="graphWorkspaceBackdrop" aria-hidden="true"></div>
+    <div class="mobile-sheet-backdrop" id="mobileSheetBackdrop" aria-hidden="true"></div>
     <div class="editor-grid">
+      <section class="panel graph-panel" aria-labelledby="graphTitle">
+        <div class="graph-toolbar" aria-labelledby="graphTitle">
+          <div class="graph-toolbar-left">
+            <strong class="graph-toolbar-title" id="graphTitle" data-i18n="graphTitle">Graph Canvas</strong>
+            <button class="graph-tool-button" id="recipeToolbarButton" type="button" data-i18n-title="recipeTitle" data-i18n-aria-label="recipeTitle" aria-expanded="false" aria-controls="recipePopover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h5M8 16h7"/></svg><span data-i18n="recipeToolbar">Recipe</span></button>
+            <span class="graph-status" id="graphStatus" data-i18n="graphChecking">Graphを確認中</span><span class="connect-hint" id="connectHint" data-i18n="connectHint">ポートから反対側のポートへドラッグして接続します。</span>
+          </div>
+          <div class="graph-toolbar-right">
+            <div class="graph-toolbar-group" aria-label="Graph history">
+              <button class="graph-tool-button icon-only" id="undoButton" type="button" disabled data-i18n-title="undo" data-i18n-aria-label="undo" title="元に戻す" aria-label="元に戻す"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 7 4 12l5 5"/><path d="M5 12h8a6 6 0 0 1 6 6"/></svg></button>
+              <button class="graph-tool-button icon-only" id="redoButton" type="button" disabled data-i18n-title="redo" data-i18n-aria-label="redo" title="やり直す" aria-label="やり直す"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 7 5 5-5 5"/><path d="M19 12h-8a6 6 0 0 0-6 6"/></svg></button>
+            </div>
+            <span class="graph-toolbar-separator" aria-hidden="true"></span>
+            <button class="graph-tool-button" id="fitGraphButton" type="button" data-i18n="fitGraph">全体表示</button>
+            <button class="graph-tool-button icon-only" id="toggleMinimapButton" type="button" data-i18n-title="toggleMinimap" data-i18n-aria-label="toggleMinimap" title="MiniMapを表示/非表示" aria-label="MiniMapを表示/非表示" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="M7 9h3v3H7zM14 8h3v2h-3zM13 14h4v2h-4z"/></svg></button>
+            <button class="graph-tool-button icon-only" id="toggleGraphSizeButton" type="button" data-i18n-title="expandGraphCanvas" data-i18n-aria-label="expandGraphCanvas" title="Canvasを拡大" aria-label="Canvasを拡大" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4H4v5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg></button>
+            <div class="graph-zoom-control" role="group" aria-label="Graph zoom">
+              <button class="graph-tool-button icon-only" id="zoomOutButton" type="button" data-i18n-title="zoomOut" data-i18n-aria-label="zoomOut" title="縮小" aria-label="縮小"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 12h12"/></svg></button>
+              <button class="graph-tool-button graph-zoom-readout" id="zoomResetButton" type="button" data-i18n-title="zoomReset" data-i18n-aria-label="zoomReset" title="100%に戻す" aria-label="100%に戻す">100%</button>
+              <button class="graph-tool-button icon-only" id="zoomInButton" type="button" data-i18n-title="zoomIn" data-i18n-aria-label="zoomIn" title="拡大" aria-label="拡大"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 12h12M12 6v12"/></svg></button>
+            </div>
+            <span class="graph-toolbar-separator" aria-hidden="true"></span>
+            <button class="graph-tool-button" id="disconnectButton" type="button" disabled data-i18n="disconnectInput">入力を切断</button>
+            <button class="graph-tool-button icon-only" id="graphActionsButton" type="button" data-i18n-title="graphActions" data-i18n-aria-label="graphActions" title="Graph操作" aria-label="Graph操作" aria-expanded="false" aria-controls="graphActionsPopover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="5" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="19" cy="12" r="1" fill="currentColor"/></svg></button>
+          </div>
+        </div>
+        <div class="graph-popover recipe-popover" id="recipePopover" hidden>
+          <div class="graph-popover-head"><div><strong data-i18n="recipeTitle">かんたんレシピ</strong><span data-i18n="recipeBody">やりたい処理を選ぶと、実際のGraphへ展開します。あとから各ノードを自由に編集できます。</span></div><button class="graph-tool-button icon-only" type="button" data-close-popover="recipePopover" data-i18n-title="close" data-i18n-aria-label="close" aria-label="閉じる"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+          <div class="recipe-popover-body">
+            <select class="recipe-select" id="recipeSelect" aria-label="Recipe">
+              <option value="resize720" data-i18n="recipeResize720">720pへ縮小</option><option value="squareCrop" data-i18n="recipeSquareCrop">正方形にCrop</option><option value="vertical" data-i18n="recipeVertical">縦動画へ変換</option><option value="rotate" data-i18n="recipeRotate">90°回転</option><option value="fade" data-i18n="recipeFade">Fade In / Out</option><option value="watermark" data-i18n="recipeWatermark">Watermark</option><option value="pip" data-i18n="recipePip">Picture in Picture</option><option value="blurBackground" data-i18n="recipeBlurBackground">背景ぼかし縦動画</option><option value="speed2x" data-i18n="recipeSpeed2x">2倍速</option><option value="normalize" data-i18n="recipeNormalize">音量を整える</option>
+            </select>
+            <div class="recipe-description" id="recipeDescription"></div>
+            <button class="button primary" id="applyRecipeButton" type="button" data-i18n="applyRecipe">Graphへ展開</button>
+            <p class="recipe-note" data-i18n="recipeLimitNote">WatermarkはDraw Textによるテキスト透かし、Picture in Pictureは同じ入力動画のbranchを重ねる構成です。別画像・別動画を使うMultiple Inputは今後の対応です。</p>
+          </div>
+        </div>
+        <div class="graph-popover actions-popover" id="graphActionsPopover" hidden>
+          <div class="graph-popover-head"><div><strong data-i18n="historyTitle">Graph操作</strong><span data-i18n="graphActionsBody">保存・読み込み・初期化をまとめています。</span></div><button class="graph-tool-button icon-only" type="button" data-close-popover="graphActionsPopover" data-i18n-title="close" data-i18n-aria-label="close" aria-label="閉じる"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+          <div class="graph-actions-list">
+            <button class="graph-action-item" id="saveGraphButton" type="button"><span data-i18n="saveGraph">Graph JSONを保存</span><span>JSON</span></button>
+            <button class="graph-action-item" id="loadGraphButton" type="button"><span data-i18n="loadGraph">Graph JSONを開く</span><span>JSON</span></button>
+            <input id="graphFileInput" type="file" accept="application/json,.json" hidden>
+            <div class="graph-action-separator"></div>
+            <button class="graph-action-item danger" id="resetGraphButton" type="button"><span data-i18n="resetGraph">初期化</span><span data-i18n="resetLabel">Graph</span></button>
+            <div class="graph-action-meta"><span data-i18n="autosaveLabel">自動保存</span><strong data-i18n="autosaveLocal">この端末内</strong></div>
+          </div>
+        </div>
+        <div class="graph-scroll" id="graphScroll" tabindex="0" role="application" data-i18n-aria-label="graphAriaLabel" aria-label="FFmpeg filter graph canvas">
+          <button class="graph-tool-button icon-only graph-canvas-sidebar-toggle" id="togglePaletteButton" type="button" data-i18n-title="togglePalette" data-i18n-aria-label="togglePalette" title="フィルターを表示" aria-label="フィルターを表示" aria-expanded="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16M4 12h10M4 19h7"/><path d="m17 10 3 2-3 2"/></svg></button>
+          <button class="graph-tool-button icon-only graph-canvas-sidebar-toggle graph-canvas-inspector-toggle" id="toggleInspectorButton" type="button" data-i18n-title="toggleInspector" data-i18n-aria-label="toggleInspector" title="ノード設定を表示" aria-label="ノード設定を表示" aria-expanded="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M15 5v14M7.5 9h4M7.5 13h4"/></svg></button>
+          <div class="graph-canvas" id="graphCanvas">
+            <div class="graph-zoom-layer" id="graphZoomLayer">
+              <svg class="edge-layer" id="edgeLayer" aria-hidden="true"></svg>
+              <div id="nodeLayer"></div>
+            </div>
+          </div>
+          <div class="selection-marquee" id="selectionMarquee" aria-hidden="true"></div>
+          <div class="graph-minimap" id="graphMinimap" role="navigation" data-i18n-title="minimapTitle" title="Graph MiniMap">
+            <span class="minimap-label">Map</span>
+            <svg id="graphMinimapSvg" aria-hidden="true"><g id="minimapNodes"></g><rect class="minimap-viewport" id="minimapViewport" x="0" y="0" width="0" height="0" rx="2"/></svg>
+          </div>
+        </div>
+        <div class="graph-errors" id="graphErrors" hidden></div>
+      </section>
+
       <section class="panel palette-panel" aria-labelledby="paletteTitle">
-        <div class="panel-head">
-          <div><h2 id="paletteTitle"><span class="step-label">1</span><span data-i18n="paletteTitle">フィルター</span></h2><p data-i18n="paletteBody">選択ノードの後ろへ追加します。</p></div>
+        <div class="panel-head sidebar-head">
+          <div><h2 id="paletteTitle" data-i18n="paletteTitle">フィルター</h2></div>
+          <button class="graph-tool-button icon-only sidebar-close" id="closePaletteButton" type="button" data-i18n-title="closePalette" data-i18n-aria-label="closePalette" title="フィルターを閉じる" aria-label="フィルターを閉じる"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button>
         </div>
         <div class="panel-body">
+          <div class="palette-search-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg>
+            <input id="paletteSearchInput" type="search" autocomplete="off" data-i18n-placeholder="filterSearchPlaceholder" data-i18n-aria-label="filterSearchPlaceholder" aria-label="フィルターを検索" placeholder="フィルターを検索">
+            <button id="clearPaletteSearchButton" class="palette-search-clear" type="button" data-i18n-title="clearSearch" data-i18n-aria-label="clearSearch" title="検索をクリア" aria-label="検索をクリア" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M7 7l10 10M17 7 7 17"/></svg></button>
+          </div>
+          <div class="palette-search-empty" id="paletteSearchEmpty" hidden data-i18n="filterSearchEmpty">一致するフィルターがありません。</div>
           <details class="palette-group palette-disclosure">
             <summary class="palette-label" data-i18n="videoFilters">Video filters</summary>
             <div class="palette-buttons">
@@ -908,42 +1113,16 @@
               </button>
             </div>
           </details>
-          <details class="palette-group palette-disclosure">
-            <summary class="palette-label" data-i18n="historyTitle">Graph操作</summary>
-            <div class="history-row">
-              <button class="compact-button" id="undoButton" type="button" disabled data-i18n="undo">元に戻す</button>
-              <button class="compact-button" id="redoButton" type="button" disabled data-i18n="redo">やり直す</button>
-              <button class="compact-button" id="sampleGraphButton" type="button" data-i18n="sampleGraph">Split + Overlay</button>
-              <button class="compact-button" id="sampleAudioButton" type="button" data-i18n="sampleAudioGraph">Audio Mix</button>
-              <button class="compact-button" id="resetGraphButton" type="button" data-i18n="resetGraph">初期化</button>
-            </div>
-          </details>
           <div class="palette-group">
             <div class="runtime-badge" id="runtimeBadge"><span data-i18n="runtimeLabel">Runtime</span><strong id="runtimeMode">—</strong></div>
           </div>
         </div>
       </section>
 
-      <section class="panel graph-panel" aria-labelledby="graphTitle">
-        <div class="panel-head">
-          <div><h2 id="graphTitle"><span class="step-label">2</span><span data-i18n="graphTitle">Graph Canvas</span></h2><p data-i18n="graphBody">ポートをクリックして接続を変更できます。</p></div>
-        </div>
-        <div class="graph-toolbar">
-          <div class="graph-toolbar-left"><span class="graph-status" id="graphStatus" data-i18n="graphChecking">Graphを確認中</span><span class="connect-hint" id="connectHint" data-i18n="connectHint">出力ポートを押すと接続を開始します。</span></div>
-          <div class="graph-toolbar-right"><button class="compact-button" id="disconnectButton" type="button" disabled data-i18n="disconnectInput">入力を切断</button></div>
-        </div>
-        <div class="graph-scroll" id="graphScroll">
-          <div class="graph-canvas" id="graphCanvas" role="application" data-i18n-aria-label="graphAriaLabel" aria-label="FFmpeg filter graph canvas">
-            <svg class="edge-layer" id="edgeLayer" aria-hidden="true"></svg>
-            <div id="nodeLayer"></div>
-          </div>
-        </div>
-        <div class="graph-errors" id="graphErrors" hidden></div>
-      </section>
-
       <section class="panel inspector-panel" aria-labelledby="inspectorTitle">
-        <div class="panel-head">
-          <div><h2 id="inspectorTitle"><span class="step-label">3</span><span data-i18n="inspectorTitle">ノード設定</span></h2><p data-i18n="inspectorBody">選択中のノードを編集します。</p></div>
+        <div class="panel-head sidebar-head">
+          <div><h2 id="inspectorTitle" data-i18n="inspectorTitle">ノード設定</h2><p class="sidebar-context" id="inspectorContext" data-i18n="selectNode">Graph上のノードを選択してください。</p></div>
+          <button class="graph-tool-button icon-only sidebar-close" id="closeInspectorButton" type="button" data-i18n-title="closeInspector" data-i18n-aria-label="closeInspector" title="ノード設定を閉じる" aria-label="ノード設定を閉じる"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
         </div>
         <div class="panel-body" id="inspectorBody"></div>
       </section>
@@ -951,7 +1130,7 @@
 
     <section class="panel preview-panel" aria-labelledby="previewTitle">
       <div class="panel-head">
-        <div><h2 id="previewTitle"><span class="step-label">4</span><span data-i18n="previewTitle">Preview / Compiler</span></h2><p data-i18n="previewBody">同じGraphからDesktop FFmpeg commandとBrowser runner requestを生成します。</p></div>
+        <div><h2 id="previewTitle"><span data-i18n="previewTitle">Preview / Compiler</span></h2><p data-i18n="previewBody">同じGraphからDesktop FFmpeg commandとBrowser runner requestを生成します。</p></div>
       </div>
       <div class="panel-body">
         <div class="preview-grid">
@@ -1019,7 +1198,7 @@
     </section>
 
     <section class="panel full-render-panel" aria-labelledby="fullRenderTitle">
-      <div class="panel-head"><div><h2 id="fullRenderTitle"><span class="step-label">5</span><span data-i18n="fullRenderTitle">動画を書き出す</span></h2><p data-i18n="fullRenderBody">Previewで確認した同じGraphを、入力動画の最後までFFmpeg WASMで処理します。</p></div></div>
+      <div class="panel-head"><div><h2 id="fullRenderTitle"><span data-i18n="fullRenderTitle">動画を書き出す</span></h2><p data-i18n="fullRenderBody">Previewで確認した同じGraphを、入力動画の最後までFFmpeg WASMで処理します。</p></div></div>
       <div class="panel-body">
         <div class="full-render-grid">
           <div class="full-render-settings">
@@ -1147,6 +1326,18 @@
   <script>
     (() => {
       'use strict';
+      const dialog=document.getElementById('appConfirmDialog'),title=document.getElementById('appConfirmTitle'),message=document.getElementById('appConfirmMessage'),closeButton=document.getElementById('appConfirmClose'),cancelButton=document.getElementById('appConfirmCancel'),okButton=document.getElementById('appConfirmOk');
+      let resolver=null,restoreFocus=null;
+      function finish(result){if(!dialog.open)return;const current=resolver;resolver=null;dialog.close();if(restoreFocus instanceof HTMLElement&&restoreFocus.isConnected)restoreFocus.focus({preventScroll:true});restoreFocus=null;if(current)current(result);}
+      function ask(options={}){if(dialog.open)finish(false);title.textContent=options.title||'Confirm';message.textContent=options.message||'';cancelButton.textContent=options.cancelLabel||'Cancel';okButton.textContent=options.confirmLabel||'Continue';okButton.classList.toggle('danger',options.tone==='danger');okButton.classList.toggle('primary',options.tone!=='danger');restoreFocus=document.activeElement;return new Promise(resolve=>{resolver=resolve;dialog.showModal();requestAnimationFrame(()=>cancelButton.focus({preventScroll:true}));});}
+      closeButton.addEventListener('click',()=>finish(false));cancelButton.addEventListener('click',()=>finish(false));okButton.addEventListener('click',()=>finish(true));dialog.addEventListener('cancel',event=>{event.preventDefault();finish(false);});dialog.addEventListener('click',event=>{const rect=dialog.getBoundingClientRect(),outside=event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom;if(outside)finish(false);});
+      window.AppConfirm=Object.freeze({ask});
+    })();
+  </script>
+
+  <script>
+    (() => {
+      'use strict';
 
       const APP_CONFIG = __APP_CONFIG_JSON__;
       const BUILD_MANIFEST = __BUILD_MANIFEST_JSON__;
@@ -1265,12 +1456,12 @@
           introTitle:'ノードをつないでFFmpegフィルターを組み立てる', lead:'Recipeから編集可能なGraphを作り、Previewで確認して動画全体を書き出せます。', localBadge:'完全ローカル処理',
           mtUnavailableTitle:'高速版を利用できない環境です。', mtUnavailableBody:'標準版を使用するか、高速版に必要な配信設定が有効なHTTPS環境で開いてください。',
           recoveryTitle:'前回のGraphがあります', recoveryBody:'前回編集したGraphを復元できます。動画ファイルは保存していないため、復元後にもう一度読み込んでください。', restoreRecovery:'復元', discardRecovery:'破棄', recoveryRestored:'前回のGraphを復元しました。動画をもう一度読み込んでください。', recoveryDiscarded:'前回のGraphを破棄しました。',
-          recipeTitle:'かんたんレシピ', recipeBody:'やりたい処理を選ぶと、実際のGraphへ展開します。あとから各ノードを自由に編集できます。', applyRecipe:'Graphへ展開', recipeResize720:'720pへ縮小', recipeSquareCrop:'正方形にCrop', recipeVertical:'縦動画へ変換', recipeRotate:'90°回転', recipeFade:'Fade In / Out', recipeWatermark:'Watermark', recipePip:'Picture in Picture', recipeBlurBackground:'背景ぼかし縦動画', recipeSpeed2x:'2倍速', recipeNormalize:'音量を整える', recipeResize720Desc:'横幅を最大1280pxへ縮小し、縦横比は維持します。小さい動画は拡大しません。', recipeSquareCropDesc:'入力動画の短辺に合わせ、中央を正方形にCropします。入力動画のサイズ情報が必要です。', recipeVerticalDesc:'1080×1920の縦キャンバスへ収まるよう縮小・拡大し、余白を追加します。', recipeRotateDesc:'映像を右へ90°回転します。Audioはそのまま保持します。', recipeFadeDesc:'映像とAudioの両方へ1秒のFade In / Outを追加します。終了位置を決めるため入力動画が必要です。', recipeWatermarkDesc:'右下へテキスト透かしを追加します。文字・色・位置はDraw Textノードで変更できます。', recipePipDesc:'同じ入力を2branchへ分け、小さいbranchを右下へ重ねます。Complex Graphの学習にも使えます。', recipeBlurBackgroundDesc:'同じ動画から背景branchを拡大・Crop・Blurし、前景branchを中央へ重ねて1080×1920へします。', recipeSpeed2xDesc:'映像を2倍速にし、Audioもatempoで同期します。', recipeNormalizeDesc:'映像はそのまま、Audioへloudnormを追加して音量を整えます。', recipeNeedsInput:'このRecipeは入力動画のサイズまたは長さを使います。先に動画を読み込んでください。', recipeApplied:'RecipeをGraphへ展開しました。', recipeLimitNote:'Watermarkはv0.8.0ではDraw Textによるテキスト透かし、Picture in Pictureは同じ入力動画のbranchを重ねる構成です。別画像・別動画を使うMultiple Inputは今後の対応です。',
+          recipeToolbar:'Recipe', recipeTitle:'かんたんレシピ', recipeBody:'やりたい処理を選ぶと、実際のGraphへ展開します。あとから各ノードを自由に編集できます。', applyRecipe:'Graphへ展開', recipeResize720:'720pへ縮小', recipeSquareCrop:'正方形にCrop', recipeVertical:'縦動画へ変換', recipeRotate:'90°回転', recipeFade:'Fade In / Out', recipeWatermark:'Watermark', recipePip:'Picture in Picture', recipeBlurBackground:'背景ぼかし縦動画', recipeSpeed2x:'2倍速', recipeNormalize:'音量を整える', recipeResize720Desc:'横幅を最大1280pxへ縮小し、縦横比は維持します。小さい動画は拡大しません。', recipeSquareCropDesc:'入力動画の短辺に合わせ、中央を正方形にCropします。入力動画のサイズ情報が必要です。', recipeVerticalDesc:'1080×1920の縦キャンバスへ収まるよう縮小・拡大し、余白を追加します。', recipeRotateDesc:'映像を右へ90°回転します。Audioはそのまま保持します。', recipeFadeDesc:'映像とAudioの両方へ1秒のFade In / Outを追加します。終了位置を決めるため入力動画が必要です。', recipeWatermarkDesc:'右下へテキスト透かしを追加します。文字・色・位置はDraw Textノードで変更できます。', recipePipDesc:'同じ入力を2branchへ分け、小さいbranchを右下へ重ねます。Complex Graphの学習にも使えます。', recipeBlurBackgroundDesc:'同じ動画から背景branchを拡大・Crop・Blurし、前景branchを中央へ重ねて1080×1920へします。', recipeSpeed2xDesc:'映像を2倍速にし、Audioもatempoで同期します。', recipeNormalizeDesc:'映像はそのまま、Audioへloudnormを追加して音量を整えます。', recipeNeedsInput:'このRecipeは入力動画のサイズまたは長さを使います。先に動画を読み込んでください。', recipeApplied:'RecipeをGraphへ展開しました。', recipeLimitNote:'WatermarkはDraw Textによるテキスト透かし、Picture in Pictureは同じ入力動画のbranchを重ねる構成です。別画像・別動画を使うMultiple Inputは今後の対応です。',
           saveGraph:'Graph JSONを保存', loadGraph:'Graph JSONを開く', graphSaved:'Graph JSONを保存しました。', graphLoaded:'Graph JSONを読み込みました。動画ファイルは別途読み込んでください。', graphLoadFailed:'Graph JSONを読み込めませんでした。ファイル内容を確認してください。', autosaveLabel:'自動保存', autosaveLocal:'この端末内',
 
-          paletteTitle:'フィルター', paletteBody:'選択ノードの後ろへ追加します。', videoFilters:'Video filters', textFilters:'Text', complexFilters:'Complex graph', audioFilters:'Audio filters', drawTextDesc:'動画に文字を重ねる', audioTrimDesc:'音声の時間範囲を切り出す', volumeDesc:'音量をdBで調整する', audioFadeDesc:'音声をフェードイン・アウト', audioSpeedDesc:'音声の再生速度を変える', highpassDesc:'低い周波数を抑える', lowpassDesc:'高い周波数を抑える', normalizeDesc:'ラウドネスを整える', audioSplitDesc:'音声を2つのbranchへ分ける', audioMixDesc:'2つの音声branchをmixする', splitDesc:'映像を2つのbranchへ分ける', overlayDesc:'2つのbranchを重ねて合流する', trimDesc:'時間範囲を切り出す', speedDesc:'動画の再生速度を変える', fpsDesc:'フレームレートを揃える', cropDesc:'画面の一部を切り出す', scaleDesc:'出力サイズを変更する', padDesc:'余白を追加する', rotateDesc:'90° / 180°回転する', flipDesc:'左右・上下を反転する', aspectDesc:'表示アスペクト比を指定する', colorDesc:'明るさ・コントラスト・彩度を調整', hueDesc:'色相と彩度を調整する', blurDesc:'映像をぼかす', sharpenDesc:'輪郭をくっきりさせる', fadeDesc:'フェードイン・アウト', historyTitle:'Graph操作', undo:'元に戻す', redo:'やり直す', sampleGraph:'Split + Overlay', sampleAudioGraph:'Audio Mix', resetGraph:'初期化', runtimeLabel:'Runtime',
-          graphTitle:'Graph Canvas', graphBody:'ポートをクリックして接続を変更できます。', graphChecking:'Graphを確認中', graphValid:'Graphは有効です', graphInvalid:'Graphに問題があります', connectHint:'出力ポートを押すと接続を開始します。', connectFrom:'接続先のVideo入力ポートを選んでください。', connectFromAudio:'接続先のAudio入力ポートを選んでください。', disconnectInput:'入力を切断', graphAriaLabel:'FFmpeg filter graph canvas',
-          inspectorTitle:'ノード設定', inspectorBody:'選択中のノードを編集します。', selectNode:'Graph上のノードを選択してください。', deleteNode:'ノードを削除', inputNode:'Input', outputNode:'Output', videoPort:'Video', audioPort:'Audio',
+          paletteTitle:'フィルター', paletteBody:'選択ノードの後ろへ追加します。', filterSearchPlaceholder:'フィルターを検索', filterSearchEmpty:'一致するフィルターがありません。', clearSearch:'検索をクリア', videoFilters:'Video filters', textFilters:'Text', complexFilters:'Complex graph', audioFilters:'Audio filters', drawTextDesc:'動画に文字を重ねる', audioTrimDesc:'音声の時間範囲を切り出す', volumeDesc:'音量をdBで調整する', audioFadeDesc:'音声をフェードイン・アウト', audioSpeedDesc:'音声の再生速度を変える', highpassDesc:'低い周波数を抑える', lowpassDesc:'高い周波数を抑える', normalizeDesc:'ラウドネスを整える', audioSplitDesc:'音声を2つのbranchへ分ける', audioMixDesc:'2つの音声branchをmixする', splitDesc:'映像を2つのbranchへ分ける', overlayDesc:'2つのbranchを重ねて合流する', trimDesc:'時間範囲を切り出す', speedDesc:'動画の再生速度を変える', fpsDesc:'フレームレートを揃える', cropDesc:'画面の一部を切り出す', scaleDesc:'出力サイズを変更する', padDesc:'余白を追加する', rotateDesc:'90° / 180°回転する', flipDesc:'左右・上下を反転する', aspectDesc:'表示アスペクト比を指定する', colorDesc:'明るさ・コントラスト・彩度を調整', hueDesc:'色相と彩度を調整する', blurDesc:'映像をぼかす', sharpenDesc:'輪郭をくっきりさせる', fadeDesc:'フェードイン・アウト', historyTitle:'Graph操作', graphActions:'Graph操作', graphActionsBody:'保存・読み込み・初期化をまとめています。', resetLabel:'Graph', undo:'元に戻す', redo:'やり直す', resetGraph:'初期化', resetConfirmTitle:'Graphを初期化しますか？', resetConfirmMessage:'現在のGraphを初期状態へ戻します。この操作は実行後に元に戻せます。', resetConfirmAction:'初期化する', cancel:'キャンセル', runtimeLabel:'Runtime',
+          graphTitle:'Graph Canvas', toggleMinimap:'MiniMapを表示/非表示', minimapTitle:'Graph MiniMap', graphBody:'Canvasを移動・拡大しながら、処理の流れを編集できます。', fitGraph:'全体表示', expandGraphCanvas:'Graph Canvasを浮かせて拡大', restoreGraphCanvas:'拡大表示を閉じる', zoomOut:'縮小', zoomReset:'100%に戻す', zoomIn:'拡大', graphChecking:'Graphを確認中', graphValid:'Graphは有効です', graphInvalid:'Graphに問題があります', connectHint:'ポートから反対側のポートへドラッグして接続します。', connectFrom:'接続できるVideoポートへ線をドロップしてください。', connectFromAudio:'接続できるAudioポートへ線をドロップしてください。', disconnectInput:'入力を切断', graphAriaLabel:'FFmpeg filter graph canvas', togglePalette:'フィルターを表示', closePalette:'フィルターを閉じる', toggleInspector:'ノード設定を表示', closeInspector:'ノード設定を閉じる',
+          inspectorTitle:'ノード設定', inspectorBody:'選択中のノードを編集します。', selectNode:'Graph上のノードを選択してください。', selectedNodes:'{count}個のNodeを選択中', deleteNode:'ノードを削除', inputNode:'Input', outputNode:'Output', videoPort:'Video', audioPort:'Audio',
           dropTitle:'MP4をここにドロップ', dropSub:'またはクリックしてファイルを選択', removeFile:'ファイルを外す', noFile:'動画が未選択です。', inputInfo:'入力ファイル',
           advancedOptions:'詳細設定', compiledFilter:'生成されるfilter', filterHelp:'このノードはFFmpegのvideo filterへ変換されます。', trimStart:'開始', trimDuration:'長さ', trimHelp:'trim + setptsを生成します。Builder v1.9.8ではDesktop commandとBrowser Previewの両方で利用できます。', speedRate:'速度', speedHelp:'映像のPTSを変更します。「音声も同期」がONなら同じ倍率のatempoをAudio chainへ自動適用します。', speedSyncAudio:'音声も同期する', fpsValue:'FPS', fpsHelp:'一定フレームレートへ変換します。', scaleWidth:'出力幅', scaleHint:'高さは縦横比を維持して自動計算', cropWidth:'幅', cropHeight:'高さ', cropX:'X', cropY:'Y', cropHint:'H.264出力のため幅・高さは偶数にしてください。', padWidth:'出力幅', padHeight:'出力高さ', padX:'左余白', padY:'上余白', padColor:'余白色', padHelp:'入力映像より大きいキャンバスへ配置します。', rotateMode:'回転方向', rotateClock:'右へ90°', rotateCounter:'左へ90°', rotate180:'180°', flipMode:'反転方向', flipHorizontal:'左右反転', flipVertical:'上下反転', aspectNumerator:'横', aspectDenominator:'縦', aspectHelp:'ピクセル数は変えず、表示アスペクト比だけを指定します。', brightness:'明るさ', contrast:'コントラスト', saturation:'彩度', gamma:'ガンマ', colorHelp:'eq filterで基本的な色調整を行います。', hueDegrees:'色相', hueSaturation:'彩度倍率', hueHelp:'色相を-180°〜180°で回転します。', blurSigma:'ぼかし強度', blurHelp:'Gaussian blurを適用します。', sharpenAmount:'シャープ強度', sharpenHelp:'unsharp filterを使います。0で変化なしです。', fadeMode:'種類', fadeIn:'フェードイン', fadeOut:'フェードアウト', fadeStart:'開始', fadeDuration:'長さ', fadeHelp:'指定時刻から映像をフェードします。', drawTextText:'テキスト', drawTextFontSize:'文字サイズ', drawTextColor:'文字色', drawTextPosition:'位置', drawTextTopLeft:'左上', drawTextTopCenter:'上中央', drawTextTopRight:'右上', drawTextCenter:'中央', drawTextBottomLeft:'左下', drawTextBottomCenter:'下中央', drawTextBottomRight:'右下', drawTextCustom:'カスタム', drawTextCustomX:'X', drawTextCustomY:'Y', drawTextBackground:'背景を表示', drawTextBackgroundColor:'背景色', drawTextBackgroundOpacity:'背景の不透明度', drawTextBoxPadding:'背景の余白', drawTextStart:'表示開始', drawTextEnd:'表示終了', drawTextFontInfo:'標準フォント M PLUS 1p を単一HTMLへ埋め込みます。日本語・英語を完全ローカルで描画します。', drawTextHelp:'drawtextで文字を重ねます。表示時刻は動画タイムライン基準です。', splitHelp:'A / Bの2つの出力portへ同じ映像を複製します。両branchを後段で合流させてください。', overlayX:'横位置', overlayY:'縦位置', overlayTopLeft:'左上', overlayCenter:'中央', overlayBottomRight:'右下', overlayHelp:'MAINを背景、OVERを前景として重ねます。前景branchはScaleで小さくするとPicture in Pictureにできます。', complexConnectionInfo:'SplitはA/Bの出力、OverlayはMAIN/OVERの入力を使います。各portは1本だけ接続できます。', audioConnectionInfo:'ひし形のAudio port同士を接続します。AudioとVideoは相互接続できません。', audioTrimHelp:'atrim + asetptsで音声の時間範囲を切り出します。', volumeDb:'音量', volumeHelp:'-30 dB〜+12 dBで調整します。', audioFadeHelp:'afadeで音声をフェードします。', audioSpeedHelp:'atempoを使います。0.25×〜4×は必要に応じて複数filterへ自動分割します。', frequency:'周波数', highpassHelp:'指定Hzより低い帯域を抑えます。', lowpassHelp:'指定Hzより高い帯域を抑えます。', normalizeTarget:'目標ラウドネス', normalizeHelp:'loudnormでラウドネスを整えます。Preview用の1-pass処理です。', audioSplitHelp:'同じAudioをA/Bの2branchへ複製します。', audioMixHelp:'A/Bをamixで合流します。各input volumeも個別に設定できます。', mixNormalize:'Mix時にnormalizeする', outputInfo:'H.264 / AAC のMP4として出力します。', connectionInfo:'左右の丸いポートでVideo streamを接続します。Split / Overlay以外は1入力・1出力です。',
           previewTitle:'Preview Engine / Compiler', previewBody:'同じGraphからcommandを生成し、実FFmpegで繰り返し確認します。', previewEmptyTitle:'まだプレビューはありません', previewEmptyBody:'Inputに動画を読み込み、Graphが有効な状態で「プレビューを更新」を押してください。', processing:'FFmpegで処理しています', previewStale:'更新前のプレビュー', previewStartLabel:'開始位置', previewDurationLabel:'確認する長さ', previewWindowHint:'FFmpeg処理範囲', secondsUnit:'秒', graphHashLabel:'Graph hash', previewCacheLabel:'Preview cache', previewErrorTitle:'プレビューできませんでした', previewNote:'Builder v1.9.8で選択したPreview範囲だけをFFmpeg WASMで処理します。時間に依存するFilterを含むGraphでは意味を保つため先頭から必要範囲までを処理します。',
@@ -1278,8 +1469,8 @@
           fullRenderTitle:'動画を書き出す', fullRenderBody:'Previewで確認した同じGraphを、入力動画の最後までFFmpeg WASMで処理します。', outputSettings:'出力設定', outputFilename:'ファイル名', outputSize:'出力サイズ', fullRenderWaiting:'動画と有効なGraphを用意してください。', fullRenderReady:'動画全体を書き出せます。', fullRenderRendering:'動画全体を書き出しています…', fullRenderDone:'書き出しが完了しました。保存できます。', fullRenderCancelled:'書き出しを中止しました。GraphとInputは保持されています。', fullRenderFailed:'書き出しに失敗しました。FFmpegログを確認してください。', fullRenderButton:'動画を書き出す', saveOutputButton:'保存', outputSaved:'動画を保存しました。', fullRenderNote:'標準版はfile://でも利用できます。高速版はSharedArrayBufferを使うため、COOP / COEPを設定したHTTP(S)配信が必要です。長い動画では端末メモリを多く使います。', renderResult:'書き出し結果', fullRenderEmpty:'書き出しが完了すると、ここで結果を確認して保存できます。',
 
           metricInput:'入力', metricOutput:'出力', metricRuntimeLoad:'Runtime読込', metricRender:'Render', logTitle:'FFmpegログ', logEmpty:'まだログはありません。', runtimeDetails:'Runtime / Build情報', appVersion:'App version', threadMode:'Thread mode', isolation:'crossOriginIsolated', filters:'Filters', codecs:'Encoders', workerCount:'pthread pool', builtAt:'Built at', thirdPartyLicenses:'サードパーティライセンス', fontLicenseNote:'Draw Textで使う標準フォントのライセンス本文です。フォントと一緒に単一HTMLへ含まれています。', footer:'FFmpeg runtimeを含む完全な単一HTML',
-          helpBasicsTitle:'基本操作', helpStep1:'Inputノードを選び、MP4動画を読み込みます。読み込んだファイルは外部へ送信されません。', helpStep2:'「かんたんレシピ」からやりたい処理を選び、「Graphへ展開」を押します。', helpStep3:'必要なら展開されたノードを編集し、「プレビューを更新」で結果を確認します。', helpStep4:'問題なければ「動画を書き出す」で動画全体へ同じGraphを適用し、完了後に保存します。', helpGraphTitle:'Graphの制約', helpGraph1:'v0.8.0はVideo / Audio / Textの型付きGraphをRecipeから生成し、同じGraphをPreviewとFull Renderに使います。', helpGraph2:'Cycle、未接続branch、1つのportへの複数接続は拒否します。', helpGraph3:'SplitのA/BとOverlayのMAIN/OVERを使ってbranchを明示的に接続します。', helpRuntimeTitle:'標準版と高速版', helpRuntimeSt:'index.html はsingle-thread版です。保存したHTMLを file:// から直接開く用途を正式サポートします。', helpRuntimeMt:'index.mt.html はmulti-thread版です。SharedArrayBufferを使うため、COOP / COEPを付けたHTTP(S)配信が必要です。', helpPrivacyTitle:'プライバシー', helpPrivacyBody:'動画・Graph・テキスト・設定・生成結果はブラウザー内だけで処理します。FFmpeg runtimeと標準フォントもHTMLへ埋め込まれ、実行時にGitHub・Google Fonts・CDNへアクセスしません。', helpNotesTitle:'v0.8.0の範囲', helpNote1:'Recipeはブラックボックスではなく実際のノードへ展開します。Graph JSONとして保存・再読込でき、Graphだけはこの端末内へ自動保存します。動画ファイル自体は保存しません。', helpNote2:'Full RenderはPreviewと同じGraphを動画全体へ適用し、H.264 / AAC MP4としてブラウザー内で生成します。生成結果は明示的に保存できます。', helpNote3:'大きな動画はブラウザーのメモリ制限や端末性能により処理できない場合があります。', helpOffline:'標準版はネットワークを切った状態でも、Graph編集・コンパイル・Preview・Full Render・保存まで利用できます。',
-          fileReady:'動画を読み込みました。Graphを編集してプレビューできます。', runtimePreparing:'内蔵FFmpegを準備しています…', rendering:'GraphをFFmpegでプレビューしています…', done:'プレビューを生成しました。', cacheHit:'同じGraphのキャッシュを再利用しました。', cacheReady:'キャッシュあり', cacheMiss:'未作成', cacheReused:'再利用', cacheStored:'保存済み', staleState:'要更新', cancelled:'処理を中止しました。GraphとInputは保持されています。', failed:'処理できませんでした。FFmpegログを確認してください。', copied:'コピーしました。', errorMemoryFriendly:'端末のメモリが不足した可能性があります。短い動画や小さい解像度で試してください。', errorCodecFriendly:'この動画のコーデックを現在のFFmpeg runtimeで読み込めません。', errorFilterFriendly:'GraphのフィルターをFFmpegで初期化できませんでした。設定値を確認してください。', errorEncoderFriendly:'H.264エンコーダーを開始できませんでした。FFmpegログを確認してください。', errorRuntimeFriendly:'FFmpeg runtimeを開始できませんでした。標準版 / 高速版の実行条件を確認してください。', errorGenericFriendly:'FFmpeg処理に失敗しました。詳細はFFmpegログを確認してください。', unsupportedFile:'MP4動画を選択してください。', changed:'Graphが変わりました。プレビューを更新してください。', invalidScale:'Scale幅は160〜3840の偶数で指定してください。', invalidCrop:'Cropの幅・高さは2以上の偶数、X/Yは0以上の整数で指定してください。', cycleRejected:'Cycleになる接続は作成できません。', selfConnection:'同じノードには接続できません。', connectionReplaced:'接続を変更しました。', nodeAdded:'ノードを追加しました。', nodeDeleted:'ノードを削除しました。', disconnected:'入力を切断しました。', undoDone:'元に戻しました。', redoDone:'やり直しました。', resetDone:'Graphを初期化しました。', sampleDone:'Input → Crop → Scale → Output を作成しました。', sampleComplexDone:'Split → Blur / Scale → Overlay のサンプルGraphを作成しました。', sampleAudioDone:'Audio Split → Volume / High-pass → Audio Mix のサンプルGraphを作成しました。', portTypeMismatch:'VideoとAudioのportは接続できません。', graphCompileFailed:'Graphを修正してください。', inputRequired:'Inputに動画を読み込んでください。', unknownNode:'未対応のノードです。',
+          helpBasicsTitle:'基本操作', helpStep1:'Inputノードを選び、MP4動画を読み込みます。読み込んだファイルは外部へ送信されません。', helpStep2:'Graph Toolbarの「Recipe」からやりたい処理を選び、「Graphへ展開」を押します。', helpStep3:'必要なら展開されたノードを編集し、「プレビューを更新」で結果を確認します。', helpStep4:'問題なければ「動画を書き出す」で動画全体へ同じGraphを適用し、完了後に保存します。', helpGraphTitle:'Graphの制約', helpGraph1:'Video / Audio / Textの型付きGraphをRecipeまたはNodeから作り、同じGraphをPreviewとFull Renderに使います。', helpGraph2:'Cycle、未接続branch、1つのportへの複数接続は拒否します。', helpGraph3:'SplitのA/BとOverlayのMAIN/OVERを使ってbranchを明示的に接続します。', helpRuntimeTitle:'標準版と高速版', helpRuntimeSt:'index.html はsingle-thread版です。保存したHTMLを file:// から直接開く用途を正式サポートします。', helpRuntimeMt:'index.mt.html はmulti-thread版です。SharedArrayBufferを使うため、COOP / COEPを付けたHTTP(S)配信が必要です。', helpPrivacyTitle:'プライバシー', helpPrivacyBody:'動画・Graph・テキスト・設定・生成結果はブラウザー内だけで処理します。FFmpeg runtimeと標準フォントもHTMLへ埋め込まれ、実行時にGitHub・Google Fonts・CDNへアクセスしません。', helpNotesTitle:'現在の範囲', helpNote1:'Recipeはブラックボックスではなく実際のノードへ展開します。Graph JSONとして保存・再読込でき、Graphだけはこの端末内へ自動保存します。動画ファイル自体は保存しません。', helpNote2:'Full RenderはPreviewと同じGraphを動画全体へ適用し、H.264 / AAC MP4としてブラウザー内で生成します。生成結果は明示的に保存できます。', helpNote3:'大きな動画はブラウザーのメモリ制限や端末性能により処理できない場合があります。', helpOffline:'標準版はネットワークを切った状態でも、Graph編集・コンパイル・Preview・Full Render・保存まで利用できます。',
+          fileReady:'動画を読み込みました。Graphを編集してプレビューできます。', runtimePreparing:'内蔵FFmpegを準備しています…', rendering:'GraphをFFmpegでプレビューしています…', done:'プレビューを生成しました。', cacheHit:'同じGraphのキャッシュを再利用しました。', cacheReady:'キャッシュあり', cacheMiss:'未作成', cacheReused:'再利用', cacheStored:'保存済み', staleState:'要更新', cancelled:'処理を中止しました。GraphとInputは保持されています。', failed:'処理できませんでした。FFmpegログを確認してください。', copied:'コピーしました。', errorMemoryFriendly:'端末のメモリが不足した可能性があります。短い動画や小さい解像度で試してください。', errorCodecFriendly:'この動画のコーデックを現在のFFmpeg runtimeで読み込めません。', errorFilterFriendly:'GraphのフィルターをFFmpegで初期化できませんでした。設定値を確認してください。', errorEncoderFriendly:'H.264エンコーダーを開始できませんでした。FFmpegログを確認してください。', errorRuntimeFriendly:'FFmpeg runtimeを開始できませんでした。標準版 / 高速版の実行条件を確認してください。', errorGenericFriendly:'FFmpeg処理に失敗しました。詳細はFFmpegログを確認してください。', unsupportedFile:'MP4動画を選択してください。', changed:'Graphが変わりました。プレビューを更新してください。', invalidScale:'Scale幅は160〜3840の偶数で指定してください。', invalidCrop:'Cropの幅・高さは2以上の偶数、X/Yは0以上の整数で指定してください。', cycleRejected:'Cycleになる接続は作成できません。', selfConnection:'同じノードには接続できません。', connectionReplaced:'接続を変更しました。', nodeAdded:'ノードを追加しました。', nodeDeleted:'ノードを削除しました。', edgeDeleted:'接続を削除しました。', disconnected:'入力を切断しました。', undoDone:'元に戻しました。', redoDone:'やり直しました。', resetDone:'Graphを初期化しました。', sampleDone:'Input → Crop → Scale → Output を作成しました。', sampleComplexDone:'Split → Blur / Scale → Overlay のサンプルGraphを作成しました。', sampleAudioDone:'Audio Split → Volume / High-pass → Audio Mix のサンプルGraphを作成しました。', portTypeMismatch:'VideoとAudioのportは接続できません。', graphCompileFailed:'Graphを修正してください。', inputRequired:'Inputに動画を読み込んでください。', unknownNode:'未対応のノードです。',
           errorCycle:'Cycleがあります。', errorMissingInput:'必須inputが未接続です。', errorMissingOutput:'必須outputが未接続です。', errorMultipleInput:'1つのinput portへ複数接続されています。', errorMultipleOutput:'1つのoutput portから複数接続されています。', errorInvalidPort:'存在しないportへ接続されています。', errorPortTypeMismatch:'Video / Audioの型が一致しない接続があります。', errorDisconnected:'すべてのbranchがInputからOutputまで接続されていません。', errorInvalidParam:'ノード設定が不正です。', errorRuntimeFilterMissing:'このGraphには現在の内蔵FFmpegでPreviewできないフィルターがあります。Desktop commandは生成できます。'
         },
         en: {
@@ -1287,12 +1478,12 @@
           introTitle:'Build FFmpeg filters by connecting nodes', lead:'Build an editable Graph from a recipe or nodes, preview the result, and render the complete video.', localBadge:'Fully local processing',
           mtUnavailableTitle:'The high-speed build is unavailable in this environment.', mtUnavailableBody:'Use the standard build, or serve this file over HTTP(S) with COOP / COEP headers.',
           recoveryTitle:'A previous graph is available', recoveryBody:'Restore the graph from your previous session. Media files are never stored, so load the video again after restoring.', restoreRecovery:'Restore', discardRecovery:'Discard', recoveryRestored:'Previous graph restored. Load the video again to continue.', recoveryDiscarded:'Previous graph discarded.',
-          recipeTitle:'Quick recipes', recipeBody:'Choose a task and expand it into real graph nodes. Every node stays editable.', applyRecipe:'Build graph', recipeResize720:'Resize to 720p', recipeSquareCrop:'Square Crop', recipeVertical:'Vertical Video', recipeRotate:'Rotate 90°', recipeFade:'Fade In / Out', recipeWatermark:'Watermark', recipePip:'Picture in Picture', recipeBlurBackground:'Blur Background Vertical', recipeSpeed2x:'2x Speed', recipeNormalize:'Audio Normalize', recipeResize720Desc:'Reduce width to at most 1280 px while keeping aspect ratio. Smaller videos are not enlarged.', recipeSquareCropDesc:'Center-crop to a square using the shorter input dimension. Load the video first so its dimensions are known.', recipeVerticalDesc:'Fit the video inside a 1080×1920 canvas and add padding.', recipeRotateDesc:'Rotate video 90° clockwise while keeping audio unchanged.', recipeFadeDesc:'Add a one-second fade in and fade out to both video and audio. Load the video first so the end time is known.', recipeWatermarkDesc:'Add a text watermark at the bottom-right. Edit its text, color, and position in the Draw Text node.', recipePipDesc:'Split the same input into two branches and overlay a smaller branch at the bottom-right.', recipeBlurBackgroundDesc:'Create a 1080×1920 blurred background branch and overlay a fitted foreground branch in the center.', recipeSpeed2xDesc:'Run video at 2× speed and keep audio synchronized with atempo.', recipeNormalizeDesc:'Keep video unchanged and add loudnorm to the audio chain.', recipeNeedsInput:'This recipe needs the input dimensions or duration. Load a video first.', recipeApplied:'Recipe expanded into the graph.', recipeLimitNote:'In v0.8.0 Watermark is a Draw Text watermark, and Picture in Picture overlays a branch of the same input. Separate image/video inputs remain a future Multiple Input feature.',
+          recipeToolbar:'Recipe', recipeTitle:'Quick recipes', recipeBody:'Choose a task and expand it into real graph nodes. Every node stays editable.', applyRecipe:'Build graph', recipeResize720:'Resize to 720p', recipeSquareCrop:'Square Crop', recipeVertical:'Vertical Video', recipeRotate:'Rotate 90°', recipeFade:'Fade In / Out', recipeWatermark:'Watermark', recipePip:'Picture in Picture', recipeBlurBackground:'Blur Background Vertical', recipeSpeed2x:'2x Speed', recipeNormalize:'Audio Normalize', recipeResize720Desc:'Reduce width to at most 1280 px while keeping aspect ratio. Smaller videos are not enlarged.', recipeSquareCropDesc:'Center-crop to a square using the shorter input dimension. Load the video first so its dimensions are known.', recipeVerticalDesc:'Fit the video inside a 1080×1920 canvas and add padding.', recipeRotateDesc:'Rotate video 90° clockwise while keeping audio unchanged.', recipeFadeDesc:'Add a one-second fade in and fade out to both video and audio. Load the video first so the end time is known.', recipeWatermarkDesc:'Add a text watermark at the bottom-right. Edit its text, color, and position in the Draw Text node.', recipePipDesc:'Split the same input into two branches and overlay a smaller branch at the bottom-right.', recipeBlurBackgroundDesc:'Create a 1080×1920 blurred background branch and overlay a fitted foreground branch in the center.', recipeSpeed2xDesc:'Run video at 2× speed and keep audio synchronized with atempo.', recipeNormalizeDesc:'Keep video unchanged and add loudnorm to the audio chain.', recipeNeedsInput:'This recipe needs the input dimensions or duration. Load a video first.', recipeApplied:'Recipe expanded into the graph.', recipeLimitNote:'Watermark uses Draw Text, and Picture in Picture overlays a branch of the same input. Separate image/video inputs remain a future Multiple Input feature.',
           saveGraph:'Save Graph JSON', loadGraph:'Open Graph JSON', graphSaved:'Graph JSON saved.', graphLoaded:'Graph JSON loaded. Load the media file separately.', graphLoadFailed:'Could not load this Graph JSON. Check the file contents.', autosaveLabel:'Autosave', autosaveLocal:'On this device',
 
-          paletteTitle:'Filters', paletteBody:'Adds a node after the selected node.', videoFilters:'Video filters', textFilters:'Text', complexFilters:'Complex graph', audioFilters:'Audio filters', drawTextDesc:'動画に文字を重ねる', audioTrimDesc:'Keep an audio time range', volumeDesc:'Adjust volume in dB', audioFadeDesc:'Fade audio in or out', audioSpeedDesc:'Change audio playback speed', highpassDesc:'Reduce low frequencies', lowpassDesc:'Reduce high frequencies', normalizeDesc:'Normalize loudness', audioSplitDesc:'Split audio into two branches', audioMixDesc:'Mix two audio branches', splitDesc:'Split the video into two branches', overlayDesc:'Merge two branches with an overlay', trimDesc:'Keep a time range', speedDesc:'Change video playback speed', fpsDesc:'Normalize frame rate', cropDesc:'Crop part of the frame', scaleDesc:'Change output size', padDesc:'Add canvas padding', rotateDesc:'Rotate 90° / 180°', flipDesc:'Flip horizontally / vertically', aspectDesc:'Set display aspect ratio', colorDesc:'Adjust brightness, contrast and saturation', hueDesc:'Adjust hue and saturation', blurDesc:'Blur the video', sharpenDesc:'Sharpen edges', fadeDesc:'Fade in / out', historyTitle:'Graph tools', undo:'Undo', redo:'Redo', sampleGraph:'Split + Overlay', sampleAudioGraph:'Audio Mix', resetGraph:'Reset', runtimeLabel:'Runtime',
-          graphTitle:'Graph Canvas', graphBody:'Click ports to change connections.', graphChecking:'Checking graph', graphValid:'Graph is valid', graphInvalid:'Graph has issues', connectHint:'Click an output port to start a connection.', connectFrom:'Choose the destination Video input port.', connectFromAudio:'Choose the destination Audio input port.', disconnectInput:'Disconnect input', graphAriaLabel:'FFmpeg filter graph canvas',
-          inspectorTitle:'Node settings', inspectorBody:'Edit the selected node.', selectNode:'Select a node on the graph.', deleteNode:'Delete node', inputNode:'Input', outputNode:'Output', videoPort:'Video', audioPort:'Audio',
+          paletteTitle:'Filters', paletteBody:'Adds a node after the selected node.', filterSearchPlaceholder:'Search filters', filterSearchEmpty:'No matching filters.', clearSearch:'Clear search', videoFilters:'Video filters', textFilters:'Text', complexFilters:'Complex graph', audioFilters:'Audio filters', drawTextDesc:'動画に文字を重ねる', audioTrimDesc:'Keep an audio time range', volumeDesc:'Adjust volume in dB', audioFadeDesc:'Fade audio in or out', audioSpeedDesc:'Change audio playback speed', highpassDesc:'Reduce low frequencies', lowpassDesc:'Reduce high frequencies', normalizeDesc:'Normalize loudness', audioSplitDesc:'Split audio into two branches', audioMixDesc:'Mix two audio branches', splitDesc:'Split the video into two branches', overlayDesc:'Merge two branches with an overlay', trimDesc:'Keep a time range', speedDesc:'Change video playback speed', fpsDesc:'Normalize frame rate', cropDesc:'Crop part of the frame', scaleDesc:'Change output size', padDesc:'Add canvas padding', rotateDesc:'Rotate 90° / 180°', flipDesc:'Flip horizontally / vertically', aspectDesc:'Set display aspect ratio', colorDesc:'Adjust brightness, contrast and saturation', hueDesc:'Adjust hue and saturation', blurDesc:'Blur the video', sharpenDesc:'Sharpen edges', fadeDesc:'Fade in / out', historyTitle:'Graph tools', graphActions:'Graph tools', graphActionsBody:'Save, load, or reset the graph.', resetLabel:'Graph', undo:'Undo', redo:'Redo', resetGraph:'Reset', resetConfirmTitle:'Reset the graph?', resetConfirmMessage:'This returns the current graph to its initial state. You can undo the reset afterwards.', resetConfirmAction:'Reset graph', cancel:'Cancel', runtimeLabel:'Runtime',
+          graphTitle:'Graph Canvas', toggleMinimap:'Show or hide MiniMap', minimapTitle:'Graph MiniMap', graphBody:'Pan and zoom the canvas while editing the processing flow.', fitGraph:'Fit', expandGraphCanvas:'Float and enlarge Graph Canvas', restoreGraphCanvas:'Close enlarged view', zoomOut:'Zoom out', zoomReset:'Reset to 100%', zoomIn:'Zoom in', graphChecking:'Checking graph', graphValid:'Graph is valid', graphInvalid:'Graph has issues', connectHint:'Drag from either side to the opposite port to connect.', connectFrom:'Drop the wire on a compatible Video port.', connectFromAudio:'Drop the wire on a compatible Audio port.', disconnectInput:'Disconnect input', graphAriaLabel:'FFmpeg filter graph canvas', togglePalette:'Show filters', closePalette:'Close filters', toggleInspector:'Show node settings', closeInspector:'Close node settings',
+          inspectorTitle:'Node settings', inspectorBody:'Edit the selected node.', selectNode:'Select a node on the graph.', selectedNodes:'{count} nodes selected', deleteNode:'Delete node', inputNode:'Input', outputNode:'Output', videoPort:'Video', audioPort:'Audio',
           dropTitle:'Drop an MP4 here', dropSub:'or click to choose a file', removeFile:'Remove file', noFile:'No video selected.', inputInfo:'Input file',
           advancedOptions:'Advanced options', compiledFilter:'Compiled filter', filterHelp:'This node compiles to an FFmpeg video filter.', trimStart:'Start', trimDuration:'Duration', trimHelp:'Compiles to trim + setpts. Builder v1.9.8 supports it in both desktop commands and Browser Preview.', speedRate:'Speed', speedHelp:'Changes video PTS. When “Sync audio” is enabled, the matching atempo chain is applied automatically.', speedSyncAudio:'Sync audio', fpsValue:'FPS', fpsHelp:'Converts to a constant frame rate.', scaleWidth:'Output width', scaleHint:'Height is calculated automatically', cropWidth:'Width', cropHeight:'Height', cropX:'X', cropY:'Y', cropHint:'Use even width/height for H.264 output.', padWidth:'Output width', padHeight:'Output height', padX:'Left padding', padY:'Top padding', padColor:'Padding color', padHelp:'Places the input on a larger canvas.', rotateMode:'Rotation', rotateClock:'90° clockwise', rotateCounter:'90° counter-clockwise', rotate180:'180°', flipMode:'Flip direction', flipHorizontal:'Horizontal', flipVertical:'Vertical', aspectNumerator:'Width', aspectDenominator:'Height', aspectHelp:'Changes display aspect ratio without resizing pixels.', brightness:'Brightness', contrast:'Contrast', saturation:'Saturation', gamma:'Gamma', colorHelp:'Uses FFmpeg eq for basic color adjustment.', hueDegrees:'Hue', hueSaturation:'Saturation multiplier', hueHelp:'Rotates hue from -180° to 180°.', blurSigma:'Blur strength', blurHelp:'Applies Gaussian blur.', sharpenAmount:'Sharpen amount', sharpenHelp:'Uses the unsharp filter. Zero means no change.', fadeMode:'Type', fadeIn:'Fade in', fadeOut:'Fade out', fadeStart:'Start', fadeDuration:'Duration', fadeHelp:'Fades video from the specified time.', drawTextText:'Text', drawTextFontSize:'Font size', drawTextColor:'Text color', drawTextPosition:'Position', drawTextTopLeft:'Top-left', drawTextTopCenter:'Top-center', drawTextTopRight:'Top-right', drawTextCenter:'Center', drawTextBottomLeft:'Bottom-left', drawTextBottomCenter:'Bottom-center', drawTextBottomRight:'Bottom-right', drawTextCustom:'Custom', drawTextCustomX:'X', drawTextCustomY:'Y', drawTextBackground:'Show background', drawTextBackgroundColor:'Background color', drawTextBackgroundOpacity:'Background opacity', drawTextBoxPadding:'Background padding', drawTextStart:'Show from', drawTextEnd:'Show until', drawTextFontInfo:'The standard M PLUS 1p font is embedded in the standalone HTML for fully local Japanese and English rendering.', drawTextHelp:'Uses drawtext to overlay text. Visibility times use the video timeline.', splitHelp:'Duplicates the video to output ports A and B. Merge both branches later in the graph.', overlayX:'X position', overlayY:'Y position', overlayTopLeft:'Top-left', overlayCenter:'Center', overlayBottomRight:'Bottom-right', overlayHelp:'MAIN is the background and OVER is the foreground. Scale the foreground branch for picture-in-picture.', complexConnectionInfo:'Split uses A/B outputs and Overlay uses MAIN/OVER inputs. Each port accepts one edge.', audioConnectionInfo:'Connect diamond-shaped Audio ports to Audio ports. Video and Audio ports cannot be crossed.', audioTrimHelp:'Uses atrim + asetpts to keep an audio time range.', volumeDb:'Volume', volumeHelp:'Adjust from -30 dB to +12 dB.', audioFadeHelp:'Uses afade for audio fade-in/out.', audioSpeedHelp:'Uses atempo. Rates from 0.25× to 4× are split into safe atempo stages when needed.', frequency:'Frequency', highpassHelp:'Reduces frequencies below the selected cutoff.', lowpassHelp:'Reduces frequencies above the selected cutoff.', normalizeTarget:'Target loudness', normalizeHelp:'Uses loudnorm in a practical one-pass preview mode.', audioSplitHelp:'Duplicates the same Audio stream to A/B branches.', audioMixHelp:'Merges A/B with amix and allows per-input volume.', mixNormalize:'Normalize the mix', outputInfo:'Outputs an H.264 / AAC MP4.', connectionInfo:'Use the round ports to connect the Video stream. Nodes other than Split / Overlay use one input and one output.',
           previewTitle:'Preview Engine / Compiler', previewBody:'Compile the same graph and iterate with real FFmpeg previews.', previewEmptyTitle:'No preview yet', previewEmptyBody:'Load a video into Input and press “Update preview” when the graph is valid.', processing:'Processing with FFmpeg', previewStale:'Preview from previous settings', previewStartLabel:'Start', previewDurationLabel:'Preview length', previewWindowHint:'FFmpeg range', secondsUnit:'sec', graphHashLabel:'Graph hash', previewCacheLabel:'Preview cache', previewErrorTitle:'Preview failed', previewNote:'Builder v1.9.8 renders only the requested preview range. Graphs with timeline-sensitive filters process from the beginning through the required source range to preserve filter semantics.',
@@ -1300,8 +1491,8 @@
           fullRenderTitle:'Full Render', fullRenderBody:'Render the entire input with the same graph you verified in Preview.', outputSettings:'Output settings', outputFilename:'Filename', outputSize:'Output size', fullRenderWaiting:'Load a video and prepare a valid graph.', fullRenderReady:'The full video is ready to render.', fullRenderRendering:'Rendering the full video…', fullRenderDone:'Full render complete. You can save the result.', fullRenderCancelled:'Full render cancelled. Graph and input were kept.', fullRenderFailed:'Full render failed. Check the FFmpeg log.', fullRenderButton:'Render full video', saveOutputButton:'Save', outputSaved:'Video saved.', fullRenderNote:'The standard build also works from file://. The high-speed build requires HTTP(S) with COOP / COEP for SharedArrayBuffer. Long videos can use substantial device memory.', renderResult:'Render result', fullRenderEmpty:'After rendering, review the result here and save it.',
 
           metricInput:'Input', metricOutput:'Output', metricRuntimeLoad:'Runtime load', metricRender:'Render', logTitle:'FFmpeg log', logEmpty:'No log yet.', runtimeDetails:'Runtime / Build information', appVersion:'App version', threadMode:'Thread mode', isolation:'crossOriginIsolated', filters:'Filters', codecs:'Encoders', workerCount:'pthread pool', builtAt:'Built at', thirdPartyLicenses:'Third-party licenses', fontLicenseNote:'This is the license text for the standard font used by Draw Text. It is embedded in the single HTML together with the font.', footer:'One self-contained HTML including the FFmpeg runtime',
-          helpBasicsTitle:'Basics', helpStep1:'Select the Input node and load an MP4. The file is never uploaded.', helpStep2:'Choose a task under Easy Recipes and press “Expand to graph”.', helpStep3:'Optionally edit the generated nodes, then use “Update preview” to verify the result.', helpStep4:'When it looks right, use “Render full video” to apply the same graph to the complete input, then save the result.', helpGraphTitle:'Graph constraints', helpGraph1:'v0.8.0 generates typed Video / Audio / Text graphs from Recipes and uses the same graph for Preview and Full Render.', helpGraph2:'Cycles, disconnected branches, and multiple edges on one port are rejected.', helpGraph3:'Use Split A/B and Overlay MAIN/OVER to wire branches explicitly.', helpRuntimeTitle:'Standard and high-speed builds', helpRuntimeSt:'index.html is the single-thread build and formally supports direct file:// use.', helpRuntimeMt:'index.mt.html is the multi-thread build. SharedArrayBuffer requires HTTP(S) with COOP / COEP headers.', helpPrivacyTitle:'Privacy', helpPrivacyBody:'Videos, graphs, text, settings, and outputs stay inside the browser. The FFmpeg runtime and standard font are embedded, so the app does not fetch GitHub, Google Fonts, or CDN resources at runtime.', helpNotesTitle:'v0.8.0 scope', helpNote1:'Recipes expand into real nodes rather than hiding an opaque preset. Graph JSON can be saved/reopened, and only the graph is autosaved on this device; media files are never stored.', helpNote2:'Full Render applies the same graph used by Preview to the entire video, creates an H.264 / AAC MP4 locally, and saves it only after an explicit action.', helpNote3:'Large videos may fail because of browser memory or device limits.', helpOffline:'The standard build can edit, compile, preview, fully render, and save with the network disconnected.',
-          fileReady:'Video loaded. Edit the graph and update the preview.', runtimePreparing:'Preparing embedded FFmpeg…', rendering:'Rendering the graph with FFmpeg…', done:'Preview generated.', cacheHit:'Reused the cached preview for this graph.', cacheReady:'Available', cacheMiss:'Not rendered', cacheReused:'Reused', cacheStored:'Stored', staleState:'Update needed', cancelled:'Processing cancelled. Graph and input were kept.', failed:'Processing failed. Check the FFmpeg log.', copied:'Copied.', errorMemoryFriendly:'The device may be out of memory. Try a shorter video or a smaller output size.', errorCodecFriendly:'The current FFmpeg runtime cannot decode this video codec.', errorFilterFriendly:'FFmpeg could not initialize one of the graph filters. Check the node settings.', errorEncoderFriendly:'The H.264 encoder could not start. Check the FFmpeg log.', errorRuntimeFriendly:'The FFmpeg runtime could not start. Check the standard/high-speed runtime requirements.', errorGenericFriendly:'FFmpeg processing failed. See the full FFmpeg log for details.', unsupportedFile:'Choose an MP4 video.', changed:'Graph changed. Update the preview.', invalidScale:'Scale width must be an even number from 160 to 3840.', invalidCrop:'Crop width/height must be even numbers >= 2, with non-negative integer X/Y.', cycleRejected:'That connection would create a cycle.', selfConnection:'A node cannot connect to itself.', connectionReplaced:'Connection updated.', nodeAdded:'Node added.', nodeDeleted:'Node deleted.', disconnected:'Input disconnected.', undoDone:'Undone.', redoDone:'Redone.', resetDone:'Graph reset.', sampleDone:'Created Input → Crop → Scale → Output.', sampleComplexDone:'Created the Split → Blur / Scale → Overlay sample graph.', sampleAudioDone:'Created the Audio Split → Volume / High-pass → Audio Mix sample graph.', portTypeMismatch:'Video and Audio ports cannot be connected.', graphCompileFailed:'Fix the graph before previewing.', inputRequired:'Load a video into Input.', unknownNode:'Unsupported node.',
+          helpBasicsTitle:'Basics', helpStep1:'Select the Input node and load an MP4. The file is never uploaded.', helpStep2:'Choose a task from “Recipe” in the Graph toolbar and press “Build graph”.', helpStep3:'Optionally edit the generated nodes, then use “Update preview” to verify the result.', helpStep4:'When it looks right, use “Render full video” to apply the same graph to the complete input, then save the result.', helpGraphTitle:'Graph constraints', helpGraph1:'Build typed Video / Audio / Text graphs from Recipes or nodes and use the same graph for Preview and Full Render.', helpGraph2:'Cycles, disconnected branches, and multiple edges on one port are rejected.', helpGraph3:'Use Split A/B and Overlay MAIN/OVER to wire branches explicitly.', helpRuntimeTitle:'Standard and high-speed builds', helpRuntimeSt:'index.html is the single-thread build and formally supports direct file:// use.', helpRuntimeMt:'index.mt.html is the multi-thread build. SharedArrayBuffer requires HTTP(S) with COOP / COEP headers.', helpPrivacyTitle:'Privacy', helpPrivacyBody:'Videos, graphs, text, settings, and outputs stay inside the browser. The FFmpeg runtime and standard font are embedded, so the app does not fetch GitHub, Google Fonts, or CDN resources at runtime.', helpNotesTitle:'Current scope', helpNote1:'Recipes expand into real nodes rather than hiding an opaque preset. Graph JSON can be saved/reopened, and only the graph is autosaved on this device; media files are never stored.', helpNote2:'Full Render applies the same graph used by Preview to the entire video, creates an H.264 / AAC MP4 locally, and saves it only after an explicit action.', helpNote3:'Large videos may fail because of browser memory or device limits.', helpOffline:'The standard build can edit, compile, preview, fully render, and save with the network disconnected.',
+          fileReady:'Video loaded. Edit the graph and update the preview.', runtimePreparing:'Preparing embedded FFmpeg…', rendering:'Rendering the graph with FFmpeg…', done:'Preview generated.', cacheHit:'Reused the cached preview for this graph.', cacheReady:'Available', cacheMiss:'Not rendered', cacheReused:'Reused', cacheStored:'Stored', staleState:'Update needed', cancelled:'Processing cancelled. Graph and input were kept.', failed:'Processing failed. Check the FFmpeg log.', copied:'Copied.', errorMemoryFriendly:'The device may be out of memory. Try a shorter video or a smaller output size.', errorCodecFriendly:'The current FFmpeg runtime cannot decode this video codec.', errorFilterFriendly:'FFmpeg could not initialize one of the graph filters. Check the node settings.', errorEncoderFriendly:'The H.264 encoder could not start. Check the FFmpeg log.', errorRuntimeFriendly:'The FFmpeg runtime could not start. Check the standard/high-speed runtime requirements.', errorGenericFriendly:'FFmpeg processing failed. See the full FFmpeg log for details.', unsupportedFile:'Choose an MP4 video.', changed:'Graph changed. Update the preview.', invalidScale:'Scale width must be an even number from 160 to 3840.', invalidCrop:'Crop width/height must be even numbers >= 2, with non-negative integer X/Y.', cycleRejected:'That connection would create a cycle.', selfConnection:'A node cannot connect to itself.', connectionReplaced:'Connection updated.', nodeAdded:'Node added.', nodeDeleted:'Node deleted.', edgeDeleted:'Connection deleted.', disconnected:'Input disconnected.', undoDone:'Undone.', redoDone:'Redone.', resetDone:'Graph reset.', sampleDone:'Created Input → Crop → Scale → Output.', sampleComplexDone:'Created the Split → Blur / Scale → Overlay sample graph.', sampleAudioDone:'Created the Audio Split → Volume / High-pass → Audio Mix sample graph.', portTypeMismatch:'Video and Audio ports cannot be connected.', graphCompileFailed:'Fix the graph before previewing.', inputRequired:'Load a video into Input.', unknownNode:'Unsupported node.',
           errorCycle:'The graph contains a cycle.', errorMissingInput:'A required input is disconnected.', errorMissingOutput:'A required output is disconnected.', errorMultipleInput:'Multiple edges target one input port.', errorMultipleOutput:'Multiple edges leave one output port.', errorInvalidPort:'An edge targets an unknown port.', errorPortTypeMismatch:'A connection crosses incompatible Video / Audio port types.', errorDisconnected:'Every branch must be connected from Input through Output.', errorInvalidParam:'A node has invalid settings.', errorRuntimeFilterMissing:'This graph contains a filter that the bundled FFmpeg cannot preview yet. The desktop command is still available.'
         }
       };
@@ -1322,8 +1513,66 @@
         renderedPreviewStart:0, renderedPreviewDuration:5, previewPlaybackStart:0,
         previewCache:new Map(), previewCacheBytes:0, previewCacheState:'', fileToken:0, logEntries:[],
         renderKind:'', fullRenderBlob:null, fullRenderUrl:'', fullRenderHash:'', fullRenderMs:null,
-        outputFilename:'output.mp4', outputFilenameTouched:false, pendingRecovery:null, autosaveTimer:0
+        outputFilename:'output.mp4', outputFilenameTouched:false, pendingRecovery:null, autosaveTimer:0,
+        workspace:{viewport:{x:0,y:0,zoom:1},positions:{},initialized:false,fitQueued:false,graphWidth:650,graphHeight:420,pan:null,nodeDrag:null,marquee:null,connectionDrag:null,minimapVisible:true,minimapDrag:null,touchPoints:new Map(),pinch:null,suppressNodeClick:false,suppressPortClick:false}, selectedNodeIds:new Set(['input-1']), selectedEdgeId:''
       };
+      const GRAPH_ZOOM_MIN=.4;
+      const GRAPH_ZOOM_MAX=2;
+      const GRAPH_GRID_SIZE=20;
+      const GRAPH_NODE_WIDTH=218;
+      const GRAPH_NODE_HEIGHT=146;
+      const clampGraphZoom=value=>Math.max(GRAPH_ZOOM_MIN,Math.min(GRAPH_ZOOM_MAX,Number(value)||1));
+      const hasStoredGraphViewport=value=>Boolean(value&&Number.isFinite(Number(value.x))&&Number.isFinite(Number(value.y))&&Number.isFinite(Number(value.zoom)));
+      const normalizeGraphViewport=value=>({x:Number.isFinite(Number(value?.x))?Number(value.x):0,y:Number.isFinite(Number(value?.y))?Number(value.y):0,zoom:clampGraphZoom(value?.zoom)});
+      const graphViewportSnapshot=()=>normalizeGraphViewport(state.workspace.viewport);
+      function graphWorldToViewport(x,y,viewport=state.workspace.viewport){ const v=normalizeGraphViewport(viewport); return{x:v.x+Number(x)*v.zoom,y:v.y+Number(y)*v.zoom}; }
+      function graphViewportToWorld(x,y,viewport=state.workspace.viewport){ const v=normalizeGraphViewport(viewport); return{x:(Number(x)-v.x)/v.zoom,y:(Number(y)-v.y)/v.zoom}; }
+      function graphVisibleWorldRect(){ const scroll=$('#graphScroll'),v=normalizeGraphViewport(state.workspace.viewport); if(!scroll)return{x:0,y:0,width:0,height:0}; const topLeft=graphViewportToWorld(0,0,v); return{x:topLeft.x,y:topLeft.y,width:scroll.clientWidth/v.zoom,height:scroll.clientHeight/v.zoom}; }
+      function centerGraphOnWorldPoint(worldX,worldY,{persist=true}={}){ const scroll=$('#graphScroll'),zoom=state.workspace.viewport.zoom||1;if(!scroll)return;setGraphViewport({x:scroll.clientWidth/2-Number(worldX)*zoom,y:scroll.clientHeight/2-Number(worldY)*zoom},{persist}); }
+      function centerGraphOnNode(nodeId,{persist=true}={}){ const pos=state.workspace.positions[nodeId];if(!pos)return;centerGraphOnWorldPoint(pos.x+GRAPH_NODE_WIDTH/2,pos.y+GRAPH_NODE_HEIGHT/2,{persist}); }
+      function applyGraphViewport({persist=false}={}){
+        const scroll=$('#graphScroll'),canvas=$('#graphCanvas'),zoomLayer=$('#graphZoomLayer'); if(!scroll||!canvas||!zoomLayer)return; const viewport=normalizeGraphViewport(state.workspace.viewport); state.workspace.viewport=viewport;
+        canvas.style.transform=`translate(${viewport.x}px, ${viewport.y}px)`;
+        const crispZoom=typeof CSS!=='undefined'&&typeof CSS.supports==='function'&&CSS.supports('zoom','1');
+        if(crispZoom){ zoomLayer.style.zoom=String(viewport.zoom); zoomLayer.style.transform='none'; }
+        else { zoomLayer.style.zoom=''; zoomLayer.style.transform=`scale(${viewport.zoom})`; }
+        scroll.style.backgroundSize=`${GRAPH_GRID_SIZE*viewport.zoom}px ${GRAPH_GRID_SIZE*viewport.zoom}px`;
+        scroll.style.backgroundPosition=`${viewport.x}px ${viewport.y}px`;
+        const readout=$('#zoomResetButton'); if(readout)readout.textContent=`${Math.round(viewport.zoom*100)}%`;
+        renderMiniMap();
+        if(persist)scheduleAutosave();
+      }
+      function setGraphViewport(next,{persist=true}={}){ state.workspace.viewport=normalizeGraphViewport({...state.workspace.viewport,...next}); state.workspace.initialized=true; applyGraphViewport({persist}); }
+      function zoomGraphAt(nextZoom,clientX=null,clientY=null,{persist=true}={}){
+        const scroll=$('#graphScroll'); if(!scroll)return; const rect=scroll.getBoundingClientRect(),current=normalizeGraphViewport(state.workspace.viewport),target=clampGraphZoom(nextZoom); if(Math.abs(target-current.zoom)<.0001)return;
+        const px=clientX==null?rect.width/2:clientX-rect.left,py=clientY==null?rect.height/2:clientY-rect.top,world=graphViewportToWorld(px,py,current);
+        setGraphViewport({zoom:target,x:px-world.x*target,y:py-world.y*target},{persist});
+      }
+      function syncGraphSizeButton(){
+        const grid=$('.editor-grid'),button=$('#toggleGraphSizeButton'); if(!grid||!button)return;
+        const expanded=grid.classList.contains('graph-expanded'); document.body.classList.toggle('graph-workspace-floating',expanded); button.setAttribute('aria-pressed',String(expanded));
+        const label=t(expanded?'restoreGraphCanvas':'expandGraphCanvas'); button.title=label; button.setAttribute('aria-label',label);
+      }
+      function setGraphFloating(expanded){ const grid=$('.editor-grid'); if(!grid)return; grid.classList.toggle('graph-expanded',Boolean(expanded)); syncGraphSizeButton(); requestAnimationFrame(()=>applyGraphViewport()); }
+      function toggleGraphSize(){ const grid=$('.editor-grid'); if(!grid)return; setGraphFloating(!grid.classList.contains('graph-expanded')); }
+      function setMiniMapVisible(visible){ state.workspace.minimapVisible=Boolean(visible); const map=$('#graphMinimap'),button=$('#toggleMinimapButton'); if(map)map.hidden=!state.workspace.minimapVisible; if(button)button.setAttribute('aria-pressed',String(state.workspace.minimapVisible)); if(state.workspace.minimapVisible)requestAnimationFrame(renderMiniMap); }
+      function toggleMiniMap(){ setMiniMapVisible(!state.workspace.minimapVisible); }
+      function miniMapMetrics(){
+        const map=$('#graphMinimap'); if(!map||map.hidden)return null; const rect=map.getBoundingClientRect(); if(rect.width<32||rect.height<32)return null; const pad=8,gw=Math.max(1,state.workspace.graphWidth||650),gh=Math.max(1,state.workspace.graphHeight||420),scale=Math.max(.0001,Math.min((rect.width-pad*2)/gw,(rect.height-pad*2)/gh)),ox=(rect.width-gw*scale)/2,oy=(rect.height-gh*scale)/2; return{rect,pad,gw,gh,scale,ox,oy};
+      }
+      function miniMapWorldFromClient(clientX,clientY){ const m=miniMapMetrics(); if(!m)return null; const localX=clientX-m.rect.left,localY=clientY-m.rect.top; return{x:Math.max(0,Math.min(m.gw,(localX-m.ox)/m.scale)),y:Math.max(0,Math.min(m.gh,(localY-m.oy)/m.scale))}; }
+      function renderMiniMap(){
+        const metrics=miniMapMetrics(),nodes=$('#minimapNodes'),viewportEl=$('#minimapViewport'); if(!metrics||!nodes||!viewportEl)return; const {rect,scale,ox,oy}=metrics; const svg=$('#graphMinimapSvg'); if(svg)svg.setAttribute('viewBox',`0 0 ${rect.width} ${rect.height}`);
+        nodes.innerHTML=state.graph.nodes.map(node=>{const pos=state.workspace.positions[node.id];if(!pos)return '';const selected=state.selectedNodeIds.has(node.id),audio=nodePrimaryStreamType(node)===PORT_TYPES.AUDIO;return `<rect class="minimap-node${audio?' audio':''}${selected?' selected':''}" data-node-id="${escapeHtml(node.id)}" x="${(ox+pos.x*scale).toFixed(2)}" y="${(oy+pos.y*scale).toFixed(2)}" width="${Math.max(4,GRAPH_NODE_WIDTH*scale).toFixed(2)}" height="${Math.max(3,GRAPH_NODE_HEIGHT*scale).toFixed(2)}" rx="${Math.max(1,4*scale).toFixed(2)}"/>`;}).join('');
+        const visible=graphVisibleWorldRect(); viewportEl.setAttribute('x',String(ox+visible.x*scale));viewportEl.setAttribute('y',String(oy+visible.y*scale));viewportEl.setAttribute('width',String(Math.max(4,visible.width*scale)));viewportEl.setAttribute('height',String(Math.max(4,visible.height*scale)));
+      }
+      function centerGraphFromMiniMap(clientX,clientY,{persist=false,offsetX=0,offsetY=0}={}){ const world=miniMapWorldFromClient(clientX,clientY); if(!world)return; centerGraphOnWorldPoint(world.x-offsetX,world.y-offsetY,{persist}); }
+      function fitGraph({persist=true}={}){
+        const scroll=$('#graphScroll'); if(!scroll)return; const width=Math.max(1,state.workspace.graphWidth||650),height=Math.max(1,state.workspace.graphHeight||420),viewWidth=Math.max(1,scroll.clientWidth),viewHeight=Math.max(1,scroll.clientHeight),padding=Math.max(28,Math.min(72,Math.min(viewWidth,viewHeight)*.09));
+        const zoom=clampGraphZoom(Math.min((viewWidth-padding*2)/width,(viewHeight-padding*2)/height)); state.workspace.fitQueued=false;
+        setGraphViewport({zoom,x:(viewWidth-width*zoom)/2,y:(viewHeight-height*zoom)/2},{persist});
+      }
+      function queueInitialGraphFit(){ if(state.workspace.initialized||state.workspace.fitQueued)return; state.workspace.fitQueued=true; requestAnimationFrame(()=>{state.workspace.fitQueued=false;if(!state.workspace.initialized)fitGraph({persist:false});}); }
       const t = key => translations[state.language]?.[key] ?? translations.en[key] ?? key;
       const clone = value => JSON.parse(JSON.stringify(value));
       const escapeHtml = value => String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -1400,13 +1649,13 @@
 
       const EMBEDDED_RUNTIME_MANIFEST=JSON.parse(StandaloneAssets.text(RUNTIME_ASSET_ID,'manifest'));
       const RUNTIME_FILTER_SET=new Set(EMBEDDED_RUNTIME_MANIFEST.catalog?.filters||[]);
-      function projectEnvelope(graph=state.graph){ return {format:'ffmpeg-filter-builder-graph',formatVersion:1,appVersion:APP_CONFIG.version,savedAt:new Date().toISOString(),graph:clone(graph),outputFilename:sanitizeOutputFilename(state.outputFilename)}; }
+      function projectEnvelope(graph=state.graph){ return {format:'ffmpeg-filter-builder-graph',formatVersion:1,appVersion:APP_CONFIG.version,savedAt:new Date().toISOString(),graph:clone(graph),workspace:{viewport:graphViewportSnapshot(),positions:clone(state.workspace.positions||{})},outputFilename:sanitizeOutputFilename(state.outputFilename)}; }
       function saveAutosaveNow(){ if(!state.graph||state.pendingRecovery)return; writeStorage(PROJECT_STORAGE_KEY,JSON.stringify(projectEnvelope())); }
       function scheduleAutosave(){ if(state.pendingRecovery)return; clearTimeout(state.autosaveTimer); state.autosaveTimer=setTimeout(saveAutosaveNow,120); }
       function readStoredProject(){ try { const raw=readStorage(PROJECT_STORAGE_KEY); if(!raw)return null; const parsed=JSON.parse(raw); return parsed?.format==='ffmpeg-filter-builder-graph'&&parsed?.graph?parsed:null; } catch { return null; } }
       function nextNodeSequence(graph){ let max=2; for(const node of graph?.nodes||[]){ const m=String(node.id||'').match(/-(\d+)$/); if(m)max=Math.max(max,Number(m[1])||0); } return max+1; }
       function validateProjectGraph(graph){ if(!graph||Number(graph.schemaVersion)!==3||!Array.isArray(graph.nodes)||!Array.isArray(graph.edges))return false; if(graph.nodes.some(node=>!node?.id||!NODE_DEFS[node.type]))return false; const previous=state.graph; try { state.graph=clone(graph); return validateGraph().valid; } catch { return false; } finally { state.graph=previous; } }
-      function applyProjectEnvelope(project,{history=false}={}){ if(!project?.graph||!validateProjectGraph(project.graph))throw new Error('Invalid Graph JSON'); if(history)pushHistory(); state.graph=clone(project.graph); state.nextNodeSeq=nextNodeSequence(state.graph); state.selectedNodeId=state.graph.nodes.find(n=>n.type==='input')?.id||state.graph.nodes[0]?.id||''; state.pendingConnection=null; if(project.outputFilename){state.outputFilename=sanitizeOutputFilename(project.outputFilename);state.outputFilenameTouched=true;} markPreviewStale(); refreshGraph(); scheduleAutosave(); syncFullRenderUi(); }
+      function applyProjectEnvelope(project,{history=false}={}){ if(!project?.graph||!validateProjectGraph(project.graph))throw new Error('Invalid Graph JSON'); if(history)pushHistory(); state.graph=clone(project.graph); state.nextNodeSeq=nextNodeSequence(state.graph); state.selectedNodeId=state.graph.nodes.find(n=>n.type==='input')?.id||state.graph.nodes[0]?.id||''; state.pendingConnection=null; state.workspace.viewport=normalizeGraphViewport(project.workspace?.viewport); state.workspace.positions=clone(project.workspace?.positions||{}); state.workspace.initialized=hasStoredGraphViewport(project.workspace?.viewport); state.workspace.fitQueued=false; state.selectedNodeIds=new Set(state.selectedNodeId?[state.selectedNodeId]:[]); state.selectedEdgeId=''; if(project.outputFilename){state.outputFilename=sanitizeOutputFilename(project.outputFilename);state.outputFilenameTouched=true;} markPreviewStale(); refreshGraph(); scheduleAutosave(); syncFullRenderUi(); }
       function exportGraphProject(){ const blob=new Blob([JSON.stringify(projectEnvelope(),null,2)],{type:'application/json;charset=utf-8'}); const base=state.file?.name?state.file.name.replace(/\.[^.]+$/,''):'ffmpeg-filter-builder'; saveBlobDownload(blob,`${base}-graph.json`); showToast(t('graphSaved')); }
       async function importGraphProject(file){ if(!file)return; try { const parsed=JSON.parse(await file.text()); applyProjectEnvelope(parsed,{history:true}); showToast(t('graphLoaded')); } catch(error){ appendLog('app',`graph-import-error=${error?.message||error}`); showToast(t('graphLoadFailed')); } }
 
@@ -1441,6 +1690,19 @@
         audioMix:{title:'Audio Mix',kind:'audio-merge',inputPorts:['a','b'],outputPorts:['out'],inputPortTypes:{a:'audio',b:'audio'},outputPortTypes:{out:'audio'},runtimeFilters:['amix','volume']},
         output:{title:'Output',kind:'sink',inputPorts:['in','audio'],outputPorts:[],inputPortTypes:{in:'video',audio:'audio'},runtimeFilters:[]}
       });
+      const PALETTE_SEARCH_ALIASES = Object.freeze({
+        trim:{ja:'トリム 切り出し 時間 長さ',en:'trim cut clip range duration'}, speed:{ja:'速度 倍速 再生速度',en:'speed rate fast slow playback'}, fps:{ja:'フレームレート fps',en:'fps frame rate'}, scale:{ja:'拡大 縮小 リサイズ サイズ 解像度',en:'scale resize size resolution'}, crop:{ja:'切り抜き 切り出し クロップ',en:'crop cut frame'}, pad:{ja:'余白 キャンバス',en:'pad padding canvas'}, rotate:{ja:'回転 向き',en:'rotate rotation orientation'}, flip:{ja:'反転 左右 上下',en:'flip mirror horizontal vertical'}, aspect:{ja:'アスペクト比 縦横比',en:'aspect ratio dar'}, colorAdjust:{ja:'色 明るさ コントラスト 彩度 ガンマ',en:'color brightness contrast saturation gamma eq'}, hue:{ja:'色相 彩度',en:'hue saturation'}, blur:{ja:'ぼかし ブラー',en:'blur gaussian'}, sharpen:{ja:'シャープ 輪郭',en:'sharpen unsharp'}, fade:{ja:'フェード イン アウト',en:'fade in out'}, drawText:{ja:'文字 テキスト 字幕 テロップ',en:'text draw text title caption'}, split:{ja:'分岐 分ける スプリット',en:'split branch fork'}, overlay:{ja:'重ねる 合成 オーバーレイ',en:'overlay merge composite pip'}, audioTrim:{ja:'音声 トリム 切り出し',en:'audio trim cut range'}, volume:{ja:'音量 ボリューム db',en:'volume audio gain db'}, audioFade:{ja:'音声 フェード',en:'audio fade'}, audioSpeed:{ja:'音声 速度 倍速',en:'audio speed tempo'}, highpass:{ja:'ハイパス 低音 カット',en:'high pass highpass low frequency'}, lowpass:{ja:'ローパス 高音 カット',en:'low pass lowpass high frequency'}, normalize:{ja:'ノーマライズ 音量 ラウドネス',en:'normalize loudness loudnorm'}, audioSplit:{ja:'音声 分岐 分ける',en:'audio split branch'}, audioMix:{ja:'音声 ミックス 合流',en:'audio mix merge amix'}
+      });
+      let paletteSearchOpenState=null;
+      const normalizeSearch=value=>String(value||'').trim().toLocaleLowerCase();
+      function paletteSearchText(button){ const type=button?.dataset?.addNode||''; const aliases=PALETTE_SEARCH_ALIASES[type]||{}; return normalizeSearch([button?.textContent||'',NODE_DEFS[type]?.title||'',aliases.ja||'',aliases.en||''].join(' ')); }
+      function applyPaletteSearch(){
+        const input=$('#paletteSearchInput'); if(!input)return; const query=normalizeSearch(input.value),groups=[...document.querySelectorAll('.palette-panel .palette-disclosure')]; let visible=0;
+        if(query&&!paletteSearchOpenState)paletteSearchOpenState=new Map(groups.map(group=>[group,group.open]));
+        for(const group of groups){ const buttons=[...group.querySelectorAll('[data-add-node]')]; let groupVisible=0; for(const button of buttons){ const match=!query||paletteSearchText(button).includes(query); button.hidden=!match; if(match){groupVisible++;visible++;} } group.hidden=groupVisible===0; if(query&&groupVisible)group.open=true; }
+        if(!query&&paletteSearchOpenState){ for(const [group,open] of paletteSearchOpenState.entries())group.open=open; paletteSearchOpenState=null; }
+        const empty=$('#paletteSearchEmpty'); if(empty)empty.hidden=visible>0; const clear=$('#clearPaletteSearchButton'); if(clear)clear.hidden=!query;
+      }
       const nodeInputPorts=node=>NODE_DEFS[node?.type]?.inputPorts||[];
       const nodeOutputPorts=node=>NODE_DEFS[node?.type]?.outputPorts||[];
       const edgeFromPort=edge=>edge.fromPort||'out';
@@ -1459,12 +1721,12 @@
       const TIMELINE_SENSITIVE_NODE_TYPES=new Set(['trim','speed','fade','drawText','audioTrim','audioFade','audioSpeed']);
       function defaultGraph(){ return {schemaVersion:3,nodes:[{id:'input-1',type:'input',params:{}},{id:'scale-1',type:'scale',params:{width:640}},{id:'output-1',type:'output',params:{}}],edges:[{id:'edge-1',from:'input-1',fromPort:'out',to:'scale-1',toPort:'in',type:'video'},{id:'edge-2',from:'scale-1',fromPort:'out',to:'output-1',toPort:'in',type:'video'},{id:'edge-audio-1',from:'input-1',fromPort:'audio',to:'output-1',toPort:'audio',type:'audio'}]}; }
       state.graph=defaultGraph();
-      function snapshot(){ return {graph:clone(state.graph),selectedNodeId:state.selectedNodeId,nextNodeSeq:state.nextNodeSeq}; }
-      function restoreSnapshot(snap){ state.graph=clone(snap.graph); state.selectedNodeId=snap.selectedNodeId; state.nextNodeSeq=snap.nextNodeSeq; state.pendingConnection=null; markPreviewStale(false); refreshGraph(); scheduleAutosave(); }
+      function snapshot(){ return {graph:clone(state.graph),selectedNodeId:state.selectedNodeId,selectedNodeIds:[...state.selectedNodeIds],selectedEdgeId:state.selectedEdgeId,nextNodeSeq:state.nextNodeSeq,positions:clone(state.workspace.positions||{})}; }
+      function restoreSnapshot(snap){ const graphChanged=JSON.stringify(state.graph)!==JSON.stringify(snap.graph); state.graph=clone(snap.graph); state.selectedNodeId=snap.selectedNodeId; state.selectedNodeIds=new Set((snap.selectedNodeIds||[]).filter(id=>state.graph.nodes.some(node=>node.id===id))); if(!state.selectedNodeIds.size&&state.selectedNodeId)state.selectedNodeIds.add(state.selectedNodeId); state.selectedEdgeId=state.graph.edges.some(edge=>edge.id===snap.selectedEdgeId)?snap.selectedEdgeId:''; state.nextNodeSeq=snap.nextNodeSeq; state.workspace.positions=clone(snap.positions||{}); state.pendingConnection=null; if(graphChanged)markPreviewStale(false); refreshGraph(); scheduleAutosave(); }
       function pushHistory(){ state.history.past.push(snapshot()); if(state.history.past.length>60) state.history.past.shift(); state.history.future=[]; updateHistoryButtons(); scheduleAutosave(); }
       function undo(){ if(!state.history.past.length||state.rendering) return; state.history.future.push(snapshot()); const snap=state.history.past.pop(); restoreSnapshot(snap); showToast(t('undoDone')); }
       function redo(){ if(!state.history.future.length||state.rendering) return; state.history.past.push(snapshot()); const snap=state.history.future.pop(); restoreSnapshot(snap); showToast(t('redoDone')); }
-      function updateHistoryButtons(){ state.history && ($('#undoButton').disabled=!state.history.past.length||state.rendering); state.history && ($('#redoButton').disabled=!state.history.future.length||state.rendering); document.querySelectorAll('[data-add-node]').forEach(b=>b.disabled=state.rendering||!runtimeSupportsNodeType(b.dataset.addNode)); $('#resetGraphButton').disabled=state.rendering; $('#sampleGraphButton').disabled=state.rendering; const audioSample=$('#sampleAudioButton'); if(audioSample)audioSample.disabled=state.rendering; if($('#applyRecipeButton'))$('#applyRecipeButton').disabled=state.rendering; if($('#saveGraphButton'))$('#saveGraphButton').disabled=state.rendering; if($('#loadGraphButton'))$('#loadGraphButton').disabled=state.rendering; }
+      function updateHistoryButtons(){ state.history && ($('#undoButton').disabled=!state.history.past.length||state.rendering); state.history && ($('#redoButton').disabled=!state.history.future.length||state.rendering); document.querySelectorAll('[data-add-node]').forEach(b=>b.disabled=state.rendering||!runtimeSupportsNodeType(b.dataset.addNode)); $('#resetGraphButton').disabled=state.rendering; if($('#applyRecipeButton'))$('#applyRecipeButton').disabled=state.rendering; if($('#saveGraphButton'))$('#saveGraphButton').disabled=state.rendering; if($('#loadGraphButton'))$('#loadGraphButton').disabled=state.rendering; }
       const nodeById = id => state.graph.nodes.find(node=>node.id===id) || null;
       const incomingEdges = (id,port=null) => state.graph.edges.filter(edge=>edge.to===id&&(port===null||edgeToPort(edge)===port));
       const outgoingEdges = (id,port=null) => state.graph.edges.filter(edge=>edge.from===id&&(port===null||edgeFromPort(edge)===port));
@@ -1535,7 +1797,7 @@
         throw new Error(`Unknown recipe: ${recipeId}`);
       }
       function syncRecipeUi(){ const id=$('#recipeSelect')?.value||'resize720',def=RECIPE_DEFS[id]; if($('#recipeDescription'))$('#recipeDescription').textContent=def?t(def.descKey):''; }
-      function applyRecipe(recipeId=$('#recipeSelect')?.value){ const def=RECIPE_DEFS[recipeId]; if(!def||state.rendering)return; if(def.requiresInput&&!state.file){ showToast(t('recipeNeedsInput')); state.selectedNodeId=state.graph.nodes.find(n=>n.type==='input')?.id||'input-1'; refreshGraph(); return; } pushHistory(); state.graph=makeRecipeGraph(recipeId,state.inputMeta); state.nextNodeSeq=nextNodeSequence(state.graph); state.selectedNodeId=state.graph.nodes.find(n=>!['input','output'].includes(n.type))?.id||'input-1'; state.pendingConnection=null; markPreviewStale(); refreshGraph(); showToast(t('recipeApplied')); }
+      function applyRecipe(recipeId=$('#recipeSelect')?.value){ const def=RECIPE_DEFS[recipeId]; if(!def||state.rendering)return; if(def.requiresInput&&!state.file){ showToast(t('recipeNeedsInput')); state.selectedNodeId=state.graph.nodes.find(n=>n.type==='input')?.id||'input-1'; refreshGraph(); return; } pushHistory(); state.graph=makeRecipeGraph(recipeId,state.inputMeta); state.nextNodeSeq=nextNodeSequence(state.graph); state.selectedNodeId=state.graph.nodes.find(n=>!['input','output'].includes(n.type))?.id||'input-1'; state.selectedNodeIds=new Set([state.selectedNodeId]); state.selectedEdgeId=''; state.pendingConnection=null; state.workspace.positions={}; state.workspace.initialized=false; markPreviewStale(); refreshGraph(); showToast(t('recipeApplied')); }
 
       function topologicalOrder(graph=state.graph){
         const indegree=new Map(graph.nodes.map(n=>[n.id,0]));
@@ -1760,31 +2022,114 @@
         const end=state.previewStart+state.previewDuration; return {startTimeSeconds:0,durationSeconds:previewSourceHorizon(end),playbackStart:state.previewStart,mode:'timeline-safe'};
       }
       function previewRunnerRequest(){ const plan=previewExecutionPlan(); return {...state.compiled.request,startTimeSeconds:plan.startTimeSeconds,durationSeconds:plan.durationSeconds}; }
-      function nodeSummary(node){ if(node.type==='input') return state.file?.name||'input.mp4'; if(node.type==='output') return 'H.264 / AAC'; if(node.type==='drawText'){const text=String(node.params?.text||'');return text.length>28?`${text.slice(0,28)}…`:text;} return filterForNode(node); }
+      function nodeVisualCategory(node){ const kind=NODE_DEFS[node?.type]?.kind||''; if(node?.type==='input')return 'input'; if(node?.type==='output')return 'output'; if(node?.type==='drawText')return 'text'; if(nodePrimaryStreamType(node)===PORT_TYPES.AUDIO)return 'audio'; if(kind.includes('branch')||kind.includes('merge'))return 'branch'; return 'video'; }
+      function nodeIconSvg(node){
+        const type=node?.type; const icons={
+          input:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/>',
+          output:'<path d="M5 4h10l4 4v12H5z"/><path d="M15 4v5h5M9 14h6M12 11l3 3-3 3"/>',
+          trim:'<path d="M5 4v16M19 4v16M5 8h14M5 16h14"/>',
+          speed:'<path d="M4 14a8 8 0 1 1 16 0"/><path d="m12 14 5-4M12 6v2"/>',
+          fps:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h2M11 9h2M15 9h2M7 13h2M11 13h2M15 13h2"/>',
+          scale:'<path d="M8 3H3v5M16 21h5v-5M3 3l6 6M21 21l-6-6"/>',
+          crop:'<path d="M6 3v12a3 3 0 0 0 3 3h12M3 6h12a3 3 0 0 1 3 3v12"/>',
+          pad:'<rect x="3" y="4" width="18" height="16" rx="2"/><rect x="7" y="8" width="10" height="8" rx="1"/>',
+          rotate:'<path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/>',
+          flip:'<path d="M12 3v18M9 8l-4 4 4 4M15 8l4 4-4 4"/>',
+          aspect:'<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M8 10h8M8 14h5"/>',
+          colorAdjust:'<path d="M4 7h16M4 12h16M4 17h16"/><circle cx="9" cy="7" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="11" cy="17" r="2"/>',
+          hue:'<circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16M4 12h16"/>',
+          blur:'<circle cx="9" cy="12" r="5"/><circle cx="15" cy="12" r="5"/>',
+          sharpen:'<path d="m12 3 2.2 6.8H21l-5.5 4 2.1 6.7L12 16.4l-5.6 4.1 2.1-6.7-5.5-4h6.8z"/>',
+          fade:'<rect x="4" y="6" width="16" height="12" rx="1"/><path d="M4 18 20 6"/>',
+          drawText:'<path d="M5 6h14M12 6v12M8 18h8"/>',
+          split:'<path d="M5 12h5M10 12c3 0 3-5 6-5h3M10 12c3 0 3 5 6 5h3"/>',
+          overlay:'<rect x="3" y="5" width="14" height="12" rx="2"/><rect x="10" y="10" width="11" height="9" rx="2"/>',
+          audio:'<path d="M4 12h3l2-6 3 12 3-12 2 6h3"/>'
+        };
+        const category=nodeVisualCategory(node); const body=icons[type]||((category==='audio')?icons.audio:(category==='branch'?icons.split:icons.colorAdjust));
+        return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
+      }
+      function nodeCategoryLabel(node){ const category=nodeVisualCategory(node); return category==='input'?'INPUT':category==='output'?'OUTPUT':category==='text'?'TEXT':category==='audio'?'AUDIO':category==='branch'?'BRANCH':'VIDEO'; }
+      function nodeSummary(node){
+        const p=node.params||{}, n=value=>Number.isFinite(Number(value))?Number(value):0, pos=value=>String(value||'').replace(/-/g,' ');
+        if(node.type==='input') return state.file?.name||'MP4 input';
+        if(node.type==='output') return 'H.264 + AAC · MP4';
+        if(node.type==='trim') return `${n(p.start)}s → ${n(p.start)+n(p.duration)}s`;
+        if(node.type==='speed') return `${n(p.rate)||1}×${p.syncAudio?' · Audio sync':''}`;
+        if(node.type==='fps') return `${n(p.fps)} fps`;
+        if(node.type==='scale') return `${n(p.width)} × auto`;
+        if(node.type==='crop') return `${n(p.width)} × ${n(p.height)} · x${n(p.x)} y${n(p.y)}`;
+        if(node.type==='pad') return `${n(p.width)} × ${n(p.height)} · x${n(p.x)} y${n(p.y)}`;
+        if(node.type==='rotate') return p.mode==='clock'?'90° clockwise':p.mode==='counter'?'90° counter-clockwise':'180°';
+        if(node.type==='flip') return p.mode==='vertical'?'Vertical':'Horizontal';
+        if(node.type==='aspect') return `${n(p.num)}:${n(p.den)}`;
+        if(node.type==='colorAdjust') return `B ${n(p.brightness)} · C ${n(p.contrast)} · S ${n(p.saturation)}`;
+        if(node.type==='hue') return `${n(p.degrees)}° · Saturation ${n(p.saturation)}×`;
+        if(node.type==='blur') return `Sigma ${n(p.sigma)}`;
+        if(node.type==='sharpen') return `Amount ${n(p.amount)}`;
+        if(node.type==='fade'||node.type==='audioFade') return `${p.mode==='out'?'Fade out':'Fade in'} · ${n(p.start)}s / ${n(p.duration)}s`;
+        if(node.type==='drawText'){ const text=String(p.text||''); const short=text.length>24?`${text.slice(0,24)}…`:text; return `“${short}” · ${pos(p.position)}`; }
+        if(node.type==='split') return 'Video → A + B';
+        if(node.type==='overlay') return `MAIN + OVER · ${pos(p.position)}`;
+        if(node.type==='audioTrim') return `${n(p.start)}s → ${n(p.start)+n(p.duration)}s`;
+        if(node.type==='volume') return `${n(p.db)} dB`;
+        if(node.type==='audioSpeed') return `${n(p.rate)||1}×`;
+        if(node.type==='highpass'||node.type==='lowpass') return `${n(p.frequency)} Hz`;
+        if(node.type==='normalize') return `${n(p.targetI)} LUFS`;
+        if(node.type==='audioSplit') return 'Audio → A + B';
+        if(node.type==='audioMix') return `A ${n(p.volumeA)} dB · B ${n(p.volumeB)} dB${p.normalize?' · Normalize':''}`;
+        return filterForNode(node);
+      }
       function graphDisplayOrder(){ const topo=topologicalOrder(); const remaining=state.graph.nodes.map(n=>n.id).filter(id=>!topo.order.includes(id)); return [...topo.order,...remaining]; }
-      function renderGraph(){
-        const validation=state.validation; const order=graphDisplayOrder(); const positions=new Map(); const depth=new Map();
+      function autoLayoutPositions(order){
+        const positions={},depth=new Map();
         for(const id of order){ const ins=incomingEdges(id); depth.set(id,ins.length?Math.max(...ins.map(e=>(depth.get(e.from)||0)+1)):0); }
         const groups=new Map(); for(const id of order){const d=depth.get(id)||0;if(!groups.has(d))groups.set(d,[]);groups.get(d).push(id);}
-        const maxRows=Math.max(1,...[...groups.values()].map(g=>g.length)); const canvasHeight=Math.max(420,100+maxRows*145); const maxDepth=Math.max(2,...depth.values()); const width=Math.max(650,42+(maxDepth+1)*184+60); const canvas=$('#graphCanvas'); canvas.style.width=`${width}px`; canvas.style.height=`${canvasHeight}px`;
-        for(const [d,ids] of groups){ const sorted=[...ids].sort((a,b)=>{const ta=nodePrimaryStreamType(nodeById(a)),tb=nodePrimaryStreamType(nodeById(b));return ta===tb?0:ta===PORT_TYPES.VIDEO?-1:tb===PORT_TYPES.VIDEO?1:0;}); const total=(sorted.length-1)*145; const first=Math.max(42,(canvasHeight-total)/2-50); sorted.forEach((id,index)=>positions.set(id,{x:42+d*184,y:first+index*145})); }
-        const portTop=(ports,index)=>ports.length<=1?50:(ports.length===2?(index===0?34:68):(22+index*(56/(ports.length-1))));
+        const maxRows=Math.max(1,...[...groups.values()].map(g=>g.length)); const canvasHeight=Math.max(500,124+maxRows*184);
+        for(const [d,ids] of groups){ const sorted=[...ids].sort((a,b)=>{const ta=nodePrimaryStreamType(nodeById(a)),tb=nodePrimaryStreamType(nodeById(b));return ta===tb?0:ta===PORT_TYPES.VIDEO?-1:tb===PORT_TYPES.VIDEO?1:0;}); const total=(sorted.length-1)*184; const first=Math.max(52,(canvasHeight-total)/2-73); sorted.forEach((id,index)=>positions[id]={x:62+d*270,y:first+index*184}); }
+        return positions;
+      }
+      function ensureWorkspacePositions(order){
+        const auto=autoLayoutPositions(order); const current=state.workspace.positions||{}; const next={};
+        for(const id of order){ const pos=current[id]; next[id]=pos&&Number.isFinite(Number(pos.x))&&Number.isFinite(Number(pos.y))?{x:Math.max(20,Number(pos.x)),y:Math.max(20,Number(pos.y))}:auto[id]; }
+        state.workspace.positions=next; return next;
+      }
+      function graphPositionBounds(positions){ const values=Object.values(positions); return {width:Math.max(650,...values.map(pos=>pos.x+298)),height:Math.max(420,...values.map(pos=>pos.y+226))}; }
+      function graphPortCenter(nodeId,kind,portKeyValue){
+        const zoomLayer=$('#graphZoomLayer'); if(!zoomLayer)return null; const zoom=state.workspace.viewport.zoom||1;
+        const port=[...$('#nodeLayer').querySelectorAll('.node-port')].find(el=>el.dataset.nodeId===nodeId&&el.dataset.port===kind&&el.dataset.portKey===portKeyValue); if(!port)return null;
+        const portRect=port.getBoundingClientRect(),layerRect=zoomLayer.getBoundingClientRect(); return{x:(portRect.left+portRect.width/2-layerRect.left)/zoom,y:(portRect.top+portRect.height/2-layerRect.top)/zoom};
+      }
+      function graphPointFromClient(clientX,clientY){ const zoomLayer=$('#graphZoomLayer'),zoom=state.workspace.viewport.zoom||1;if(!zoomLayer)return{x:0,y:0};const rect=zoomLayer.getBoundingClientRect();return{x:(clientX-rect.left)/zoom,y:(clientY-rect.top)/zoom}; }
+      function edgeBezier(a,b){ const c=Math.max(35,Math.abs(b.x-a.x)*.42);return `M ${a.x} ${a.y} C ${a.x+c} ${a.y}, ${b.x-c} ${b.y}, ${b.x} ${b.y}`; }
+      function redrawGraphEdges(){
+        const edgeLayer=$('#edgeLayer'); if(!edgeLayer)return;
+        edgeLayer.setAttribute('viewBox',`0 0 ${state.workspace.graphWidth} ${state.workspace.graphHeight}`);
+        let html=state.graph.edges.map(edge=>{ const a=graphPortCenter(edge.from,'output',edgeFromPort(edge)),b=graphPortCenter(edge.to,'input',edgeToPort(edge)); if(!a||!b)return ''; const active=state.selectedNodeIds.has(edge.from)||state.selectedNodeIds.has(edge.to),selected=edge.id===state.selectedEdgeId,d=edgeBezier(a,b); return `<path class="edge-hit" data-edge-id="${escapeHtml(edge.id)}" d="${d}"/><path class="edge-path${edge.type===PORT_TYPES.AUDIO?' audio':''}${active?' active':''}${selected?' selected':''}" d="${d}"/>`; }).join('');
+        const drag=state.workspace.connectionDrag; if(drag){const anchor=graphPortCenter(drag.nodeId,drag.startSide,drag.portKey),point=drag.point;if(anchor&&point){const a=drag.startSide==='output'?anchor:point,b=drag.startSide==='output'?point:anchor;html+=`<path class="edge-path connection-preview${drag.type===PORT_TYPES.AUDIO?' audio':''}${drag.target?' snapped':''}" d="${edgeBezier(a,b)}"/>`;}}
+        edgeLayer.innerHTML=html;
+      }
+      function renderGraph(){
+        const validation=state.validation,order=graphDisplayOrder(),positions=ensureWorkspacePositions(order),bounds=graphPositionBounds(positions),canvas=$('#graphCanvas'),zoomLayer=$('#graphZoomLayer');
+        state.workspace.graphWidth=bounds.width; state.workspace.graphHeight=bounds.height; canvas.style.width=`${bounds.width}px`; canvas.style.height=`${bounds.height}px`; zoomLayer.style.width=`${bounds.width}px`; zoomLayer.style.height=`${bounds.height}px`;
+        const portTop=(ports,index)=>ports.length<=1?111:(ports.length===2?(index===0?97:125):(88+index*(46/(ports.length-1))));
         const portLabel=(node,direction,port)=>{ const stream=portStreamType(node,direction,port); if(node.type==='input'||node.type==='output')return stream===PORT_TYPES.AUDIO?'AUDIO':'VIDEO'; if((node.type==='split'||node.type==='audioSplit')&&direction==='output')return port.toUpperCase(); if(node.type==='overlay'&&direction==='input')return port==='main'?'MAIN':'OVER'; if(node.type==='audioMix'&&direction==='input')return port.toUpperCase(); return ''; };
-        const nodeHtml=order.map(id=>{ const node=nodeById(id),def=NODE_DEFS[node.type],pos=positions.get(id),selected=id===state.selectedNodeId,hasError=validation.nodeErrors.has(id),primary=nodePrimaryStreamType(node); const inputs=def?.inputPorts||[],outputs=def?.outputPorts||[];
-          const inputHtml=inputs.map((port,index)=>{const top=portTop(inputs,index),label=portLabel(node,'input',port),stream=portStreamType(node,'input',port),name=stream===PORT_TYPES.AUDIO?t('audioPort'):t('videoPort');return `${label?`<span class="port-caption input" style="top:${top}%">${label}</span>`:''}<button class="node-port input ${stream==='audio'?'audio':''}" style="top:${top}%" type="button" data-port="input" data-port-key="${escapeHtml(port)}" data-stream-type="${stream}" data-node-id="${escapeHtml(id)}" title="${escapeHtml(label||name)}" aria-label="${escapeHtml(label||name)} input"></button>`;}).join('');
-          const outputHtml=outputs.map((port,index)=>{const top=portTop(outputs,index),label=portLabel(node,'output',port),stream=portStreamType(node,'output',port),name=stream===PORT_TYPES.AUDIO?t('audioPort'):t('videoPort'),pending=state.pendingConnection?.from===id&&state.pendingConnection?.fromPort===port;return `${label?`<span class="port-caption output" style="top:${top}%">${label}</span>`:''}<button class="node-port output ${stream==='audio'?'audio':''}${pending?' pending':''}" style="top:${top}%" type="button" data-port="output" data-port-key="${escapeHtml(port)}" data-stream-type="${stream}" data-node-id="${escapeHtml(id)}" title="${escapeHtml(label||name)}" aria-label="${escapeHtml(label||name)} output"></button>`;}).join('');
-          return `<div class="node-card${selected?' selected':''}${hasError?' error':''}${primary===PORT_TYPES.AUDIO?' audio-node':''}" data-node-id="${escapeHtml(id)}" style="left:${pos.x}px;top:${pos.y}px" tabindex="0" role="button" aria-label="${escapeHtml(def?.title||node.type)}"><div class="node-kicker">${escapeHtml(primary===PORT_TYPES.AUDIO?'audio':def?.kind||'node')}</div><div class="node-title">${escapeHtml(def?.title||node.type)}</div><div class="node-summary">${escapeHtml(nodeSummary(node))}</div>${inputHtml}${outputHtml}</div>`; }).join('');
-        $('#nodeLayer').innerHTML=nodeHtml;
-        const portCenter=(nodeId,kind,portKeyValue)=>{const port=[...$('#nodeLayer').querySelectorAll('.node-port')].find(el=>el.dataset.nodeId===nodeId&&el.dataset.port===kind&&el.dataset.portKey===portKeyValue);if(!port)return null;const portRect=port.getBoundingClientRect(),canvasRect=canvas.getBoundingClientRect();return{x:portRect.left+portRect.width/2-canvasRect.left,y:portRect.top+portRect.height/2-canvasRect.top};};
-        const paths=state.graph.edges.map(edge=>{ const a=portCenter(edge.from,'output',edgeFromPort(edge)),b=portCenter(edge.to,'input',edgeToPort(edge)); if(!a||!b) return ''; const x1=a.x,y1=a.y,x2=b.x,y2=b.y,c=Math.max(35,Math.abs(x2-x1)*.42),active=edge.from===state.selectedNodeId||edge.to===state.selectedNodeId; return `<path class="edge-path${edge.type===PORT_TYPES.AUDIO?' audio':''}${active?' active':''}" d="M ${x1} ${y1} C ${x1+c} ${y1}, ${x2-c} ${y2}, ${x2} ${y2}"/>`; }).join('');
-        $('#edgeLayer').setAttribute('viewBox',`0 0 ${width} ${canvasHeight}`); $('#edgeLayer').innerHTML=paths;
+        $('#nodeLayer').innerHTML=order.map(id=>{ const node=nodeById(id),def=NODE_DEFS[node.type],pos=positions[id],selected=state.selectedNodeIds.has(id),hasError=validation.nodeErrors.has(id),inputs=def?.inputPorts||[],outputs=def?.outputPorts||[];
+          const inputHtml=inputs.map((port,index)=>{const top=portTop(inputs,index),label=portLabel(node,'input',port),stream=portStreamType(node,'input',port),name=stream===PORT_TYPES.AUDIO?t('audioPort'):t('videoPort'),pending=state.pendingConnection?.nodeId===id&&state.pendingConnection?.startSide==='input'&&state.pendingConnection?.portKey===port;return `${label?`<span class="port-caption input" style="top:${top}px">${label}</span>`:''}<button class="node-port input ${stream==='audio'?'audio':''}${pending?' pending':''}" style="top:${top}px" type="button" data-port="input" data-port-key="${escapeHtml(port)}" data-stream-type="${stream}" data-node-id="${escapeHtml(id)}" title="${escapeHtml(label||name)}" aria-label="${escapeHtml(label||name)} input"></button>`;}).join('');
+          const outputHtml=outputs.map((port,index)=>{const top=portTop(outputs,index),label=portLabel(node,'output',port),stream=portStreamType(node,'output',port),name=stream===PORT_TYPES.AUDIO?t('audioPort'):t('videoPort'),pending=state.pendingConnection?.nodeId===id&&state.pendingConnection?.startSide==='output'&&state.pendingConnection?.portKey===port;return `${label?`<span class="port-caption output" style="top:${top}px">${label}</span>`:''}<button class="node-port output ${stream==='audio'?'audio':''}${pending?' pending':''}" style="top:${top}px" type="button" data-port="output" data-port-key="${escapeHtml(port)}" data-stream-type="${stream}" data-node-id="${escapeHtml(id)}" title="${escapeHtml(label||name)}" aria-label="${escapeHtml(label||name)} output"></button>`;}).join('');
+          const visual=nodeVisualCategory(node),visualClass=visual==='audio'?'node-audio':visual==='branch'?'node-branch':(visual==='input'||visual==='output')?'node-io':visual==='text'?'node-text':'node-video';
+          return `<div class="node-card ${visualClass}${selected?' selected':''}${hasError?' error':''}" data-node-id="${escapeHtml(id)}" style="left:${pos.x}px;top:${pos.y}px" tabindex="0" role="button" aria-label="${escapeHtml(def?.title||node.type)}"><div class="node-header"><span class="node-icon">${nodeIconSvg(node)}</span><span class="node-heading"><span class="node-title">${escapeHtml(def?.title||node.type)}</span><span class="node-category">${escapeHtml(nodeCategoryLabel(node))}</span></span></div><div class="node-body"><div class="node-summary">${escapeHtml(nodeSummary(node))}</div></div>${inputHtml}${outputHtml}</div>`;
+        }).join('');
+        redrawGraphEdges();
         const status=$('#graphStatus'); status.className=`graph-status ${validation.valid?'valid':'invalid'}`; status.textContent=validation.valid?t('graphValid'):t('graphInvalid');
         const hint=$('#connectHint'); hint.classList.toggle('active',Boolean(state.pendingConnection)); hint.textContent=state.pendingConnection?t(state.pendingConnection.type===PORT_TYPES.AUDIO?'connectFromAudio':'connectFrom'):t('connectHint');
-        const errors=$('#graphErrors'); errors.hidden=validation.valid; errors.textContent=validation.errors.join(' / ');
+        const errors=$('#graphErrors'); errors.hidden=validation.valid; errors.textContent=validation.errors.join(' / '); applyGraphViewport(); queueInitialGraphFit();
       }
       function inspectorHeader(node){ const stream=nodePrimaryStreamType(node); const label=stream===PORT_TYPES.AUDIO?'audio':stream===PORT_TYPES.VIDEO?'video':'video + audio'; return `<div class="inspector-title"><div><h3>${escapeHtml(NODE_DEFS[node.type]?.title||node.type)}</h3><div class="node-id">${escapeHtml(node.id)} · ${label}</div></div></div>`; }
       function renderInspector(){
-        const body=$('#inspectorBody'),node=nodeById(state.selectedNodeId); if(!node){body.innerHTML=`<div class="inspector-empty">${escapeHtml(t('selectNode'))}</div>`;return;}
+        const body=$('#inspectorBody'),context=$('#inspectorContext'),node=state.selectedNodeIds.size?nodeById(state.selectedNodeId):null;
+        if(!node){ if(context)context.textContent=t('selectNode'); body.innerHTML=`<div class="inspector-empty">${escapeHtml(t('selectNode'))}</div>`;return;}
+        if(context){ const title=NODE_DEFS[node.type]?.title||node.type; context.textContent=state.selectedNodeIds.size>1?t('selectedNodes').replace('{count}',String(state.selectedNodeIds.size)):`${title} · ${nodeSummary(node)}`; }
         let form='';
         if(node.type==='input'){
           const fileArea=state.file?`<div class="file-card show"><div class="file-thumb" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/></svg></div><div class="file-copy"><div class="file-name">${escapeHtml(state.file.name)}</div><div class="file-meta">${escapeHtml(formatBytes(state.file.size))} · ${state.inputMeta.width&&state.inputMeta.height?`${state.inputMeta.width}×${state.inputMeta.height}`:'—'} · ${escapeHtml(formatDuration(state.inputMeta.duration))}</div></div><button class="mini-button" type="button" data-action="remove-file" aria-label="${escapeHtml(t('removeFile'))}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>`:`<label class="drop-zone" id="dropZone" for="fileInput"><input id="fileInput" type="file" accept="video/mp4,.mp4"><svg class="drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4m0 0L8 8m4-4 4 4"/><path d="M5 14v5h14v-5"/></svg><div><div class="drop-title">${escapeHtml(t('dropTitle'))}</div><div class="drop-sub">${escapeHtml(t('dropSub'))}</div></div></label>`;
@@ -1862,12 +2207,55 @@
       function refreshGraph(){ state.validation=validateGraph(); state.compiled=state.validation.valid?compileGraph():null; renderGraph(); renderInspector(); renderCompiler(); updateRuntimeGuard(); updateHistoryButtons(); updateDisconnectButton(); syncRecipeUi(); syncFullRenderUi(); }
       function updateDisconnectButton(){ const node=nodeById(state.selectedNodeId); $('#disconnectButton').disabled=state.rendering||!node||!nodeInputPorts(node).length||incomingEdges(node.id).length===0; }
       function updateRuntimeGuard(){ const blocked=!runtimeAllowed(); $('#runtimeWarning').classList.toggle('show',blocked); $('#runtimeBadge').classList.toggle('mt',RUNTIME_VARIANT==='multi-thread'); $('#runtimeMode').textContent=RUNTIME_VARIANT==='multi-thread'?'Multi-thread':'Single-thread'; $('#isolationValue').textContent=String(Boolean(globalThis.crossOriginIsolated)); $('#previewButton').disabled=!state.file||!state.validation?.valid||state.rendering||blocked; $('#previewStartInput').disabled=state.rendering||!state.file; document.querySelectorAll('[data-preview-duration]').forEach(button=>button.disabled=state.rendering||!state.file); syncPreviewEngineUi(); syncFullRenderUi(); }
-      function clearOutput(){ revoke(state.outputUrl); state.outputUrl=''; state.previewGraphHash=''; state.previewStale=false; state.previewCacheState=''; state.renderedPreviewStart=state.previewStart; state.renderedPreviewDuration=state.previewDuration; state.previewPlaybackStart=0; const video=$('#previewVideo'); video.pause(); video.removeAttribute('src'); video.load(); video.hidden=true; $('#previewEmpty').hidden=false; $('#previewStaleBadge').classList.remove('show'); $('#metricOutput').textContent='—'; $('#metricRender').textContent='—'; $('#progressBar').style.width='0%'; clearPreviewError(); syncPreviewEngineUi(); }
+      function clearOutput(){ revoke(state.outputUrl); state.outputUrl=''; state.previewGraphHash=''; state.previewStale=false; state.previewCacheState=''; state.renderedPreviewStart=state.previewStart; state.renderedPreviewDuration=state.previewDuration; state.previewPlaybackStart=0; const video=$('#previewVideo'),shell=$('#previewShell'); video.pause(); video.removeAttribute('src'); video.load(); video.hidden=true; shell?.classList.remove('has-video'); $('#previewEmpty').hidden=false; $('#previewStaleBadge').classList.remove('show'); $('#metricOutput').textContent='—'; $('#metricRender').textContent='—'; $('#progressBar').style.width='0%'; clearPreviewError(); syncPreviewEngineUi(); }
       function clearFullRender(){ revoke(state.fullRenderUrl); state.fullRenderUrl=''; state.fullRenderBlob=null; state.fullRenderHash=''; state.fullRenderMs=null; const video=$('#fullRenderVideo'); if(video){video.pause();video.removeAttribute('src');video.load();video.hidden=true;} if($('#fullRenderEmpty'))$('#fullRenderEmpty').hidden=false; if($('#fullRenderSize'))$('#fullRenderSize').textContent='—'; if($('#fullRenderProgressBar'))$('#fullRenderProgressBar').style.width='0%'; if($('#saveOutputButton'))$('#saveOutputButton').disabled=true; }
       function setFullRenderStatus(text,error=false){ const el=$('#fullRenderStatus'); if(!el)return; el.textContent=text; el.classList.toggle('error',Boolean(error)); }
       function syncFullRenderUi(){ if(!$('#fullRenderButton'))return; $('#fullRenderRuntime').textContent=RUNTIME_VARIANT==='multi-thread'?'Multi-thread':'Single-thread'; const blocked=!runtimeAllowed(); const valid=Boolean(state.validation?.valid); $('#fullRenderButton').disabled=!state.file||!valid||state.rendering||blocked; $('#fullRenderCancelButton').disabled=!(state.rendering&&state.renderKind==='full'); $('#saveOutputButton').disabled=!state.fullRenderBlob||state.rendering; const input=$('#outputFilenameInput'); if(input&&document.activeElement!==input)input.value=state.outputFilename; if(state.rendering&&state.renderKind==='full')setFullRenderStatus(t('fullRenderRendering')); else if(state.fullRenderBlob)setFullRenderStatus(t('fullRenderDone')); else if(state.file&&valid&&!blocked)setFullRenderStatus(t('fullRenderReady')); else setFullRenderStatus(t('fullRenderWaiting')); }
       function markPreviewStale(setMessage=true){ state.previewCacheState=''; clearFullRender(); syncPreviewEngineUi(); syncFullRenderUi(); if(setMessage&&state.file) setStatus('ready',t('changed')); }
-      function selectNode(id){ if(!nodeById(id)) return; state.selectedNodeId=id; state.pendingConnection=null; refreshGraph(); }
+      function connectedNodeIds(startId){
+        if(!nodeById(startId))return new Set(); const result=new Set([startId]),queue=[startId];
+        while(queue.length){const id=queue.shift();for(const edge of state.graph.edges){let next='';if(edge.from===id)next=edge.to;else if(edge.to===id)next=edge.from;if(next&&!result.has(next)){result.add(next);queue.push(next);}}}
+        return result;
+      }
+      function selectConnectedNodes(id){ if(!nodeById(id))return;state.selectedNodeIds=connectedNodeIds(id);state.selectedNodeId=id;state.selectedEdgeId='';state.pendingConnection=null;refreshGraph(); }
+      function canConnectPorts(from,fromPort,to,toPort){
+        if(from===to)return false;const fromNode=nodeById(from),toNode=nodeById(to);if(!fromNode||!toNode||!nodeOutputPorts(fromNode).includes(fromPort)||!nodeInputPorts(toNode).includes(toPort))return false;
+        const fromType=portStreamType(fromNode,'output',fromPort),toType=portStreamType(toNode,'input',toPort);if(fromType!==toType)return false;
+        let edges=state.graph.edges.filter(e=>!(e.from===from&&edgeFromPort(e)===fromPort)&&!(e.to===to&&edgeToPort(e)===toPort));edges.push({id:'preview-edge',from,fromPort,to,toPort,type:fromType});return !candidateCreatesCycle(edges);
+      }
+      function normalizeConnectionPair(startNode,startSide,startPort,targetNode,targetSide,targetPort){
+        if(startSide==='output'&&targetSide==='input')return{from:startNode,fromPort:startPort,to:targetNode,toPort:targetPort};
+        if(startSide==='input'&&targetSide==='output')return{from:targetNode,fromPort:targetPort,to:startNode,toPort:startPort};
+        return null;
+      }
+      function canConnectPortPair(startNode,startSide,startPort,targetNode,targetSide,targetPort){const pair=normalizeConnectionPair(startNode,startSide,startPort,targetNode,targetSide,targetPort);return Boolean(pair&&canConnectPorts(pair.from,pair.fromPort,pair.to,pair.toPort));}
+      function updateConnectionTargetHighlights(){
+        const drag=state.workspace.connectionDrag;document.querySelectorAll('#nodeLayer .node-port').forEach(port=>{port.classList.remove('connection-valid','connection-invalid','connection-magnet');if(!drag)return;const side=port.dataset.port;if(side===drag.startSide)return;const ok=canConnectPortPair(drag.nodeId,drag.startSide,drag.portKey,port.dataset.nodeId,side,port.dataset.portKey);port.classList.add(ok?'connection-valid':'connection-invalid');});
+      }
+      function nearestConnectionTarget(clientX,clientY,event){
+        const drag=state.workspace.connectionDrag;if(!drag)return null;const radius=event?.pointerType==='touch'?64:48;let best=null,bestDistance=radius;const targetSide=drag.startSide==='output'?'input':'output';
+        document.querySelectorAll(`#nodeLayer .node-port.${targetSide}.connection-valid`).forEach(port=>{const rect=port.getBoundingClientRect(),cx=rect.left+rect.width/2,cy=rect.top+rect.height/2,distance=Math.hypot(clientX-cx,clientY-cy);if(distance<=bestDistance){best=port;bestDistance=distance;}});return best;
+      }
+      function setConnectionMagnetTarget(drag,target){
+        document.querySelectorAll('#nodeLayer .node-port.connection-magnet').forEach(port=>port.classList.remove('connection-magnet'));drag.target=null;if(!target)return;target.classList.add('connection-magnet');drag.target={nodeId:target.dataset.nodeId,side:target.dataset.port,portKey:target.dataset.portKey};
+      }
+      function startConnectionDrag(port,event){
+        if(state.rendering)return;event.preventDefault();event.stopPropagation();const nodeId=port.dataset.nodeId,startSide=port.dataset.port,portKeyValue=port.dataset.portKey,type=port.dataset.streamType||portStreamType(nodeById(nodeId),startSide,portKeyValue);
+        state.pendingConnection=null;state.workspace.connectionDrag={pointerId:event.pointerId,nodeId,startSide,portKey:portKeyValue,type,startClientX:event.clientX,startClientY:event.clientY,point:graphPointFromClient(event.clientX,event.clientY),target:null,moved:false};state.selectedNodeId=nodeId;state.selectedNodeIds=new Set([nodeId]);state.selectedEdgeId='';
+        document.querySelectorAll('#nodeLayer .node-card').forEach(el=>el.classList.toggle('selected',el.dataset.nodeId===nodeId));port.classList.add('pending');updateConnectionTargetHighlights();renderInspector();redrawGraphEdges();renderMiniMap();const hint=$('#connectHint');hint.classList.add('active');hint.textContent=t(type===PORT_TYPES.AUDIO?'connectFromAudio':'connectFrom');port.setPointerCapture?.(event.pointerId);
+      }
+      function moveConnectionDrag(event){
+        const drag=state.workspace.connectionDrag;if(!drag||drag.pointerId!==event.pointerId)return;const target=nearestConnectionTarget(event.clientX,event.clientY,event);setConnectionMagnetTarget(drag,target);drag.point=target?graphPortCenter(target.dataset.nodeId,target.dataset.port,target.dataset.portKey):graphPointFromClient(event.clientX,event.clientY);if(!drag.moved&&Math.hypot(event.clientX-drag.startClientX,event.clientY-drag.startClientY)>3)drag.moved=true;redrawGraphEdges();
+      }
+      function finishConnectionDrag(event,cancel=false){
+        const drag=state.workspace.connectionDrag;if(!drag||drag.pointerId!==event.pointerId)return false;state.workspace.connectionDrag=null;document.querySelectorAll('#nodeLayer .node-port').forEach(port=>port.classList.remove('connection-valid','connection-invalid','connection-magnet','pending'));
+        if(!drag.moved&&!cancel){redrawGraphEdges();return false;}
+        state.workspace.suppressPortClick=true;setTimeout(()=>{state.workspace.suppressPortClick=false;},0);const targetSide=drag.startSide==='output'?'input':'output';let target=null;if(!cancel&&drag.target){target=[...document.querySelectorAll(`#nodeLayer .node-port.${targetSide}`)].find(port=>port.dataset.nodeId===drag.target.nodeId&&port.dataset.portKey===drag.target.portKey)||null;}if(!target&&!cancel){const hit=document.elementFromPoint(event.clientX,event.clientY);target=hit?.closest?.(`.node-port.${targetSide}`);}
+        const pair=target?normalizeConnectionPair(drag.nodeId,drag.startSide,drag.portKey,target.dataset.nodeId,target.dataset.port,target.dataset.portKey):null,valid=pair&&canConnectPorts(pair.from,pair.fromPort,pair.to,pair.toPort);if(valid){connectNodes(pair.from,pair.fromPort,pair.to,pair.toPort);}else{state.pendingConnection=null;refreshGraph();}return true;
+      }
+      function selectNode(id,{additive=false}={}){ if(!nodeById(id)) return; if(additive){ if(state.selectedNodeIds.has(id))state.selectedNodeIds.delete(id); else state.selectedNodeIds.add(id); } else state.selectedNodeIds=new Set([id]); state.selectedNodeId=state.selectedNodeIds.has(id)?id:[...state.selectedNodeIds][0]||id; state.selectedEdgeId=''; state.pendingConnection=null; refreshGraph(); }
+      function selectEdge(id){ if(!state.graph.edges.some(edge=>edge.id===id))return; state.selectedEdgeId=id; state.selectedNodeIds.clear(); state.pendingConnection=null; renderGraph(); renderInspector(); }
+      function deleteSelectedEdge(){ if(!state.selectedEdgeId||state.rendering)return; const id=state.selectedEdgeId; if(!state.graph.edges.some(edge=>edge.id===id))return; pushHistory(); state.graph.edges=state.graph.edges.filter(edge=>edge.id!==id); state.selectedEdgeId=''; markPreviewStale(); refreshGraph(); showToast(t('edgeDeleted')); }
       function addNode(type){
         const newDef=NODE_DEFS[type]; if(!newDef||['source','sink'].includes(newDef.kind)||state.rendering) return;
         const targetType=nodePrimaryStreamType({type}),inputPort=newDef.inputPorts.find(port=>portStreamType({type},'input',port)===targetType)||newDef.inputPorts[0],outputPort=newDef.outputPorts.find(port=>portStreamType({type},'output',port)===targetType)||newDef.outputPorts[0];
@@ -1878,39 +2266,22 @@
         }
         const existing=outgoingEdges(sourceId,sourcePort).find(e=>e.type===targetType),targetId=existing?.to||'output-1',targetPort=existing?edgeToPort(existing):(targetType===PORT_TYPES.AUDIO?'audio':'in'); if(existing) state.graph.edges=state.graph.edges.filter(e=>e.id!==existing.id);
         state.graph.edges.push({id:newEdgeId(),from:sourceId,fromPort:sourcePort,to:id,toPort:inputPort,type:targetType}); if(targetId&&outputPort) state.graph.edges.push({id:newEdgeId(),from:id,fromPort:outputPort,to:targetId,toPort:targetPort,type:targetType});
-        state.graph.schemaVersion=3; state.selectedNodeId=id; markPreviewStale(); refreshGraph(); showToast(t('nodeAdded'));
+        state.graph.schemaVersion=3; const sourcePos=state.workspace.positions[sourceId]; const view=state.workspace.viewport; state.workspace.positions[id]=sourcePos?{x:sourcePos.x+270,y:sourcePos.y}:{x:Math.max(20,(-view.x+$('#graphScroll').clientWidth/2)/view.zoom-109),y:Math.max(20,(-view.y+$('#graphScroll').clientHeight/2)/view.zoom-73)}; state.selectedNodeId=id; state.selectedNodeIds=new Set([id]); state.selectedEdgeId=''; markPreviewStale(); refreshGraph(); showToast(t('nodeAdded'));
       }
       function deleteSelectedNode(){
-        const node=nodeById(state.selectedNodeId),def=NODE_DEFS[node?.type]; if(!node||!def||['source','sink'].includes(def.kind)||state.rendering) return; pushHistory(); const ins=incomingEdges(node.id),outs=outgoingEdges(node.id); state.graph.edges=state.graph.edges.filter(e=>e.from!==node.id&&e.to!==node.id); state.graph.nodes=state.graph.nodes.filter(n=>n.id!==node.id);
+        const node=nodeById(state.selectedNodeId),def=NODE_DEFS[node?.type]; if(!node||!def||['source','sink'].includes(def.kind)||state.rendering) return; pushHistory(); const ins=incomingEdges(node.id),outs=outgoingEdges(node.id); state.graph.edges=state.graph.edges.filter(e=>e.from!==node.id&&e.to!==node.id); state.graph.nodes=state.graph.nodes.filter(n=>n.id!==node.id); delete state.workspace.positions[node.id];
         if(nodeInputPorts(node).length===1&&nodeOutputPorts(node).length===1&&ins.length===1&&outs.length===1&&ins[0].type===outs[0].type) state.graph.edges.push({id:newEdgeId(),from:ins[0].from,fromPort:edgeFromPort(ins[0]),to:outs[0].to,toPort:edgeToPort(outs[0]),type:ins[0].type});
-        state.selectedNodeId=outs[0]?.to||ins[0]?.from||'input-1'; markPreviewStale(); refreshGraph(); showToast(t('nodeDeleted'));
+        state.selectedNodeId=outs[0]?.to||ins[0]?.from||'input-1'; state.selectedNodeIds=new Set([state.selectedNodeId]); state.selectedEdgeId=''; markPreviewStale(); refreshGraph(); showToast(t('nodeDeleted'));
       }
       function candidateCreatesCycle(edges){ return topologicalOrder({nodes:state.graph.nodes,edges}).hasCycle; }
       function connectNodes(from,fromPort,to,toPort){
         if(from===to){showToast(t('selfConnection'));return;} const fromNode=nodeById(from),toNode=nodeById(to); if(!nodeOutputPorts(fromNode).includes(fromPort)||!nodeInputPorts(toNode).includes(toPort)) return;
         const fromType=portStreamType(fromNode,'output',fromPort),toType=portStreamType(toNode,'input',toPort); if(fromType!==toType){showToast(t('portTypeMismatch'));return;}
         let edges=state.graph.edges.filter(e=>!(e.from===from&&edgeFromPort(e)===fromPort)&&!(e.to===to&&edgeToPort(e)===toPort)); edges.push({id:newEdgeId(),from,fromPort,to,toPort,type:fromType}); if(candidateCreatesCycle(edges)){showToast(t('cycleRejected'));return;}
-        pushHistory(); state.graph.edges=edges; state.graph.schemaVersion=3; state.pendingConnection=null; state.selectedNodeId=to; markPreviewStale(); refreshGraph(); showToast(t('connectionReplaced'));
+        pushHistory(); state.graph.edges=edges; state.graph.schemaVersion=3; state.pendingConnection=null; state.selectedNodeId=to; state.selectedNodeIds=new Set([to]); state.selectedEdgeId=''; markPreviewStale(); refreshGraph(); showToast(t('connectionReplaced'));
       }
       function disconnectSelected(){ const node=nodeById(state.selectedNodeId); if(!node||!nodeInputPorts(node).length||!incomingEdges(node.id).length||state.rendering) return; pushHistory(); state.graph.edges=state.graph.edges.filter(e=>e.to!==node.id); markPreviewStale(); refreshGraph(); showToast(t('disconnected')); }
-      function resetGraph(){ if(state.rendering) return; pushHistory(); state.graph=defaultGraph(); state.nextNodeSeq=3; state.selectedNodeId='input-1'; state.pendingConnection=null; markPreviewStale(); refreshGraph(); showToast(t('resetDone')); }
-      function sampleGraph(){
-        if(state.rendering) return; pushHistory();
-        state.graph={schemaVersion:3,nodes:[
-          {id:'input-1',type:'input',params:{}},{id:'split-3',type:'split',params:{}},{id:'blur-4',type:'blur',params:{sigma:5}},{id:'scale-5',type:'scale',params:{width:320}},{id:'overlay-6',type:'overlay',params:{position:'top-left',x:20,y:20,shortest:true}},{id:'output-1',type:'output',params:{}}
-        ],edges:[
-          {id:newEdgeId(),from:'input-1',fromPort:'out',to:'split-3',toPort:'in',type:'video'},{id:newEdgeId(),from:'split-3',fromPort:'a',to:'blur-4',toPort:'in',type:'video'},{id:newEdgeId(),from:'split-3',fromPort:'b',to:'scale-5',toPort:'in',type:'video'},{id:newEdgeId(),from:'blur-4',fromPort:'out',to:'overlay-6',toPort:'main',type:'video'},{id:newEdgeId(),from:'scale-5',fromPort:'out',to:'overlay-6',toPort:'overlay',type:'video'},{id:newEdgeId(),from:'overlay-6',fromPort:'out',to:'output-1',toPort:'in',type:'video'},{id:newEdgeId(),from:'input-1',fromPort:'audio',to:'output-1',toPort:'audio',type:'audio'}
-        ]}; state.nextNodeSeq=7; state.selectedNodeId='overlay-6'; state.pendingConnection=null; markPreviewStale(); refreshGraph(); showToast(t('sampleComplexDone'));
-      }
-      function sampleAudioGraph(){
-        if(state.rendering)return; pushHistory();
-        state.graph={schemaVersion:3,nodes:[
-          {id:'input-1',type:'input',params:{}},{id:'scale-1',type:'scale',params:{width:640}},{id:'audioSplit-3',type:'audioSplit',params:{}},{id:'volume-4',type:'volume',params:{db:-6}},{id:'highpass-5',type:'highpass',params:{frequency:120}},{id:'audioMix-6',type:'audioMix',params:{volumeA:0,volumeB:0,normalize:false}},{id:'output-1',type:'output',params:{}}
-        ],edges:[
-          {id:newEdgeId(),from:'input-1',fromPort:'out',to:'scale-1',toPort:'in',type:'video'},{id:newEdgeId(),from:'scale-1',fromPort:'out',to:'output-1',toPort:'in',type:'video'},
-          {id:newEdgeId(),from:'input-1',fromPort:'audio',to:'audioSplit-3',toPort:'in',type:'audio'},{id:newEdgeId(),from:'audioSplit-3',fromPort:'a',to:'volume-4',toPort:'in',type:'audio'},{id:newEdgeId(),from:'audioSplit-3',fromPort:'b',to:'highpass-5',toPort:'in',type:'audio'},{id:newEdgeId(),from:'volume-4',fromPort:'out',to:'audioMix-6',toPort:'a',type:'audio'},{id:newEdgeId(),from:'highpass-5',fromPort:'out',to:'audioMix-6',toPort:'b',type:'audio'},{id:newEdgeId(),from:'audioMix-6',fromPort:'out',to:'output-1',toPort:'audio',type:'audio'}
-        ]}; state.nextNodeSeq=7; state.selectedNodeId='audioMix-6'; state.pendingConnection=null; markPreviewStale(); refreshGraph(); showToast(t('sampleAudioDone'));
-      }
+      function resetGraph(){ if(state.rendering) return; pushHistory(); state.graph=defaultGraph(); state.nextNodeSeq=3; state.selectedNodeId='input-1'; state.selectedNodeIds=new Set(['input-1']); state.selectedEdgeId=''; state.pendingConnection=null; state.workspace.positions={}; state.workspace.initialized=false; markPreviewStale(); refreshGraph(); showToast(t('resetDone')); }
       function updateParam(nodeId,param,value){ const node=nodeById(nodeId); if(!node||state.rendering) return; let parsed=value; if(['width','height','x','y','start','duration','rate','fps','num','den','brightness','contrast','saturation','gamma','degrees','sigma','amount','db','frequency','targetI','lra','tp','volumeA','volumeB','fontSize','backgroundOpacity','boxPadding','startTime','endTime'].includes(param)) parsed=Number(value); if(node.params[param]===parsed&&!(node.type==='overlay'&&['x','y'].includes(param)&&(node.params.position||'custom')!=='custom')) return; pushHistory(); node.params[param]=parsed; if(node.type==='overlay'&&['x','y'].includes(param)) node.params.position='custom'; markPreviewStale(); refreshGraph(); }
       async function readVideoMeta(file){ return await new Promise(resolve=>{ const video=document.createElement('video'); video.preload='metadata'; const url=URL.createObjectURL(file); video.onloadedmetadata=()=>{const meta={duration:video.duration,width:video.videoWidth,height:video.videoHeight};URL.revokeObjectURL(url);resolve(meta);}; video.onerror=()=>{URL.revokeObjectURL(url);resolve({duration:NaN,width:0,height:0});}; video.src=url; }); }
       async function selectFile(file){ if(!file||state.rendering) return; const looksMp4=/\.mp4$/i.test(file.name)||file.type==='video/mp4'; if(!looksMp4){showToast(t('unsupportedFile'));return;} revoke(state.inputUrl); state.file=file; state.fileToken++; clearPreviewCache(); clearFullRender(); state.inputUrl=URL.createObjectURL(file); state.inputMeta=await readVideoMeta(file); state.previewStart=0; if(!state.outputFilenameTouched)state.outputFilename=deriveOutputFilename(file.name); clearOutput(); $('#metricInput').textContent=`${state.inputMeta.width&&state.inputMeta.height?`${state.inputMeta.width}×${state.inputMeta.height}`:'—'} · ${formatBytes(file.size)}`; renderInspector(); renderGraph(); renderCompiler(); updateRuntimeGuard(); syncRecipeUi(); syncFullRenderUi(); setStatus('ready',t('fileReady')); }
@@ -1961,16 +2332,112 @@
       function restoreRecovery(){ const project=state.pendingRecovery;if(!project)return; try {applyProjectEnvelope(project);hideRecoveryBanner();showToast(t('recoveryRestored'));}catch{removeStorage(PROJECT_STORAGE_KEY);hideRecoveryBanner();showToast(t('graphLoadFailed'));} }
       function discardRecovery(){ removeStorage(PROJECT_STORAGE_KEY);hideRecoveryBanner();showToast(t('recoveryDiscarded')); }
 
-      function applyLanguage(){ document.documentElement.lang=state.language; document.querySelectorAll('[data-i18n]').forEach(el=>{el.textContent=t(el.dataset.i18n);}); document.querySelectorAll('[data-i18n-title]').forEach(el=>{el.title=t(el.dataset.i18nTitle);}); document.querySelectorAll('[data-i18n-aria-label]').forEach(el=>{el.setAttribute('aria-label',t(el.dataset.i18nAriaLabel));}); $('#languageButton').textContent=state.language==='ja'?'EN':'日本語'; $('#languageButton').setAttribute('aria-label',state.language==='ja'?'英語に切り替え':'Switch to Japanese'); document.title=APP_CONFIG.name; $('#brandName').textContent=APP_CONFIG.name; $('#footerName').textContent=APP_CONFIG.name; if(!state.file&&!state.rendering)setStatus('',t('statusWaiting')); if($('#logBox').dataset.empty!=='false'){$('#logBox').textContent=t('logEmpty');$('#logBox').dataset.empty='true';} syncRecipeUi(); syncFullRenderUi(); refreshGraph(); }
+      function applyLanguage(){ document.documentElement.lang=state.language; document.querySelectorAll('[data-i18n]').forEach(el=>{el.textContent=t(el.dataset.i18n);}); document.querySelectorAll('[data-i18n-title]').forEach(el=>{el.title=t(el.dataset.i18nTitle);}); document.querySelectorAll('[data-i18n-aria-label]').forEach(el=>{el.setAttribute('aria-label',t(el.dataset.i18nAriaLabel));}); document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{el.placeholder=t(el.dataset.i18nPlaceholder);}); $('#languageButton').textContent=state.language==='ja'?'EN':'日本語'; $('#languageButton').setAttribute('aria-label',state.language==='ja'?'英語に切り替え':'Switch to Japanese'); document.title=APP_CONFIG.name; $('#brandName').textContent=APP_CONFIG.name; $('#footerName').textContent=APP_CONFIG.name; if(!state.file&&!state.rendering)setStatus('',t('statusWaiting')); if($('#logBox').dataset.empty!=='false'){$('#logBox').textContent=t('logEmpty');$('#logBox').dataset.empty='true';} syncRecipeUi(); syncFullRenderUi(); refreshGraph(); syncGraphSizeButton(); applyPaletteSearch(); }
+
+      function ensureSelectedNodeVisible(){
+        const id=state.selectedNodeId,pos=state.workspace.positions[id],scroll=$('#graphScroll'); if(!id||!pos||!scroll)return;
+        requestAnimationFrame(()=>{ const v=normalizeGraphViewport(state.workspace.viewport),pad=34,topLeft=graphWorldToViewport(pos.x,pos.y,v),bottomRight=graphWorldToViewport(pos.x+GRAPH_NODE_WIDTH,pos.y+GRAPH_NODE_HEIGHT,v); let x=v.x,y=v.y; if(topLeft.x<pad)x+=pad-topLeft.x; else if(bottomRight.x>scroll.clientWidth-pad)x-=bottomRight.x-(scroll.clientWidth-pad); if(topLeft.y<pad)y+=pad-topLeft.y; else if(bottomRight.y>scroll.clientHeight-pad)y-=bottomRight.y-(scroll.clientHeight-pad); if(Math.abs(x-v.x)>.5||Math.abs(y-v.y)>.5)setGraphViewport({x,y},{persist:false}); });
+      }
+      const MOBILE_GRAPH_MEDIA='(max-width:700px)';
+      const isMobileGraphWorkspace=()=>Boolean(globalThis.matchMedia?.(MOBILE_GRAPH_MEDIA).matches);
+      function syncMobileSheetState(){
+        const editor=$('.editor-grid'),backdrop=$('#mobileSheetBackdrop'); if(!editor||!backdrop)return; const mobile=isMobileGraphWorkspace(),open=mobile&&(!editor.classList.contains('palette-collapsed')||!editor.classList.contains('inspector-collapsed'));
+        document.body.classList.toggle('mobile-workspace-sheet-open',open);backdrop.setAttribute('aria-hidden',String(!open));
+      }
+      function syncWorkspaceSidebarToggleVisibility(){
+        const editor=$('.editor-grid');if(!editor)return;const paletteOpen=!editor.classList.contains('palette-collapsed'),inspectorOpen=!editor.classList.contains('inspector-collapsed'),paletteToggle=$('#togglePaletteButton'),inspectorToggle=$('#toggleInspectorButton');
+        if(paletteToggle){paletteToggle.hidden=paletteOpen;paletteToggle.setAttribute('aria-expanded',String(paletteOpen));}
+        if(inspectorToggle){inspectorToggle.hidden=inspectorOpen;inspectorToggle.setAttribute('aria-expanded',String(inspectorOpen));}
+      }
+      function setWorkspaceSidebar(side,open){
+        const editor=$('.editor-grid'); if(!editor)return; const mobile=isMobileGraphWorkspace(),collapsedClass=side==='palette'?'palette-collapsed':'inspector-collapsed';
+        if(mobile&&open){ const other=side==='palette'?'inspector':'palette',otherClass=other==='palette'?'palette-collapsed':'inspector-collapsed';editor.classList.add(otherClass); }
+        editor.classList.toggle(collapsedClass,!open); syncWorkspaceSidebarToggleVisibility(); syncMobileSheetState();
+        requestAnimationFrame(()=>{applyGraphViewport();if(side==='inspector'&&open&&!mobile)ensureSelectedNodeVisible();});
+      }
+      function toggleWorkspaceSidebar(side){ const editor=$('.editor-grid'); if(!editor)return; const cls=side==='palette'?'palette-collapsed':'inspector-collapsed'; setWorkspaceSidebar(side,editor.classList.contains(cls)); }
+      let mobileWorkspaceMode=isMobileGraphWorkspace();
+      let lastPlainNodeClickId='',lastPlainNodeClickAt=0;
+      function syncMobileWorkspaceMode(force=false){
+        const mobile=isMobileGraphWorkspace(),editor=$('.editor-grid');if(!editor)return;if(force||mobile!==mobileWorkspaceMode){mobileWorkspaceMode=mobile;if(mobile){editor.classList.add('palette-collapsed','inspector-collapsed');}else{editor.classList.remove('palette-collapsed','inspector-collapsed');}}syncWorkspaceSidebarToggleVisibility();syncMobileSheetState();
+      }
+      function startTouchPinch(){
+        if(state.workspace.connectionDrag||state.workspace.touchPoints.size<2)return false;const scroll=$('#graphScroll'),points=[...state.workspace.touchPoints.entries()].slice(0,2);if(!scroll||points.length<2)return false;const [a,b]=points.map(([,point])=>point),distance=Math.max(1,Math.hypot(b.x-a.x,b.y-a.y)),rect=scroll.getBoundingClientRect(),mid={x:(a.x+b.x)/2-rect.left,y:(a.y+b.y)/2-rect.top},viewport=normalizeGraphViewport(state.workspace.viewport),world=graphViewportToWorld(mid.x,mid.y,viewport);
+        state.workspace.pinch={ids:points.map(([id])=>id),startDistance:distance,startZoom:viewport.zoom,world};state.workspace.pan=null;state.workspace.nodeDrag=null;scroll.classList.add('panning');return true;
+      }
+      function updateTouchPinch(){
+        const pinch=state.workspace.pinch,scroll=$('#graphScroll');if(!pinch||!scroll)return false;const points=pinch.ids.map(id=>state.workspace.touchPoints.get(id));if(points.some(point=>!point))return false;const [a,b]=points,distance=Math.max(1,Math.hypot(b.x-a.x,b.y-a.y)),rect=scroll.getBoundingClientRect(),mid={x:(a.x+b.x)/2-rect.left,y:(a.y+b.y)/2-rect.top},zoom=clampGraphZoom(pinch.startZoom*(distance/pinch.startDistance));setGraphViewport({zoom,x:mid.x-pinch.world.x*zoom,y:mid.y-pinch.world.y*zoom},{persist:false});return true;
+      }
+      function finishTouchPointer(event){
+        if(event.pointerType!=='touch')return;state.workspace.touchPoints.delete(event.pointerId);const pinch=state.workspace.pinch;if(pinch&&pinch.ids.includes(event.pointerId)){state.workspace.pinch=null;$('#graphScroll')?.classList.remove('panning');scheduleAutosave();}
+      }
+      const TOOLBAR_POPOVERS={recipePopover:'recipeToolbarButton',graphActionsPopover:'graphActionsButton'};
+      function closeToolbarPopovers(except=''){ for(const [id,buttonId] of Object.entries(TOOLBAR_POPOVERS)){ if(id===except)continue; const popover=$(`#${id}`),button=$(`#${buttonId}`); if(popover)popover.hidden=true; if(button)button.setAttribute('aria-expanded','false'); } }
+      function setToolbarPopover(id,open){ const popover=$(`#${id}`),button=$(`#${TOOLBAR_POPOVERS[id]}`); if(!popover||!button)return; if(open)closeToolbarPopovers(id); popover.hidden=!open; button.setAttribute('aria-expanded',String(Boolean(open))); }
+      function toggleToolbarPopover(id){ const popover=$(`#${id}`); if(popover)setToolbarPopover(id,popover.hidden); }
 
       $('#versionBadge').textContent=`v${APP_CONFIG.version}`; $('#buildVersion').textContent=APP_CONFIG.version; $('#builtAt').textContent=BUILD_MANIFEST.generatedAtUtc||'—'; $('#isolationValue').textContent=String(Boolean(globalThis.crossOriginIsolated));
       $('#languageButton').addEventListener('click',()=>{state.language=state.language==='ja'?'en':'ja';writeStorage(storageKey,state.language);applyLanguage();});
       const helpDialog=$('#helpDialog'); $('#helpButton').addEventListener('click',()=>helpDialog.showModal()); $('#closeHelpButton').addEventListener('click',()=>helpDialog.close()); helpDialog.addEventListener('click',event=>{const r=helpDialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)helpDialog.close();});
-      document.querySelectorAll('[data-add-node]').forEach(button=>button.addEventListener('click',()=>addNode(button.dataset.addNode)));
-      $('#recipeSelect').addEventListener('change',syncRecipeUi); $('#applyRecipeButton').addEventListener('click',()=>applyRecipe()); $('#saveGraphButton').addEventListener('click',exportGraphProject); $('#loadGraphButton').addEventListener('click',()=>$('#graphFileInput').click()); $('#graphFileInput').addEventListener('change',event=>{const file=event.target.files?.[0];event.target.value='';importGraphProject(file);}); $('#restoreRecoveryButton').addEventListener('click',restoreRecovery); $('#discardRecoveryButton').addEventListener('click',discardRecovery);
-      $('#undoButton').addEventListener('click',undo); $('#redoButton').addEventListener('click',redo); $('#resetGraphButton').addEventListener('click',resetGraph); $('#sampleGraphButton').addEventListener('click',sampleGraph); $('#sampleAudioButton').addEventListener('click',sampleAudioGraph); $('#disconnectButton').addEventListener('click',disconnectSelected);
-      $('#nodeLayer').addEventListener('click',event=>{ const port=event.target.closest('[data-port]'); if(port){event.stopPropagation();const id=port.dataset.nodeId,portKeyValue=port.dataset.portKey;if(port.dataset.port==='output'){state.pendingConnection={from:id,fromPort:portKeyValue,type:port.dataset.streamType||portStreamType(nodeById(id),'output',portKeyValue)};state.selectedNodeId=id;refreshGraph();}else if(state.pendingConnection){connectNodes(state.pendingConnection.from,state.pendingConnection.fromPort,id,portKeyValue);}else selectNode(id);return;} const card=event.target.closest('[data-node-id]'); if(card) selectNode(card.dataset.nodeId); });
+      document.querySelectorAll('[data-add-node]').forEach(button=>button.addEventListener('click',()=>{addNode(button.dataset.addNode);if(isMobileGraphWorkspace())setWorkspaceSidebar('palette',false);}));
+      $('#recipeSelect').addEventListener('change',syncRecipeUi); $('#applyRecipeButton').addEventListener('click',()=>{applyRecipe();setToolbarPopover('recipePopover',false);}); $('#saveGraphButton').addEventListener('click',()=>{exportGraphProject();setToolbarPopover('graphActionsPopover',false);}); $('#loadGraphButton').addEventListener('click',()=>{setToolbarPopover('graphActionsPopover',false);$('#graphFileInput').click();}); $('#graphFileInput').addEventListener('change',event=>{const file=event.target.files?.[0];event.target.value='';importGraphProject(file);}); $('#restoreRecoveryButton').addEventListener('click',restoreRecovery); $('#discardRecoveryButton').addEventListener('click',discardRecovery);
+      $('#undoButton').addEventListener('click',undo); $('#redoButton').addEventListener('click',redo); $('#resetGraphButton').addEventListener('click',async()=>{setToolbarPopover('graphActionsPopover',false);const confirmed=await AppConfirm.ask({title:t('resetConfirmTitle'),message:t('resetConfirmMessage'),confirmLabel:t('resetConfirmAction'),cancelLabel:t('cancel'),tone:'danger'});if(confirmed)resetGraph();}); $('#disconnectButton').addEventListener('click',disconnectSelected);
+      $('#recipeToolbarButton').addEventListener('click',event=>{event.stopPropagation();toggleToolbarPopover('recipePopover');}); $('#graphActionsButton').addEventListener('click',event=>{event.stopPropagation();toggleToolbarPopover('graphActionsPopover');});
+      document.querySelectorAll('[data-close-popover]').forEach(button=>button.addEventListener('click',()=>setToolbarPopover(button.dataset.closePopover,false)));
+      document.addEventListener('pointerdown',event=>{ if(event.target.closest('.graph-popover')||event.target.closest('#recipeToolbarButton,#graphActionsButton'))return; closeToolbarPopovers(); });
+      $('#paletteSearchInput').addEventListener('input',applyPaletteSearch); $('#clearPaletteSearchButton').addEventListener('click',()=>{const input=$('#paletteSearchInput');input.value='';applyPaletteSearch();input.focus();});
+      $('#togglePaletteButton').addEventListener('click',()=>toggleWorkspaceSidebar('palette'));
+      $('#closePaletteButton').addEventListener('click',()=>setWorkspaceSidebar('palette',false));
+      $('#toggleInspectorButton').addEventListener('click',()=>toggleWorkspaceSidebar('inspector'));
+      $('#closeInspectorButton').addEventListener('click',()=>setWorkspaceSidebar('inspector',false));
+      $('#mobileSheetBackdrop').addEventListener('pointerdown',event=>{event.preventDefault();setWorkspaceSidebar('palette',false);setWorkspaceSidebar('inspector',false);});
+      $('#fitGraphButton').addEventListener('click',()=>fitGraph());
+      $('#toggleGraphSizeButton').addEventListener('click',toggleGraphSize);
+      $('#graphWorkspaceBackdrop').addEventListener('pointerdown',event=>{event.preventDefault();event.stopPropagation();setGraphFloating(false);});
+      syncGraphSizeButton();
+      $('#zoomOutButton').addEventListener('click',()=>zoomGraphAt(state.workspace.viewport.zoom/1.2));
+      $('#zoomResetButton').addEventListener('click',()=>zoomGraphAt(1));
+      $('#zoomInButton').addEventListener('click',()=>zoomGraphAt(state.workspace.viewport.zoom*1.2));
+      const graphScroll=$('#graphScroll'); let graphSpaceHeld=false;
+      $('#toggleMinimapButton').addEventListener('click',toggleMiniMap);
+      const graphMinimap=$('#graphMinimap');
+      graphMinimap.addEventListener('pointerdown',event=>{
+        if(event.button!==0)return;event.preventDefault();event.stopPropagation();const nodeTarget=event.target.closest?.('.minimap-node');
+        if(nodeTarget?.dataset.nodeId){selectNode(nodeTarget.dataset.nodeId);centerGraphOnNode(nodeTarget.dataset.nodeId,{persist:false});scheduleAutosave();return;}
+        const world=miniMapWorldFromClient(event.clientX,event.clientY);if(!world)return;const visible=graphVisibleWorldRect(),insideViewport=event.target.id==='minimapViewport',center={x:visible.x+visible.width/2,y:visible.y+visible.height/2};
+        state.workspace.minimapDrag={pointerId:event.pointerId,offsetX:insideViewport?world.x-center.x:0,offsetY:insideViewport?world.y-center.y:0};graphMinimap.setPointerCapture?.(event.pointerId);centerGraphFromMiniMap(event.clientX,event.clientY,{persist:false,offsetX:state.workspace.minimapDrag.offsetX,offsetY:state.workspace.minimapDrag.offsetY});
+      });
+      graphMinimap.addEventListener('pointermove',event=>{const drag=state.workspace.minimapDrag;if(drag?.pointerId!==event.pointerId)return;centerGraphFromMiniMap(event.clientX,event.clientY,{persist:false,offsetX:drag.offsetX,offsetY:drag.offsetY});});
+      const finishMiniMapDrag=event=>{if(state.workspace.minimapDrag?.pointerId!==event.pointerId)return;state.workspace.minimapDrag=null;try{graphMinimap.releasePointerCapture?.(event.pointerId);}catch{}scheduleAutosave();};
+      graphMinimap.addEventListener('pointerup',finishMiniMapDrag);graphMinimap.addEventListener('pointercancel',finishMiniMapDrag);
+      graphScroll.addEventListener('pointerdown',event=>{if(event.pointerType!=='touch')return;state.workspace.touchPoints.set(event.pointerId,{x:event.clientX,y:event.clientY});if(state.workspace.touchPoints.size===2){event.preventDefault();startTouchPinch();}},{capture:true});
+      graphScroll.addEventListener('pointermove',event=>{if(event.pointerType!=='touch'||!state.workspace.touchPoints.has(event.pointerId))return;state.workspace.touchPoints.set(event.pointerId,{x:event.clientX,y:event.clientY});if(state.workspace.pinch){event.preventDefault();updateTouchPinch();}},{capture:true});
+      graphScroll.addEventListener('pointerup',finishTouchPointer,{capture:true});graphScroll.addEventListener('pointercancel',finishTouchPointer,{capture:true});
+      graphScroll.addEventListener('wheel',event=>{ if(state.rendering)return; event.preventDefault(); const factor=Math.exp(-event.deltaY*.0015); zoomGraphAt(state.workspace.viewport.zoom*factor,event.clientX,event.clientY); },{passive:false});
+      graphScroll.addEventListener('pointerdown',event=>{
+        if(state.rendering||state.workspace.pinch)return; const interactive=event.target.closest('.node-card,.node-port,.edge-hit,button,input,select,textarea,a'); const background=!interactive;
+        if(event.button===0&&event.shiftKey&&background){ event.preventDefault(); const rect=graphScroll.getBoundingClientRect(); state.workspace.marquee={pointerId:event.pointerId,startX:event.clientX-rect.left,startY:event.clientY-rect.top,x:event.clientX-rect.left,y:event.clientY-rect.top}; graphScroll.setPointerCapture?.(event.pointerId); const box=$('#selectionMarquee');box.classList.add('show');return; }
+        const panButton=event.button===1||(event.button===0&&(background||graphSpaceHeld)); if(!panButton)return; event.preventDefault(); if(event.button===0&&background&&!graphSpaceHeld){state.selectedNodeIds.clear();state.selectedEdgeId='';renderGraph();renderInspector();} graphScroll.focus({preventScroll:true}); graphScroll.setPointerCapture?.(event.pointerId); state.workspace.pan={pointerId:event.pointerId,startClientX:event.clientX,startClientY:event.clientY,startX:state.workspace.viewport.x,startY:state.workspace.viewport.y}; graphScroll.classList.add('panning');
+      });
+      graphScroll.addEventListener('pointermove',event=>{ if(state.workspace.pinch)return; const marquee=state.workspace.marquee;if(marquee&&marquee.pointerId===event.pointerId){const rect=graphScroll.getBoundingClientRect();marquee.x=event.clientX-rect.left;marquee.y=event.clientY-rect.top;const left=Math.min(marquee.startX,marquee.x),top=Math.min(marquee.startY,marquee.y),w=Math.abs(marquee.x-marquee.startX),h=Math.abs(marquee.y-marquee.startY),box=$('#selectionMarquee');Object.assign(box.style,{left:`${left}px`,top:`${top}px`,width:`${w}px`,height:`${h}px`});return;} const pan=state.workspace.pan; if(!pan||pan.pointerId!==event.pointerId)return; setGraphViewport({x:pan.startX+event.clientX-pan.startClientX,y:pan.startY+event.clientY-pan.startClientY},{persist:false}); });
+      const endGraphGesture=event=>{ const marquee=state.workspace.marquee;if(marquee&&marquee.pointerId===event.pointerId){const rect=graphScroll.getBoundingClientRect(),left=rect.left+Math.min(marquee.startX,marquee.x),right=rect.left+Math.max(marquee.startX,marquee.x),top=rect.top+Math.min(marquee.startY,marquee.y),bottom=rect.top+Math.max(marquee.startY,marquee.y),ids=[];document.querySelectorAll('#nodeLayer .node-card').forEach(card=>{const r=card.getBoundingClientRect();if(r.right>=left&&r.left<=right&&r.bottom>=top&&r.top<=bottom)ids.push(card.dataset.nodeId);});state.selectedNodeIds=new Set(ids);state.selectedNodeId=ids[ids.length-1]||state.selectedNodeId;state.selectedEdgeId='';state.workspace.marquee=null;const box=$('#selectionMarquee');box.classList.remove('show');box.removeAttribute('style');renderGraph();renderInspector();try{graphScroll.releasePointerCapture?.(event.pointerId);}catch{}return;} const pan=state.workspace.pan; if(!pan||pan.pointerId!==event.pointerId)return; state.workspace.pan=null; graphScroll.classList.remove('panning'); try{graphScroll.releasePointerCapture?.(event.pointerId);}catch{} scheduleAutosave(); };
+      graphScroll.addEventListener('pointerup',endGraphGesture); graphScroll.addEventListener('pointercancel',endGraphGesture);
+      window.addEventListener('keydown',event=>{ const tag=document.activeElement?.tagName?.toLowerCase(); const editable=['input','textarea','select'].includes(tag)||document.activeElement?.isContentEditable; if(event.code==='Space'&&!editable&&graphScroll.contains(document.activeElement)){graphSpaceHeld=true;event.preventDefault();} if((event.key==='f'||event.key==='F')&&!editable&&graphScroll.contains(document.activeElement)){event.preventDefault();fitGraph();} if((event.key==='Delete'||event.key==='Backspace')&&!editable&&state.selectedEdgeId){event.preventDefault();deleteSelectedEdge();} if(event.key==='Escape'){const popoverOpen=Object.keys(TOOLBAR_POPOVERS).some(id=>!$(`#${id}`)?.hidden),editor=$('.editor-grid'),mobileSheetOpen=isMobileGraphWorkspace()&&editor&&(!editor.classList.contains('palette-collapsed')||!editor.classList.contains('inspector-collapsed'));if(popoverOpen){event.preventDefault();closeToolbarPopovers();}else if(mobileSheetOpen){event.preventDefault();setWorkspaceSidebar('palette',false);setWorkspaceSidebar('inspector',false);}else if(editor?.classList.contains('graph-expanded')){event.preventDefault();setGraphFloating(false);}} });
+      window.addEventListener('keyup',event=>{if(event.code==='Space')graphSpaceHeld=false;});
+      window.addEventListener('resize',()=>{syncMobileWorkspaceMode();applyGraphViewport();renderMiniMap();});
+      $('#nodeLayer').addEventListener('click',event=>{ if(state.workspace.suppressNodeClick){state.workspace.suppressNodeClick=false;return;} if(state.workspace.suppressPortClick){state.workspace.suppressPortClick=false;return;} const port=event.target.closest('[data-port]'); if(port){event.stopPropagation();const id=port.dataset.nodeId,side=port.dataset.port,portKeyValue=port.dataset.portKey,type=port.dataset.streamType||portStreamType(nodeById(id),side,portKeyValue);if(state.pendingConnection){const pending=state.pendingConnection;if(pending.nodeId===id&&pending.startSide===side&&pending.portKey===portKeyValue){state.pendingConnection=null;refreshGraph();return;}const pair=normalizeConnectionPair(pending.nodeId,pending.startSide,pending.portKey,id,side,portKeyValue);if(pair&&canConnectPorts(pair.from,pair.fromPort,pair.to,pair.toPort)){connectNodes(pair.from,pair.fromPort,pair.to,pair.toPort);return;}}state.pendingConnection={nodeId:id,startSide:side,portKey:portKeyValue,type};state.selectedNodeId=id;state.selectedNodeIds=new Set([id]);state.selectedEdgeId='';refreshGraph();return;} const card=event.target.closest('[data-node-id]'); if(card){const id=card.dataset.nodeId,plain=!event.shiftKey&&!event.ctrlKey&&!event.metaKey,now=performance.now(),doubleActivation=plain&&lastPlainNodeClickId===id&&(now-lastPlainNodeClickAt)<=420;if(plain){lastPlainNodeClickId=id;lastPlainNodeClickAt=now;}else{lastPlainNodeClickId='';lastPlainNodeClickAt=0;}if(event.shiftKey)selectConnectedNodes(id);else selectNode(id,{additive:event.ctrlKey||event.metaKey});if(doubleActivation&&$('.editor-grid')?.classList.contains('inspector-collapsed'))setWorkspaceSidebar('inspector',true);} });
       $('#nodeLayer').addEventListener('keydown',event=>{if((event.key==='Enter'||event.key===' ')&&event.target.matches('.node-card')){event.preventDefault();selectNode(event.target.dataset.nodeId);}});
+      $('#edgeLayer').addEventListener('click',event=>{ const hit=event.target.closest('[data-edge-id]'); if(hit){event.stopPropagation();selectEdge(hit.dataset.edgeId);} });
+      $('#nodeLayer').addEventListener('pointerdown',event=>{
+        if(state.rendering||state.workspace.pinch||event.button!==0)return; const port=event.target.closest('.node-port');if(port){startConnectionDrag(port,event);return;} const card=event.target.closest('.node-card'); if(!card||event.shiftKey||event.ctrlKey||event.metaKey)return; event.preventDefault(); const id=card.dataset.nodeId;
+        let selectionChanged=false; if(!state.selectedNodeIds.has(id)){ state.selectedNodeIds=new Set([id]); state.selectedNodeId=id; state.selectedEdgeId=''; selectionChanged=true; document.querySelectorAll('#nodeLayer .node-card').forEach(el=>el.classList.toggle('selected',state.selectedNodeIds.has(el.dataset.nodeId))); renderInspector(); redrawGraphEdges(); }
+        const selected=[...state.selectedNodeIds],starts={}; for(const sid of selected){const p=state.workspace.positions[sid];if(p)starts[sid]={...p};}
+        state.workspace.nodeDrag={pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,starts,moved:false,historyPushed:false,selectionChanged}; card.setPointerCapture?.(event.pointerId);
+      });
+      $('#nodeLayer').addEventListener('pointermove',event=>{ if(state.workspace.pinch)return; if(state.workspace.connectionDrag){moveConnectionDrag(event);return;} const drag=state.workspace.nodeDrag;if(!drag||drag.pointerId!==event.pointerId)return; const dx=(event.clientX-drag.startX)/(state.workspace.viewport.zoom||1),dy=(event.clientY-drag.startY)/(state.workspace.viewport.zoom||1); if(!drag.moved&&Math.hypot(dx,dy)<2)return; if(!drag.historyPushed){pushHistory();drag.historyPushed=true;} drag.moved=true; for(const [id,start] of Object.entries(drag.starts)){const next={x:Math.max(20,start.x+dx),y:Math.max(20,start.y+dy)};state.workspace.positions[id]=next;const el=$(`#nodeLayer [data-node-id="${CSS.escape(id)}"]`);if(el){el.style.left=`${next.x}px`;el.style.top=`${next.y}px`;}} const bounds=graphPositionBounds(state.workspace.positions);state.workspace.graphWidth=bounds.width;state.workspace.graphHeight=bounds.height;$('#graphCanvas').style.width=`${bounds.width}px`;$('#graphCanvas').style.height=`${bounds.height}px`;$('#graphZoomLayer').style.width=`${bounds.width}px`;$('#graphZoomLayer').style.height=`${bounds.height}px`;redrawGraphEdges(); });
+      const endNodeDrag=event=>{ const drag=state.workspace.nodeDrag;if(!drag||drag.pointerId!==event.pointerId)return; state.workspace.nodeDrag=null; state.workspace.suppressNodeClick=drag.moved||drag.selectionChanged; if(drag.moved){scheduleAutosave();renderGraph();} };
+      $('#nodeLayer').addEventListener('pointerup',event=>{if(finishConnectionDrag(event,false))return;endNodeDrag(event);}); $('#nodeLayer').addEventListener('pointercancel',event=>{if(finishConnectionDrag(event,true))return;endNodeDrag(event);});
+      $('#edgeLayer').addEventListener('pointerdown',event=>event.stopPropagation());
       $('#inspectorBody').addEventListener('change',event=>{ if(event.target.id==='fileInput'){selectFile(event.target.files?.[0]);return;} const param=event.target.dataset.param;if(param) updateParam(state.selectedNodeId,param,event.target.type==='checkbox'?event.target.checked:event.target.value); });
       $('#inspectorBody').addEventListener('click',event=>{ const action=event.target.closest('[data-action]')?.dataset.action;if(action==='remove-file')clearFile();else if(action==='delete-node')deleteSelectedNode(); const scale=event.target.closest('[data-set-scale]')?.dataset.setScale;if(scale)updateParam(state.selectedNodeId,'width',Number(scale)); const generic=event.target.closest('[data-set-param]');if(generic)updateParam(state.selectedNodeId,generic.dataset.setParam,Number(generic.dataset.value)); const aspect=event.target.closest('[data-set-aspect]')?.dataset.setAspect;if(aspect){const [num,den]=aspect.split(':').map(Number);pushHistory();const node=nodeById(state.selectedNodeId);if(node){node.params.num=num;node.params.den=den;markPreviewStale();refreshGraph();}} const overlayPos=event.target.closest('[data-overlay-pos]')?.dataset.overlayPos;if(overlayPos){pushHistory();const node=nodeById(state.selectedNodeId);if(node?.type==='overlay'){node.params.position=overlayPos;markPreviewStale();refreshGraph();}} });
       document.querySelectorAll('[data-compiler-tab]').forEach(button=>button.addEventListener('click',()=>{state.compilerTab=button.dataset.compilerTab;renderCompiler();}));
@@ -1979,14 +2446,14 @@
       $('#fullRenderButton').addEventListener('click',renderFullVideo); $('#fullRenderCancelButton').addEventListener('click',()=>state.abortController?.abort()); $('#saveOutputButton').addEventListener('click',saveFullRenderOutput); $('#outputFilenameInput').addEventListener('input',event=>{state.outputFilename=event.target.value;state.outputFilenameTouched=true;}); $('#outputFilenameInput').addEventListener('change',event=>{state.outputFilename=sanitizeOutputFilename(event.target.value);event.target.value=state.outputFilename;state.outputFilenameTouched=true;scheduleAutosave();});
       $('#previewStartInput').addEventListener('change',event=>{state.previewStart=clampPreviewStart(event.target.value);state.previewCacheState='';syncPreviewEngineUi();renderCompiler();if(state.file)setStatus('ready',t('changed'));});
       document.querySelectorAll('[data-preview-duration]').forEach(button=>button.addEventListener('click',()=>{state.previewDuration=Number(button.dataset.previewDuration);state.previewCacheState='';syncPreviewEngineUi();renderCompiler();if(state.file)setStatus('ready',t('changed'));}));
-      $('#previewVideo').addEventListener('loadedmetadata',()=>applyPreviewWindow(true));
+      $('#previewVideo').addEventListener('loadedmetadata',event=>{const video=event.currentTarget,shell=$('#previewShell');if(shell) shell.classList.add('has-video');applyPreviewWindow(true);});
       $('#previewVideo').addEventListener('timeupdate',event=>{const video=event.currentTarget,end=playbackPreviewEnd();if(video.currentTime>=end-.02){video.pause();if(video.currentTime>end+.03){try{video.currentTime=end;}catch(_){}}}});
       $('#previewVideo').addEventListener('seeking',event=>{const video=event.currentTarget,start=state.previewPlaybackStart,end=playbackPreviewEnd();if(video.currentTime<start-.03){try{video.currentTime=start;}catch(_){}}else if(video.currentTime>end+.03){try{video.currentTime=end;}catch(_){}}});
       window.addEventListener('pagehide',()=>{saveAutosaveNow();revoke(state.inputUrl);revoke(state.outputUrl);revoke(state.fullRenderUrl);clearPreviewCache();state.runner?.dispose();});
       if(!StandaloneAssets.has(TEXT_FONT_ASSET_ID,TEXT_FONT_LICENSE_ASSET_KEY)) throw new Error('Embedded Draw Text font license is missing.');
       $('#textFontLicense').textContent=StandaloneAssets.text(TEXT_FONT_ASSET_ID,TEXT_FONT_LICENSE_ASSET_KEY);
       const previousProject=readStoredProject(); if(previousProject)showRecoveryBanner(previousProject); syncRecipeUi(); syncFullRenderUi();
-      applyLanguage(); $('#metricRuntimeLoad').textContent='—'; $('#metricRender').textContent='—'; setTimeout(()=>appendLog('app',`startup=${Math.round(performance.now()-appStartedAt)}ms variant=${RUNTIME_VARIANT}`),0);
+      syncMobileWorkspaceMode(true); setMiniMapVisible(true); applyLanguage(); $('#metricRuntimeLoad').textContent='—'; $('#metricRender').textContent='—'; setTimeout(()=>appendLog('app',`startup=${Math.round(performance.now()-appStartedAt)}ms variant=${RUNTIME_VARIANT}`),0);
 
     })();
   </script>

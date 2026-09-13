@@ -102,7 +102,7 @@ function Resolve-RuntimeRoot([string]$Variant, [string]$ExplicitRoot) {
   return [string]$lines[-1]
 }
 
-Write-Host "FFmpeg Filter Builder v1.0.0" -ForegroundColor Cyan
+Write-Host "FFmpeg Filter Builder v1.1.0" -ForegroundColor Cyan
 Write-Host "ST + MT standalone build / FFmpeg WASM Builder v1.9.8 / embedded M PLUS 1p"
 Write-Host ""
 
@@ -147,7 +147,7 @@ Write-Host "[7/7] Building multi-thread standalone..." -ForegroundColor Cyan
 
 & $RepositoryCheckPath
 Write-Host ""
-Write-Host "[OK] FFmpeg Filter Builder v1.0.0 dual-runtime build completed." -ForegroundColor Green
+Write-Host "[OK] FFmpeg Filter Builder v1.1.0 dual-runtime build completed." -ForegroundColor Green
 Write-Host "  dist\index.html             single-thread / file:// supported"
 Write-Host "  dist\index.mt.html          multi-thread / COOP+COEP required"
 if (-not $SkipSelfExtract) {

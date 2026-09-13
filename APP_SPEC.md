@@ -2801,4 +2801,144 @@ v0.9.0で確定したGraph schemaVersion 3、Preview、Full Render、ST / MT、D
 - template由来で本アプリに不要な `htmlapps-template.zip`、WebRTC QR pairing部品 / docs、未使用UI component、未使用npm dependency管理一式、`README-FIRST.txt` をrepositoryから削除
 
 Multiple Inputはv1.0.0の完成条件へ含めない。WatermarkはDraw Text、Picture in Pictureは同一InputのSplit branchという現在の境界を正式仕様とする。
+---
+
+# v1.1.0 — Graph Workspace Redesign
+
+## 目的
+
+Graph Canvasをアプリの主役にし、v1.0.0のGraph schema v3 / Compiler / Preview / Full Render / ST / MTを維持したまま、Node Editorとしての操作性を段階的に刷新する。
+
+## 開発計画
+
+1. **alpha.1 — Workspace Core**: Node-RED型の左右開閉サイドバー + 中央Canvas、Pan / Zoom、100%、Fit、viewport state、v1.0.0 Graph JSON互換。
+2. **alpha.2 — Modern Node UI**: 約200px Node、header/icon/category、parameter summary、Port表示刷新。
+3. **alpha.3 — Manual Layout / Selection**: Node drag、位置保存、複数選択、marquee、Edge選択、Undo / Redo。
+4. **beta.1 — Palette / Inspector Polish**: Filter検索、Sidebarの表示状態・操作性調整、Graph toolbar集約。
+5. **beta.2 — Connection UX / MiniMap**: alpha.3で先行実装したdrag-to-connect / 接続候補強調を磨き込み、Edge hoverとMiniMapを追加。
+6. **beta.3 — Mobile**: Full-width Canvas、Bottom Sheet、Touch pan / pinch zoom / connection。
+7. **rc.1 — Regression**: v1.0.0機能・Graph JSON・ST / MT・file://・CSP・完全ローカル処理の全体回帰。
+
+## v1.1.0-alpha.1 実装メモ（2026-09-11）
+
+- 3カラムの中央にあったGraph Canvasを、editor内の先頭・全幅へ移動。Filter / Inspectorは後段の補助領域とした。
+- Desktop Graph viewportを `clamp(560px, 68vh, 820px)`、Mobileを `clamp(420px, 62vh, 620px)` とした。
+- Mouse wheel / trackpad zoom、Canvas background drag / middle mouse / Space+drag pan、Fit、100%、+ / - を追加。
+- Zoom範囲は40%〜200%。
+- dot gridはviewportのPan / Zoomに追従する。
+- Graph JSON envelopeへoptionalな `workspace.viewport` を追加。Graph schemaVersion 3には変更なし。
+- v1.0.0のGraph JSONはworkspace情報がなくてもそのまま読み込み、初回表示時に自動Fitする。
+- Autosaveにもviewportを保存するが、動画・Preview・Full Render結果は従来どおり保存しない。
+- `stableGraphPayload()` はworkspaceを参照しないため、Pan / ZoomではGraph HashもPreview stale状態も変化しない。
+- Recipe適用 / Sample Graph / Resetでは新Graphを自動Fitする。
+- Nodeの手動配置、新Node UI、MiniMapはalpha.1の対象外。
+- 実機レビューを受け、Filter / Graph / Inspectorの配置はNode-RED型の左右サイドバー構成へ前倒しで変更。左右は独立して開閉でき、閉じた分だけGraph Canvasを広げる。
+- 拡大時の文字・線のぼやけを抑えるため、対応ブラウザではGraph本体の拡大にCSS `zoom`を使用し、Pan用translateとZoom用layerを分離する。非対応環境ではtransform scaleへfallbackする。
+## v1.1.0-alpha.2 実装メモ（2026-09-11）
+
+- Filter / Graph / Inspectorを別々のカードとして離して見せる構造をやめ、1つのGraph Workspace surface内で隙間なく接続する。
+- 左Filterと右InspectorはNode-RED型のサイドバーとして開閉可能なまま維持し、閉じた領域は中央Graph Canvasへ返す。
+- Graph / Filter / InspectorだけでなくPreview / Full Renderも含め、線形工程を示していた番号バッジを撤去する。
+- Node幅を約210pxへ拡大し、`header + SVG icon + category + readable summary + ports` の構造へ刷新する。
+- CategoryはVideo / Audio / Text / Branch / Input / Outputを文字とiconで示し、色だけに依存しない。
+- Node summaryはraw FFmpeg式ではなく、Scaleなら `1280 × auto`、Volumeなら `-3 dB` のように主要設定をGraph上で読める表現とする。
+- Portの実ヒット領域を36pxへ拡大し、Video circle / Audio diamondの識別は維持する。
+- Nodeが広くなった分、auto layoutの列間隔 / 行間隔 / Canvas boundsを拡張する。
+- alpha.2ではNode drag / manual positions / marquee / Edge selectionはまだ入れない。これらはalpha.3で実装する。
+- Graph schemaVersion 3、Graph Hash、Compiler、Preview、Full Render、ST / MT runtime contractには変更を加えない。
+- Graph CanvasにはブラウザFullscreenではないページ内の拡大表示を追加し、通常 `clamp(560px, 68vh, 820px)` から拡大時 `clamp(720px, 82vh, 1040px)` へ切り替える。左右サイドバーと現在viewportは維持する。
+- 全Nodeを固定高さ146pxの共通geometryへ揃え、Port位置はNode高さに対する百分率ではなく共通pixel rowへ変更する。Input / Output / Split / Overlay / Audio Mixを含むmulti-port Nodeも同じ基準線で配置する。
+- Port row統一に合わせてauto layoutの行間隔 / 列間隔を再調整し、Node種類によるcaption / portの縦ズレを防ぐ。
+
+
+## v1.1.0-alpha.3 実装メモ（2026-09-11）
+
+- Graph Workspace拡大は高さ変更ではなく、ページ上に浮かぶ非Fullscreenの固定オーバーレイへ変更。
+- Node位置を `workspace.positions` としてGraph semanticsから分離し、Graph JSON / Autosaveへ保存。
+- Node drag、Ctrl/Cmd+Clickによる個別複数選択、Shift+Clickによる接続コンポーネント一括選択、Shift+Drag矩形選択、複数Node同時移動を追加。
+- 出力Portから入力Portへwireをドラッグして接続できるNode-RED型のdrag-to-connectを追加。ドラッグ中はBezier wireを追従表示し、型・Cycle条件を満たす接続可能Portだけを強調する。click-to-connectも補助操作として維持する。
+- drag-to-connect中は有効な入力Portの約48px以内（touchは約64px）へ入るとwire終端をPort中心へ吸着し、Portを拡大・発光してマグネット感を示す。吸着状態でreleaseすると接続を確定する。
+- Graph Workspaceの浮上表示は四隅拡大型iconを使い、暗転した外側領域のクリックまたはEscで閉じる。
+- Edgeを選択可能にし、Delete / Backspaceで削除。Undo / Redo対象。
+- Node位置変更だけではGraph Hashを変えず、Previewをstaleにしない。
+
+
+## v1.1.0-beta.2 実装メモ（2026-09-12）
+
+- Port dragを双方向化し、出力→入力だけでなく入力→出力の逆方向からもwireを作成できるようにする。
+- 逆方向dragでもVideo / Audio型チェック、self connection拒否、Cycle検出、既存edge置換、magnetic snapを同じ規則で適用する。
+- Edgeのhover hit areaを拡大し、hover / selected / 選択Node接続Edgeの視覚フィードバックを整理する。
+- PCのGraph Canvas右下へMiniMapを追加し、Node配置と現在Viewportを表示する。MiniMap click / dragで表示位置を移動できる。
+- MiniMapはToolbarから表示 / 非表示を切り替え可能とし、スマートフォンではCanvas領域を優先して非表示にする。
+- Fit / Pan / Zoom / Floating Workspace / Palette / Inspectorはbeta.1までの挙動を維持する。
+- Graph schemaVersion 3、Graph Hash、Compiler、Preview / Full Render、ST / MT、workspace.positionsには変更を加えない。
+
+
+## v1.1.0-beta.3 実装メモ（2026-09-12）
+
+Mobileフェーズとして以下を実装。
+
+- 700px以下ではGraph Canvasを横幅いっぱいに優先表示
+- Filter Palette / Node InspectorをBottom Sheet化
+- Bottom Sheetは同時に1枚だけ開き、背景タップ / Escで閉じる
+- safe-areaを考慮したBottom Sheet内部スクロール
+- Graph Toolbarを横スクロール可能な1列構成へ変更
+- Graph toolbar / sidebar close / Inspector form / PortのTouch targetを44px以上へ拡大
+- MiniMapはスマートフォンでは非表示
+- Canvasは1本指dragでPan、NodeはTouch dragで移動
+- 2本指PinchでZoom + Pan
+- PortはDrag接続に加えてTap → Tapでも双方向接続可能
+- Video / Audio型チェック、Cycle検出、Magnet snapはTouchでも共通
+- DesktopのPalette / Inspector / MiniMap / Pan / Zoom操作は維持
+- Graph schema v3 / Compiler / Preview / Full Renderは変更しない
+
+
+## v1.1.0-rc.1 実装メモ（2026-09-13）
+
+Release Candidateフェーズとして機能追加を凍結し、v1.1.0正式版へ向けた全体回帰へ移行する。
+
+- app / build scripts / runtime User-Agent / repository check / smoke testのversionを `1.1.0-rc.1` へ統一
+- Graph schemaVersion 3を維持し、v1.0.0 Graph JSONの `workspace` 未定義データをそのまま読み込めることを回帰契約へ追加
+- `workspace.positions` / `workspace.viewport` はGraph semanticsから分離し、Node配置やPan / ZoomだけではGraph HashとPreview stale状態を変更しない契約を維持
+- Palette / Inspector、Floating Workspace、Manual Layout、Ctrl/Cmd複数選択、Shift接続Node選択、矩形選択、Edge選択、双方向drag-to-connect、Magnet snap、MiniMap、Mobile Bottom Sheet / Pinch ZoomをRC回帰対象へ固定
+- Preview / Full Render、10 Recipe、Video / Audio / Text / Complex Graph、Graph JSON / Autosave、ST / MT、`file://` ST、COOP / COEP MT、CSP `connect-src 'none'`、M PLUS 1p埋め込みをRelease Gateとして再確認
+- `tests/release-candidate-smoke.mjs` を追加し、pull request buildとGitHub Pages deployの双方でRC契約を検査
+- FFmpeg WASM Builderはv1.9.8のまま固定し、RCでは新filter・Multiple Input・Graph schema変更を入れない
+
+### RC実機Gate
+
+1. PC: Palette / Canvas / Inspector、Floating Workspace、Pan / Zoom / Fit、MiniMap、Node drag / selection / wiring
+2. Mobile: Bottom Sheet、1本指Pan / Node drag、Pinch Zoom、Tap / Drag Port接続、横スクロールなし
+3. ST: `file://` で Recipe → Preview → Full Render → 保存
+4. MT: cross-origin isolation下で同じGraphの Preview → Full Render
+5. v1.0.0 Graph JSON読込、Graph JSON保存 / 再読込、Autosave復元
+6. Draw Text日本語 / 英語、Audio chain、Split / Overlay、Video Speed + Audio同期
+7. 実行時外部通信なし、CSP、standalone / self-extract、favicon / license / README確認
+
+
+## v1.1.0 正式版 実装メモ（2026-09-13）
+
+v1.1.0-rc.1の実機調整を反映し、Graph Workspace Redesignを正式版として確定する。新しいFFmpeg filter、Multiple Input、Graph schema変更は追加しない。
+
+- app / build scripts / runtime User-Agent / repository check / smoke testのversionを `1.1.0` へ統一
+- `tests/release-candidate-smoke.mjs` を `tests/release-smoke.mjs` へ切り替え、PR build / GitHub Pages deployの双方で正式版契約を検査
+- README / README.ja.mdからRelease Candidate表記を削除し、v1.1.0のGraph Workspace / Mobile / ST / MT / Multiple Input境界を正式仕様として記載
+- Graph Canvasを中心に、左右開閉Palette / Inspector、Floating Workspace、Pan / Zoom / Fit、MiniMap、Modern Node UI、Manual Layout、複数選択、Edge操作、双方向Wiring、Magnet snapを正式機能とする
+- Palette検索、Recipe / Graph操作のToolbar統合、Graph初期化確認、Inspector非表示時のNodeダブルクリック再表示を正式仕様とする
+- MobileではPalette / Inspector Bottom Sheet、1本指Pan / Node drag、Pinch Zoom、Tap / Drag接続、safe-area、横スクロール防止を正式仕様とする
+- Previewの全体表示、Zoom segmented control、Floating Workspace中のToast表示、Audio palette色、sidebar reopen controlをRC実機レビュー反映として確定
+- Graph schemaVersion 3、FFmpeg WASM Builder v1.9.8、1 main MP4 input、ST / MT runtime contract、Draw Text font pinを維持
+
+### v1.1.0 Release Gate
+
+1. `build-standalone.bat` でST / MT通常版・self-extract版が生成できる
+2. ST `file://` で動画読込 → Recipe / Graph編集 → Preview → Full Render → 保存が完了する
+3. MTで `crossOriginIsolated === true` の環境から同じGraphのPreview / Full Renderが完了する
+4. v1.0.0 Graph JSONを読み込め、workspace metadataなしでも自動配置 / Fitされる
+5. Node移動・Pan・ZoomだけではGraph Hash / Preview stale状態が変わらない
+6. PCでPalette / Inspector / Floating Workspace / MiniMap / Wiring / Selectionが操作できる
+7. MobileでBottom Sheet / Pan / Node drag / Pinch Zoom / Tap・Drag接続が操作でき、ページ横スクロールがない
+8. Scale / Speed + Audio sync / Trim / Split / Overlay / Audio filters / Draw Text / 10 Recipesが回帰しない
+9. Graph JSON / Autosaveはmedia bytesを保存しない
+10. runtime CSP `connect-src 'none'`、外部runtime依存なし、favicon / license / READMEが正式版と一致する
 

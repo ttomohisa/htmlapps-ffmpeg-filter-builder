@@ -52,7 +52,7 @@ if (-not (Test-Path -LiteralPath $fontPath -PathType Leaf)) {
   Write-Host "[Text Font] Downloading pinned M PLUS 1p Regular snapshot" -ForegroundColor Cyan
   $partialPath = "$fontPath.part"
   Remove-Item -Force -ErrorAction SilentlyContinue $partialPath
-  Invoke-WebRequest -Uri ([string]$lock.url) -OutFile $partialPath -UseBasicParsing -Headers @{ "User-Agent" = "htmlapps-ffmpeg-filter-builder/1.0.0" }
+  Invoke-WebRequest -Uri ([string]$lock.url) -OutFile $partialPath -UseBasicParsing -Headers @{ "User-Agent" = "htmlapps-ffmpeg-filter-builder/1.1.0" }
   Move-Item -Force $partialPath $fontPath
 } else {
   Write-Host "[Text Font] Using cached M PLUS 1p Regular" -ForegroundColor Cyan

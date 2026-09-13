@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const source = fs.readFileSync(new URL('../src/index.template.html', import.meta.url), 'utf8');
+assert.ok(source.includes('.node-card { position:absolute; width:218px; height:146px;'), 'Modern node geometry missing.');
+for (const token of ['.node-header {','.node-icon {','.node-heading {','.node-category {','.node-body {']) assert.ok(source.includes(token), `${token} missing.`);
+for (const fn of ['function nodeVisualCategory(node)','function nodeIconSvg(node)','function nodeCategoryLabel(node)','function nodeSummary(node)']) assert.ok(source.includes(fn), `${fn} missing.`);
+assert.ok(source.includes("return `${n(p.width)} × auto`;"), 'Scale summary missing.');
+assert.ok(source.includes("return `${n(p.db)} dB`;"), 'Volume summary missing.');
+assert.ok(source.includes("return 'Video → A + B';"), 'Split summary missing.');
+assert.ok(source.includes('const portTop=(ports,index)=>ports.length<=1?111:'), 'Fixed port rows missing.');
+assert.ok(source.includes('.node-port.audio::after'), 'Audio ports must remain distinct.');
+console.log('[OK] v1.1.0 Modern Node UI smoke tests passed.');

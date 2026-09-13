@@ -2,6 +2,108 @@
 
 All notable changes to FFmpeg Filter Builder are documented here.
 
+## 1.1.0 - 2026-09-13
+
+### Graph Workspace Redesign
+
+- Promoted the redesigned Graph Workspace to the stable v1.1.0 release without changing Graph schemaVersion 3 or the FFmpeg WASM Builder v1.9.8 runtime contract.
+- Made the Graph Canvas the primary editor with collapsible left Filter Palette and right Node Inspector, a floating enlarge mode, pan / zoom / fit controls, and desktop MiniMap navigation.
+- Added modern node cards with readable parameter summaries, manual node layout, Graph JSON/autosave workspace persistence, Ctrl/Cmd multi-selection, Shift connected-component selection, marquee selection, and group dragging.
+- Added bidirectional drag-to-connect with magnetic port snapping, edge hover/selection/removal, and Undo / Redo integration.
+- Added Japanese/English Palette search, Graph toolbar Recipe / project operations, reset confirmation, and context-aware Inspector reopening including hidden-Inspector Node double-click.
+- Added mobile-first Graph editing with bottom-sheet Palette / Inspector, one-finger pan / node drag, pinch zoom, tap-to-connect, safe-area handling, and no page-level horizontal scrolling.
+- Polished Preview sizing, segmented zoom controls, floating-workspace toast layering, Audio palette colors, and sidebar reopen controls after RC device review.
+- Replaced the release-candidate regression gate with the final `tests/release-smoke.mjs` contract and synchronized app/build/runtime version metadata to `v1.1.0`.
+
+### Compatibility
+
+- v1.0.0 Graph JSON remains loadable; missing workspace metadata is auto-laid out and fitted.
+- Node positions, viewport, Palette/Inspector state, and MiniMap state do not change Graph Hash or make Preview stale.
+- ST `file://`, MT cross-origin-isolated operation, Preview, Full Render, Draw Text, Audio filters, Complex Graph, Recipes, Graph JSON, and Autosave retain the v1.0.0 processing contract.
+
+## 1.1.0-rc.1 - 2026-09-13
+
+- Froze v1.1.0 feature work for release-candidate regression and release hardening.
+- Synchronized the app, build scripts, runtime User-Agent, repository checks, README, and smoke tests to `v1.1.0-rc.1`.
+- Added a dedicated release-candidate regression contract covering v1.0.0 Graph JSON compatibility, Graph schemaVersion 3, workspace/hash separation, Palette / Inspector, manual layout, bidirectional wiring, MiniMap, mobile bottom sheets, Preview, Full Render, ST / MT outputs, and runtime network blocking.
+- Added the RC regression test to both pull-request validation and GitHub Pages deployment gates.
+- Expanded offline verification around desktop/mobile Graph editing, ST `file://`, MT cross-origin isolation, Graph JSON / Autosave boundaries, Draw Text, Preview, and Full Render.
+- Kept FFmpeg WASM Builder pinned to v1.9.8 and made no new filter, Graph schema, or runtime-contract changes.
+- Matched Audio filter palette icons to the Canvas Audio color system.
+- Made Palette / Inspector reopen buttons appear only while the corresponding sidebar is closed, and moved the Inspector reopen control onto the Canvas right edge.
+- Added Node double-click as a direct way to select a node and open its Inspector.
+
+## 1.1.0-beta.3 - 2026-09-12
+
+- Reworked the mobile Graph Workspace so the Canvas remains full-width while Filter Palette and Node Inspector open as bottom sheets.
+- Added mobile sheet backdrop / outside-tap dismissal, safe-area padding, sticky sheet headers, and 44px+ touch targets.
+- Added two-finger pinch zoom while preserving one-finger Canvas pan and Node drag.
+- Added bidirectional tap-to-connect for ports in addition to drag-to-connect, with the existing type / cycle validation and magnetic snapping.
+- Hid MiniMap on mobile and made the Graph toolbar horizontally scrollable instead of wrapping into a tall control block.
+- Added mobile layout regression coverage while keeping Graph schema v3, Preview, Full Render, ST / MT, and standalone behavior unchanged.
+
+## 1.1.0-beta.2 - 2026-09-12
+
+- Added bidirectional drag-to-connect: start from an output and drop on an input, or start from an input and drag backward to a compatible output.
+- Kept type validation, cycle rejection, and magnetic snapping identical in both wiring directions.
+- Refined edge interaction with a wider hit area plus clearer hover, connected-node emphasis, and selected-edge feedback.
+- Added a desktop MiniMap showing graph nodes and the current viewport. Click or drag the MiniMap to navigate the Canvas.
+- Fixed MiniMap/viewport coordinate handling: MiniMap node clicks now select and center the node, dragging the viewport keeps its grab offset, and ordinary node clicks no longer unexpectedly pan the Canvas.
+- Normalized two-column Inspector fields so labels and controls share the same top baseline across Trim and other paired settings.
+- Added a toolbar control to show or hide the MiniMap; it stays hidden on mobile where Canvas space is more important.
+- Kept Graph schemaVersion 3, compiler output, Preview / Full Render, workspace positions, and Graph Hash semantics unchanged.
+
+## 1.1.0-beta.1 - 2026-09-12
+
+- Fixed the repository validation marker after Graph tools moved from the palette into the toolbar popover.
+- Moved Quick Recipes from a standalone page card into a Graph toolbar popover so the Canvas remains the primary workspace.
+- Moved Graph JSON save/open, sample graphs, reset, and autosave status into a compact Graph tools menu in the toolbar.
+- Added Palette search with Japanese and English aliases across Video, Text, Complex, and Audio nodes; matching categories open automatically and empty categories are hidden while searching.
+- Refined the Node-RED-style left Palette / center Canvas / right Inspector layout without reintroducing gaps or permanent non-Canvas panels.
+- Added selected-node context to the Inspector header and viewport compensation when reopening the Inspector so the selected node stays visible.
+- Kept Graph schemaVersion 3, compiler output, Preview / Full Render, manual layout, floating workspace, and magnetic drag-to-connect semantics unchanged.
+
+## 1.1.0-alpha.3 - 2026-09-11
+
+- Changed Graph Canvas enlarge mode to a page-level floating workspace with a dimmed backdrop; it is not browser fullscreen.
+- Added manual node positioning and persistence in Graph JSON/autosave workspace metadata.
+- Changed selection shortcuts: Ctrl/Cmd+click toggles individual nodes, while Shift+click selects the full connected node component; Shift+drag marquee selection and group dragging remain available.
+- Added Node-RED-style drag-to-connect wiring with a live Bezier preview, valid target highlighting, type checks, and cycle rejection; click-to-connect remains available as a fallback.
+- Added magnetic port snapping while wiring: the preview wire snaps to a nearby valid input, the target grows/glows, and releasing within the magnetic radius completes the connection.
+- Changed the floating workspace control to a four-corner enlarge icon and made clicking the dimmed area outside the workspace close the enlarged view.
+- Added selectable edges and Delete/Backspace removal with Undo/Redo.
+- Kept graph semantics/hash independent from workspace layout changes so moving nodes does not stale Preview.
+
+## 1.1.0-alpha.2 - 2026-09-11
+
+### Modern Node UI
+
+- Unified Filters, Graph Canvas, and Node settings into one flush workspace surface with no inter-panel gap; sidebars remain independently collapsible and the center Canvas expands into the released space.
+- Removed numbered step badges from Graph, Filters, Node settings, Preview, and Full Render because the redesigned workspace is no longer a linear step flow.
+- Redesigned graph nodes from compact cards into wider ~210 px editor nodes with a dedicated header, SVG icon, category label, readable parameter summary, and larger port hit areas.
+- Added visual categories for Video, Audio, Text, Branch, Input, and Output while keeping the Browser Kitty light theme and restrained accent usage.
+- Replaced raw FFmpeg filter snippets in node summaries with user-readable values such as `1280 × auto`, `2× · Audio sync`, `-3 dB`, and branch semantics.
+- Increased auto-layout spacing to accommodate the wider modern nodes without changing Graph schemaVersion 3, compiler output, Preview semantics, or workspace viewport persistence.
+- Added a dedicated Modern Node UI smoke test to CI and deployment gates.
+- Added a page-local Graph Canvas expand/restore control that increases workspace height without invoking browser fullscreen, while preserving the current viewport and both sidebars.
+- Normalized every node to a fixed modern geometry and replaced percentage-based port positioning with shared pixel rows, eliminating Input / Output / Split / Overlay / Audio Mix label and port drift.
+- Increased graph auto-layout spacing to match the normalized node height and added workspace layout regression coverage.
+
+## 1.1.0-alpha.1 - 2026-09-11
+
+### Graph Workspace Core
+
+- Made Graph Canvas the first, full-width editor surface instead of the middle column in a three-column layout.
+- Increased the desktop graph viewport to a 560-820 px responsive workspace, with a mobile-specific 420-620 px range.
+- Added canvas pan, wheel/trackpad zoom (40%-200%), Fit Graph, 100% reset, and zoom controls.
+- Moved Undo / Redo into the Graph toolbar.
+- Added viewport persistence to Graph JSON and local autosave under an optional `workspace.viewport` field.
+- Kept Graph schema v3 and Graph Hash semantics unchanged; pan / zoom state does not invalidate Preview.
+- Kept v1.0.0 Graph JSON compatible: projects without workspace metadata are automatically fitted on first display.
+- Recipes and sample/reset actions automatically fit the generated graph.
+- Revised the alpha workspace after desktop review to a Node-RED-style layout: Filters on the left, Graph Canvas in the center, and Node settings on the right, with independent open/close controls for both sidebars.
+- Added a dedicated zoom layer. Chromium/Edge use layout-aware CSS `zoom` for sharper text and SVG rendering at enlarged zoom levels, with transform scaling retained only as a fallback.
+
 ## 1.0.0 - 2026-09-11
 
 ### Changed

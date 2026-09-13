@@ -8,7 +8,6 @@
 
 A browser-based FFmpeg filter graph editor for MP4 video. Build Video / Audio / Text processing as editable nodes, preview the result with embedded FFmpeg WebAssembly, and render the complete video without uploading the selected file to a server.
 
-
 ## 🚀 Live demo
 
 ### [Open FFmpeg Filter Builder on GitHub Pages](https://ttomohisa.github.io/htmlapps-ffmpeg-filter-builder/)
@@ -18,6 +17,7 @@ GitHub Pages delivers the initial HTML. After the page loads, the selected MP4, 
 ## Features
 
 - **Start from a recipe or build the Graph yourself** — Ten recipes expand into normal editable nodes and edges instead of hiding the processing behind a preset.
+- **Edit around the Graph Canvas** — Pan / zoom / fit, manual node layout, multi-selection, bidirectional drag-to-connect, and a MiniMap make the Graph behave like a dedicated node editor.
 - **Edit common video filters visually** — Trim, Speed, FPS, Scale, Crop, Pad, Rotate, Flip, Aspect Ratio, Color Adjust, Hue, Blur, Sharpen, and Fade.
 - **Build branching video graphs** — Split and Overlay support branch / merge layouts such as Picture in Picture and blurred-background video.
 - **Process audio in the same Graph** — Audio Trim, Volume, Fade, Speed, High-pass, Low-pass, Normalize, Split, and Mix are available, including synchronized audio for Video Speed.
@@ -72,14 +72,17 @@ Recipes that depend on source dimensions or duration should be applied after loa
 
 ### Graph tools
 
-The **Graph tools** section contains operations for the Graph itself rather than FFmpeg filters:
+**Graph tools** contains project-level operations rather than FFmpeg filters:
 
-- Undo / Redo
-- Split + Overlay sample Graph
-- Audio Mix sample Graph
-- Reset Graph
+- Save Graph JSON
+- Open Graph JSON
+- Reset Graph with confirmation
 
-Video filters, Text, Complex graph, Audio filters, and Graph tools are collapsible so the left palette does not become excessively tall.
+Undo / Redo remain directly available in the Graph toolbar. The legacy Split + Overlay and Audio Mix sample shortcuts were removed from the user-facing menu because Recipes now cover the guided starting flow. Video filters, Text, Complex graph, and Audio filters remain available in the Palette.
+
+### Mobile Graph editing
+
+On smartphones, the Graph Canvas uses the available width while Filter Palette and Node Inspector open as bottom sheets. Drag one finger on the Canvas to pan, drag a node to move it, and use a two-finger pinch to zoom. Ports can be connected either by dragging a wire or by tapping the start and destination ports in sequence.
 
 ### Graph JSON and autosave
 
@@ -94,11 +97,11 @@ FFmpeg WASM Builder v1.9.8 currently exposes one main media input to this app. T
 - **Watermark** uses Draw Text rather than a separate image file.
 - **Picture in Picture** uses a branch of the same input video rather than a second independent video.
 
-Independent image-watermark and second-video input are not supported in v1.0.0.
+Independent image-watermark and second-video input are not supported in v1.1.0; this workspace redesign intentionally keeps the v1.0.0 runtime/input boundary.
 
 ## Browser support
 
-Chrome and Edge are the primary supported browsers. The standard single-thread build is intended to work as a directly opened `file://` HTML file. The multi-thread build requires a browser and HTTP(S) deployment that support cross-origin isolation and `SharedArrayBuffer`. Firefox and Safari may work for parts of the app, but are not primary release targets for v1.0.0.
+Chrome and Edge are the primary supported browsers. The standard single-thread build is intended to work as a directly opened `file://` HTML file. The multi-thread build requires a browser and HTTP(S) deployment that support cross-origin isolation and `SharedArrayBuffer`. Firefox and Safari may work for parts of the app, but Chrome and Edge remain the primary targets for v1.1.0.
 
 ## Standard and multi-thread builds
 

@@ -96,7 +96,7 @@ for (const marker of [
   "const req={...state.compiled.request}", 'BrowserFFmpeg.ffmpegFilterBuilderArgs(req)', 'showSaveFilePicker', 'fullRenderBlob', 'Full Render', 'outputFilename' 
 ]) assert.ok(source.includes(marker), `Missing v0.8.0 marker: ${marker}`);
 
-assert.match(source, /recipeLimitNote:'Watermarkはv0\.8\.0ではDraw Text/);
+assert.match(source, /recipeLimitNote:'WatermarkはDraw Text/);
 assert.match(source, /Multiple Input/);
 
 console.log('[OK] Recipes / Full Render smoke tests passed.');

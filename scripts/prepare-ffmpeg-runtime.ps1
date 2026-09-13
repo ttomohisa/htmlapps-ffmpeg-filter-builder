@@ -51,7 +51,7 @@ if (-not (Test-Path -LiteralPath $archivePath -PathType Leaf)) {
   $downloadDirectory = Split-Path -Parent $partialPath
   [System.IO.Directory]::CreateDirectory($downloadDirectory) | Out-Null
   Remove-Item -Force -ErrorAction SilentlyContinue $partialPath
-  Invoke-WebRequest -Uri ([string]$entry.url) -OutFile $partialPath -UseBasicParsing -Headers @{ "User-Agent" = "htmlapps-ffmpeg-filter-builder/1.0.0" }
+  Invoke-WebRequest -Uri ([string]$entry.url) -OutFile $partialPath -UseBasicParsing -Headers @{ "User-Agent" = "htmlapps-ffmpeg-filter-builder/1.1.0" }
   Move-Item -Force $partialPath $archivePath
 } else {
   Write-Host "[FFmpeg Runtime] Using cached $Variant runtime" -ForegroundColor Cyan

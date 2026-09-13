@@ -8,7 +8,6 @@
 
 MP4動画のFFmpeg Filter Graphをブラウザー上で組み立てるツールです。Video / Audio / Textの処理を編集可能なNodeとして構成し、内蔵FFmpeg WebAssemblyでPreviewし、そのまま動画全体を書き出せます。選択した動画をアプリからサーバーへアップロードしません。
 
-
 ## 🚀 Live demo
 
 ### [GitHub PagesでFFmpeg Filter Builderを開く](https://ttomohisa.github.io/htmlapps-ffmpeg-filter-builder/)
@@ -18,6 +17,7 @@ GitHub Pagesから最初のHTMLを読み込んだ後、選択したMP4、Graph�
 ## Features
 
 - **Recipeから始めてもGraphを直接作っても使える** — 10種類のRecipeはブラックボックスではなく、通常の編集可能なNode / Edgeへ展開されます。
+- **Graph Canvasを中心に編集** — Pan / Zoom / Fit、Node自由配置、複数選択、双方向drag-to-connect、MiniMapを備えたNode EditorとしてGraphを操作できます。
 - **よく使うVideo filterをGUIで編集** — Trim、Speed、FPS、Scale、Crop、Pad、Rotate、Flip、Aspect Ratio、Color Adjust、Hue、Blur、Sharpen、Fadeに対応します。
 - **分岐・合流Graphを構築** — Split / Overlayを使い、Picture in Pictureや背景ぼかしのようなbranch / merge構成を作れます。
 - **Audioも同じGraphで処理** — Audio Trim、Volume、Fade、Speed、High-pass、Low-pass、Normalize、Split、Mixに対応し、Video Speed時の音声同期も行えます。
@@ -72,14 +72,17 @@ GitHub Pagesから最初のHTMLを読み込んだ後、選択したMP4、Graph�
 
 ### Graph操作
 
-**Graph操作**はFFmpeg filterではなく、Graph自体を編集するための補助操作です。
+**Graph操作**はFFmpeg filterではなく、Graph自体を管理するための補助操作です。
 
-- 元に戻す / やり直す
-- Split + OverlayサンプルGraph
-- Audio MixサンプルGraph
-- Graph初期化
+- Graph JSONを保存
+- Graph JSONを開く
+- Graph初期化（確認ダイアログあり）
 
-Video filters、Text、Complex graph、Audio filters、Graph操作はそれぞれ折りたためるため、左側のパレットが必要以上に縦長になりません。
+Undo / RedoはGraph Toolbarから直接操作できます。旧バージョンにあったSplit + Overlay / Audio MixのサンプルGraphショートカットは、Recipeと役割が重なるため利用者向けメニューから削除しました。Video filters、Text、Complex graph、Audio filtersはPalette内で利用できます。
+
+### スマートフォンでのGraph編集
+
+スマートフォンではGraph Canvasを横幅いっぱいに表示し、Filter PaletteとNode Inspectorは下から開くBottom Sheetとして表示します。1本指でCanvasをPan、NodeをDragして移動でき、2本指のPinchでZoomできます。PortはDrag接続に加えて、開始Portと接続先Portを順にTapしても接続できます。
 
 ### Graph JSON / Autosave
 
@@ -89,7 +92,7 @@ Autosaveが保存するのはGraphと出力ファイル名だけです。選択�
 
 ## 現在のMultiple Input境界
 
-FFmpeg WASM Builder v1.9.8からこのアプリへ渡せるmain media inputは現在1つです。そのため、v1.0.0では以下の仕様です。
+FFmpeg WASM Builder v1.9.8からこのアプリへ渡せるmain media inputは現在1つです。v1.1.0でもGraph Workspace刷新に集中するため、このv1.0.0の境界を維持します。
 
 - **Watermark**: 別画像ではなくDraw Textによる文字透かし
 - **Picture in Picture**: 2本目動画ではなく、同じ入力動画をSplitしたbranchを利用
@@ -98,7 +101,7 @@ FFmpeg WASM Builder v1.9.8からこのアプリへ渡せるmain media inputは�
 
 ## Browser support
 
-主要対象はChrome / Edgeです。標準Single-thread版は`file://`で直接開いて使える構成です。Multi-thread版はcross-origin isolationと`SharedArrayBuffer`に対応したブラウザーおよびHTTP(S)配信が必要です。Firefox / Safariでは一部機能が動く可能性がありますが、v1.0.0の主要リリース対象には含めません。
+主要対象はChrome / Edgeです。標準Single-thread版は`file://`で直接開いて使える構成です。Multi-thread版はcross-origin isolationと`SharedArrayBuffer`に対応したブラウザーおよびHTTP(S)配信が必要です。Firefox / Safariでは一部機能が動く可能性がありますが、v1.1.0でもChrome / Edgeを主要対象とします。
 
 ## 標準版 / Multi-thread版
 
