@@ -14,6 +14,9 @@ All notable changes to FFmpeg Filter Builder are documented here.
 - Added mobile-first Graph editing with bottom-sheet Palette / Inspector, one-finger pan / node drag, pinch zoom, tap-to-connect, safe-area handling, and no page-level horizontal scrolling.
 - Polished Preview sizing, segmented zoom controls, floating-workspace toast layering, Audio palette colors, and sidebar reopen controls after RC device review.
 - Replaced the release-candidate regression gate with the final `tests/release-smoke.mjs` contract and synchronized app/build/runtime version metadata to `v1.1.0`.
+- Added dual GitHub Pages publishing: `/` serves the ST build and `/mt/` serves the MT build with a pinned same-origin `coi-serviceworker` fallback when the host cannot provide COOP / COEP headers.
+- Kept `dist/index.mt.html` as a standalone MT artifact; the service-worker bootstrap is injected only into the generated `pages-dist/mt/index.html` deployment copy.
+- Hardened the pinned FFmpeg runtime cache: an incomplete extracted cache is now detected and rebuilt automatically from the SHA-256-verified `runtime.zip`, avoiding manual temp-cache cleanup after build-script upgrades.
 
 ### Compatibility
 

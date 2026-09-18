@@ -17,7 +17,13 @@ on:
       - "APP_SPEC.md"
       - "build-standalone.ps1"
       - "build-standalone.bat"
+      - "scripts/prepare-pages.ps1"
+      - "vendor/coi-serviceworker/**"
+      - "coi-serviceworker.lock.json"
+      - "licenses/coi-serviceworker-MIT.txt"
+      - "docs/MULTI_THREAD_DEPLOYMENT.md"
       - ".github/workflows/build-standalone.yml"
+      - ".github/workflows/deploy-pages.yml"
 
 permissions:
   contents: read
@@ -90,9 +96,20 @@ jobs:
       - name: Final release regression smoke test
         run: node ./tests/release-smoke.mjs
 
+      - name: Runtime cache repair smoke test
+        run: node ./tests/runtime-cache-repair-smoke.mjs
+
       - name: Build ST and MT standalone HTML
         shell: pwsh
         run: ./build-standalone.ps1
+
+      - name: Prepare GitHub Pages site
+        shell: pwsh
+        run: ./scripts/prepare-pages.ps1
+
+      - name: Test GitHub Pages ST/MT layout
+        shell: pwsh
+        run: node ./tests/pages-deployment-smoke.mjs
 
       - name: Upload standalone artifacts
         uses: actions/upload-artifact@v7
@@ -110,5 +127,8 @@ jobs:
             dist/build-size-report.json
             dist/build-size-report.mt.json
             dist/.nojekyll
+            pages-dist/index.html
+            pages-dist/mt/index.html
+            pages-dist/mt/coi-serviceworker.js
           if-no-files-found: error
           retention-days: 14

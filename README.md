@@ -120,14 +120,15 @@ The helper server adds the required cross-origin-isolation headers.
 
 ## Publish with GitHub Pages
 
-The repository includes a workflow that builds the standalone app and deploys the generated `dist` directory.
+The repository includes a workflow that builds both standalone variants and stages a Pages-specific site.
 
 1. Push the repository as `ttomohisa/htmlapps-ffmpeg-filter-builder`.
 2. Open **Settings → Pages → Build and deployment → Source** and select **GitHub Actions**.
 3. Push to `main`, or manually run **Deploy standalone app to GitHub Pages** from the Actions tab.
 4. After deployment, the standard build is available at `https://ttomohisa.github.io/htmlapps-ffmpeg-filter-builder/`.
+5. The multi-thread build is available at `https://ttomohisa.github.io/htmlapps-ffmpeg-filter-builder/mt/`.
 
-The Pages workflow rebuilds the embedded runtime from pinned build inputs before publishing.
+The Pages workflow keeps `dist/index.mt.html` as the standalone MT artifact, then creates `pages-dist/mt/index.html` for hosting. GitHub Pages cannot add the required COOP / COEP headers directly, so only the Pages copy conditionally loads the vendored `coi-serviceworker` fallback. On a host such as Azure Static Web Apps where the response already has the required headers, `crossOriginIsolated` is already true and the fallback worker is not loaded.
 
 ## Development and build layout
 
@@ -140,8 +141,10 @@ The Pages workflow rebuilds the embedded runtime from pinned build inputs before
 ├─ build-standalone.bat          # Windows build entry point
 ├─ build-standalone.ps1          # ST / MT standalone builder
 ├─ scripts/                      # Runtime preparation, verification, and repository checks
-├─ tests/                        # Graph / Preview / filter / recipe smoke tests
-└─ dist/                         # Generated standalone artifacts
+├─ tests/                        # Graph / Preview / filter / recipe / Pages smoke tests
+├─ vendor/coi-serviceworker/     # Pinned GitHub Pages-only COI fallback
+├─ dist/                         # Generated standalone artifacts
+└─ pages-dist/                   # Generated GitHub Pages staging directory
 ```
 
 Normal build:

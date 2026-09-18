@@ -1667,7 +1667,7 @@ dist/
 
 - single-thread
 - `file://` 正式対応
-- GitHub Pagesでも動作
+- GitHub Pagesの `/` で動作
 - COOP / COEP不要
 
 `index.mt.html`：
@@ -1677,6 +1677,8 @@ dist/
 - HTTP(S)配信必須
 - COOP / COEP必須
 - Browser Kittyの対応ルートで配信
+
+GitHub Pages配信用にはstandalone成果物を変更せず、build後に `pages-dist/mt/index.html` を別途生成する。GitHub Pages上の `/mt/` だけは、server headerが使えない場合のfallbackとして同一originの `coi-serviceworker` を条件付きで読み込む。server側ですでに `crossOriginIsolated === true` の場合はfallback workerを読み込まない。
 
 release ZIPには両方を含める。
 
@@ -2363,6 +2365,7 @@ Input：
 
 ### multi-thread確認
 
+- GitHub Pages `/mt/` のCOI service worker fallback
 - Browser Kitty / Azure Static Web Apps相当の配信
 - COOP `same-origin`
 - COEP `require-corp`
@@ -2928,6 +2931,8 @@ v1.1.0-rc.1の実機調整を反映し、Graph Workspace Redesignを正式版と
 - MobileではPalette / Inspector Bottom Sheet、1本指Pan / Node drag、Pinch Zoom、Tap / Drag接続、safe-area、横スクロール防止を正式仕様とする
 - Previewの全体表示、Zoom segmented control、Floating Workspace中のToast表示、Audio palette色、sidebar reopen controlをRC実機レビュー反映として確定
 - Graph schemaVersion 3、FFmpeg WASM Builder v1.9.8、1 main MP4 input、ST / MT runtime contract、Draw Text font pinを維持
+- GitHub Pagesは `/` にST、`/mt/` にMTを配信する。`pages-dist/mt/index.html` のみ、`crossOriginIsolated === false` の場合に固定済み `coi-serviceworker 0.1.7` を同一originから読み込む
+- Browser Kitty / Azure Static Web AppsでMT HTMLを取り込んでroute-specific COOP / COEP headerを付ける場合、Azure側ですでにcross-origin isolationが成立するためPages fallback workerは読み込まれない
 
 ### v1.1.0 Release Gate
 

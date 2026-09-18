@@ -41,6 +41,23 @@ $variantKey = if ($Variant -eq "single-thread") { "st" } else { "mt" }
 $variantRoot = Join-Path $CacheBase ("v{0}\{1}" -f $builderVersion, $variantKey)
 $archivePath = Join-Path $variantRoot "runtime.zip"
 $extractRoot = Join-Path $variantRoot "x"
+$requiredFiles = @("browser-ffmpeg.js", "ffmpeg.js", "ffmpeg.wasm", "ffmpeg.js.gz", "ffmpeg.wasm.gz", "manifest.json", "BUILDINFO.txt", "THIRD_PARTY_NOTICES.md")
+
+function Get-MissingRuntimeFiles([string]$RootPath) {
+  $missing = @()
+  foreach ($name in $requiredFiles) {
+    $path = Join-Path $RootPath $name
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { $missing += $name }
+  }
+  return $missing
+}
+
+function Expand-VerifiedRuntimeArchive([string]$ArchivePath, [string]$DestinationPath, [string]$RuntimeVariant) {
+  if (Test-Path -LiteralPath $DestinationPath) { Remove-Item -Recurse -Force $DestinationPath }
+  Write-Host "[FFmpeg Runtime] Extracting $RuntimeVariant runtime" -ForegroundColor Cyan
+  New-Item -ItemType Directory -Force -Path $DestinationPath | Out-Null
+  Expand-Archive -LiteralPath $ArchivePath -DestinationPath $DestinationPath -Force
+}
 
 if ($ForceDownload -and (Test-Path $variantRoot)) { Remove-Item -Recurse -Force $variantRoot }
 New-Item -ItemType Directory -Force -Path $variantRoot | Out-Null
@@ -64,16 +81,23 @@ if ($actualArchiveHash -ne $expectedArchiveHash) {
   throw "FFmpeg runtime archive SHA-256 mismatch for $Variant. Expected $expectedArchiveHash, got $actualArchiveHash."
 }
 
-if (-not (Test-Path -LiteralPath $extractRoot -PathType Container)) {
-  Write-Host "[FFmpeg Runtime] Extracting $Variant runtime" -ForegroundColor Cyan
-  New-Item -ItemType Directory -Force -Path $extractRoot | Out-Null
-  Expand-Archive -LiteralPath $archivePath -DestinationPath $extractRoot -Force
+$needsExtraction = -not (Test-Path -LiteralPath $extractRoot -PathType Container)
+if (-not $needsExtraction) {
+  $missingCachedFiles = @(Get-MissingRuntimeFiles $extractRoot)
+  if ($missingCachedFiles.Count -gt 0) {
+    Write-Host ("[FFmpeg Runtime] Cached extraction is incomplete for {0}: {1}. Rebuilding cache..." -f $Variant, ($missingCachedFiles -join ", ")) -ForegroundColor Yellow
+    Remove-Item -Recurse -Force $extractRoot
+    $needsExtraction = $true
+  }
 }
 
-$requiredFiles = @("browser-ffmpeg.js", "ffmpeg.js", "ffmpeg.wasm", "ffmpeg.js.gz", "ffmpeg.wasm.gz", "manifest.json", "BUILDINFO.txt", "THIRD_PARTY_NOTICES.md")
-foreach ($name in $requiredFiles) {
-  $path = Join-Path $extractRoot $name
-  if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Required runtime file is missing for ${Variant}: $name" }
+if ($needsExtraction) {
+  Expand-VerifiedRuntimeArchive $archivePath $extractRoot $Variant
+}
+
+$missingRuntimeFiles = @(Get-MissingRuntimeFiles $extractRoot)
+if ($missingRuntimeFiles.Count -gt 0) {
+  throw ("Pinned runtime archive is missing required file(s) for {0}: {1}" -f $Variant, ($missingRuntimeFiles -join ", "))
 }
 
 $browserRuntimeText = Get-Content -Raw -Encoding UTF8 (Join-Path $extractRoot "browser-ffmpeg.js")

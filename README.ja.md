@@ -12,7 +12,10 @@ MP4動画のFFmpeg Filter Graphをブラウザー上で組み立てるツール�
 
 ### [GitHub PagesでFFmpeg Filter Builderを開く](https://ttomohisa.github.io/htmlapps-ffmpeg-filter-builder/)
 
-GitHub Pagesから最初のHTMLを読み込んだ後、選択したMP4、Graph、Preview、Full Renderの処理はブラウザー内で行います。アプリから選択した動画をサーバーへアップロードしません。
+標準Single-thread版: https://ttomohisa.github.io/htmlapps-ffmpeg-filter-builder/  
+高速Multi-thread版: https://ttomohisa.github.io/htmlapps-ffmpeg-filter-builder/mt/
+
+GitHub Pagesから最初のHTMLを読み込んだ後、選択したMP4、Graph、Preview、Full Renderの処理はブラウザー内で行います。アプリから選択した動画をサーバーへアップロードしません。`/mt/` は、配信元がCOOP / COEP headerを付けていない場合だけ、同一originの `coi-serviceworker` を補助として使用します。
 
 ## Features
 
@@ -120,14 +123,15 @@ start-local-mt.bat
 
 ## GitHub Pagesで公開する
 
-リポジトリにはstandalone buildと`dist`配信を行うGitHub Actions workflowが含まれています。
+リポジトリにはST / MTのstandalone buildと、GitHub Pages専用の配信ディレクトリを作るGitHub Actions workflowが含まれています。
 
 1. `ttomohisa/htmlapps-ffmpeg-filter-builder`としてpushします。
 2. **Settings → Pages → Build and deployment → Source** で **GitHub Actions** を選択します。
 3. `main`へpushするか、Actionsから **Deploy standalone app to GitHub Pages** を手動実行します。
-4. 配信後、標準版は`https://ttomohisa.github.io/htmlapps-ffmpeg-filter-builder/`で利用できます。
+4. 標準版は`https://ttomohisa.github.io/htmlapps-ffmpeg-filter-builder/`で利用できます。
+5. Multi-thread版は`https://ttomohisa.github.io/htmlapps-ffmpeg-filter-builder/mt/`で利用できます。
 
-Pages workflowは固定済みのbuild inputからstandalone HTMLを再生成してから公開します。
+`dist/index.mt.html` 自体は従来どおり単一HTMLのまま保持し、Pages配信用にだけ `pages-dist/mt/index.html` を生成します。GitHub PagesではCOOP / COEPを直接設定できないため、この配信用HTMLだけが必要時に同一originの `coi-serviceworker` を読み込みます。Azure Static Web Appsなどでサーバー側headerにより `crossOriginIsolated === true` になっている場合、このfallback workerは読み込まれません。
 
 ## 開発・build構成
 
@@ -140,8 +144,10 @@ Pages workflowは固定済みのbuild inputからstandalone HTMLを再生成し�
 ├─ build-standalone.bat          # Windows build入口
 ├─ build-standalone.ps1          # ST / MT standalone builder
 ├─ scripts/                      # runtime準備・検証・repository check
-├─ tests/                        # Graph / Preview / Filter / Recipe smoke test
-└─ dist/                         # 生成されるstandalone成果物
+├─ tests/                        # Graph / Preview / Filter / Recipe / Pages smoke test
+├─ vendor/coi-serviceworker/     # GitHub Pages専用COI fallback（固定版）
+├─ dist/                         # 生成されるstandalone成果物
+└─ pages-dist/                   # GitHub Pages配信用の生成ディレクトリ
 ```
 
 通常build:

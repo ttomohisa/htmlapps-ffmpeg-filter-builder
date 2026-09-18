@@ -5,11 +5,11 @@ Set-StrictMode -Version Latest
 $Root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 
 $required = @(
-  "AGENTS.md", "APP_SPEC.md", "app.config.json", "runtime.lock.json", "font.lock.json", "licenses\MPLUS1p-OFL.txt", "assets\favicon.svg",
+  "AGENTS.md", "APP_SPEC.md", "app.config.json", "runtime.lock.json", "font.lock.json", "coi-serviceworker.lock.json", "licenses\MPLUS1p-OFL.txt", "licenses\coi-serviceworker-MIT.txt", "assets\favicon.svg",
   "src\index.template.html", "build-standalone.ps1", "build-standalone.bat", "build-with-local-ffmpeg.bat",
   "scripts\prepare-ffmpeg-runtime.ps1", "scripts\prepare-text-font.ps1", "scripts\build-variant.ps1", "scripts\build-self-extract.ps1",
-  "scripts\check-powershell-syntax.ps1", "scripts\verify-standalone.ps1", "scripts\verify-self-extract.ps1",
-  "README.md", "README.ja.md", "LICENSE", "THIRD_PARTY_NOTICES.md", "docs\MULTI_THREAD_DEPLOYMENT.md", "docs\GRAPH_COMPILER.md", "docs\PREVIEW_ENGINE.md", "docs\VIDEO_FILTER_SET.md", "docs\COMPLEX_FILTERGRAPH.md", "docs\AUDIO_FILTER_SET.md", "docs\TEXT_FILTER_SET.md", "docs\RECIPES_FULL_RENDER.md", "tests\graph-core-smoke.mjs", "tests\preview-engine-smoke.mjs", "tests\video-filter-set-smoke.mjs", "tests\complex-filtergraph-smoke.mjs", "tests\audio-filter-set-smoke.mjs", "tests\text-filter-set-smoke.mjs", "tests\recipes-full-render-smoke.mjs", "tests\workspace-core-smoke.mjs", "tests\modern-node-ui-smoke.mjs", "tests\workspace-layout-polish-smoke.mjs", "tests\manual-layout-selection-smoke.mjs", "tests\palette-inspector-smoke.mjs", "tests\connection-minimap-smoke.mjs", "tests\mobile-workspace-smoke.mjs", "tests\release-smoke.mjs", "tests\i18n-smoke.mjs", "tests\fixtures\smoke-input.mp4"
+  "scripts\check-powershell-syntax.ps1", "scripts\verify-standalone.ps1", "scripts\verify-self-extract.ps1", "scripts\prepare-pages.ps1",
+  "README.md", "README.ja.md", "LICENSE", "THIRD_PARTY_NOTICES.md", "docs\MULTI_THREAD_DEPLOYMENT.md", "docs\GRAPH_COMPILER.md", "docs\PREVIEW_ENGINE.md", "docs\VIDEO_FILTER_SET.md", "docs\COMPLEX_FILTERGRAPH.md", "docs\AUDIO_FILTER_SET.md", "docs\TEXT_FILTER_SET.md", "docs\RECIPES_FULL_RENDER.md", "vendor\coi-serviceworker\coi-serviceworker.js", "tests\pages-deployment-smoke.mjs", "tests\graph-core-smoke.mjs", "tests\preview-engine-smoke.mjs", "tests\video-filter-set-smoke.mjs", "tests\complex-filtergraph-smoke.mjs", "tests\audio-filter-set-smoke.mjs", "tests\text-filter-set-smoke.mjs", "tests\recipes-full-render-smoke.mjs", "tests\workspace-core-smoke.mjs", "tests\modern-node-ui-smoke.mjs", "tests\workspace-layout-polish-smoke.mjs", "tests\manual-layout-selection-smoke.mjs", "tests\palette-inspector-smoke.mjs", "tests\connection-minimap-smoke.mjs", "tests\mobile-workspace-smoke.mjs", "tests\release-smoke.mjs", "tests\i18n-smoke.mjs", "tests\fixtures\smoke-input.mp4"
 )
 foreach ($relative in $required) {
   if (-not (Test-Path -LiteralPath (Join-Path $Root $relative))) { throw "Required repository file is missing: $relative" }
@@ -37,6 +37,13 @@ foreach ($variant in @("single-thread", "multi-thread")) {
   if ([string]$entry.sha256 -notmatch '^[a-f0-9]{64}$') { throw "runtime.lock.json has an invalid SHA-256 for $variant." }
   if (-not ([string]$entry.url).Contains("/releases/download/v1.9.8/")) { throw "Runtime URL is not pinned to v1.9.8 for $variant." }
 }
+
+$coiLock = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "coi-serviceworker.lock.json") | ConvertFrom-Json
+if ([string]$coiLock.version -ne "0.1.7") { throw "coi-serviceworker.lock.json must pin v0.1.7." }
+if ([string]$coiLock.commit -ne "7b1d2a092d0d2dd2b7270b6f12f13605de26f214") { throw "coi-serviceworker.lock.json commit is unexpected." }
+$coiWorkerPath = Join-Path $Root "vendor\coi-serviceworker\coi-serviceworker.js"
+$coiHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $coiWorkerPath).Hash.ToLowerInvariant()
+if ($coiHash -ne ([string]$coiLock.sha256).ToLowerInvariant()) { throw "Vendored coi-serviceworker.js does not match its lock file." }
 
 $fontLock = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "font.lock.json") | ConvertFrom-Json
 if ([int]$fontLock.schemaVersion -ne 1) { throw "font.lock.json must use schemaVersion 1." }
@@ -95,7 +102,7 @@ foreach ($token in @("ffmpeg.js.gz", "ffmpeg.wasm.gz", "__RUNTIME_VARIANT__", "r
   if (-not $buildVariant.Contains($token)) { throw "scripts\build-variant.ps1 is missing required runtime embedding marker: $token" }
 }
 $prepare = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "scripts\prepare-ffmpeg-runtime.ps1")
-foreach ($token in @("runtime.lock.json", "SHA-256 mismatch", "manifest.files.'ffmpeg.wasm'.sha256", "Expand-Archive", "GetTempPath", "runtime.zip", "CreateDirectory", "ffmpegFilterBuilderArgs", "startTimeSeconds", "durationSeconds", "timeRangeRender", "trim", "setpts", "split", "overlay", "atrim", "asetpts", "volume", "afade", "atempo", "highpass", "lowpass", "loudnorm", "amix", "asplit", "drawtext", "drawText", "htmlapps-ffmpeg-filter-builder/1.1.0")) {
+foreach ($token in @("runtime.lock.json", "SHA-256 mismatch", "manifest.files.'ffmpeg.wasm'.sha256", "Expand-Archive", "GetTempPath", "runtime.zip", "CreateDirectory", "Get-MissingRuntimeFiles", "Cached extraction is incomplete", "Expand-VerifiedRuntimeArchive", "ffmpegFilterBuilderArgs", "startTimeSeconds", "durationSeconds", "timeRangeRender", "trim", "setpts", "split", "overlay", "atrim", "asetpts", "volume", "afade", "atempo", "highpass", "lowpass", "loudnorm", "amix", "asplit", "drawtext", "drawText", "htmlapps-ffmpeg-filter-builder/1.1.0")) {
   if (-not $prepare.Contains($token)) { throw "scripts\prepare-ffmpeg-runtime.ps1 is missing required lock/verification marker: $token" }
 }
 $prepareFont = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "scripts\prepare-text-font.ps1")

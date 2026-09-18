@@ -16,6 +16,14 @@ Draw Text uses **M PLUS 1p Regular**, copyright 2016 The M+ Project Authors, lic
 
 The source package contains the license at `licenses/MPLUS1p-OFL.txt` and a pinned build lock at `font.lock.json`. The font binary is fetched only during the application build, verified against the reviewed Google Fonts snapshot, and embedded into the generated standalone HTML. The OFL-1.1 text is embedded into the same HTML and shown in the in-app Third-party licenses section.
 
+## coi-serviceworker
+
+The GitHub Pages `/mt/` deployment includes **coi-serviceworker 0.1.7** by Guido Zuidhof and contributors, licensed under the **MIT License**. It is used only as a same-origin cross-origin-isolation fallback on hosts that cannot provide COOP / COEP response headers.
+
+The repository pins the reviewed source at commit `7b1d2a092d0d2dd2b7270b6f12f13605de26f214` in `coi-serviceworker.lock.json`. The source is vendored at `vendor/coi-serviceworker/coi-serviceworker.js`, and the license text is stored at `licenses/coi-serviceworker-MIT.txt`.
+
+The standalone `dist/index.html` and `dist/index.mt.html` artifacts do not embed or depend on this worker.
+
 ## Network behavior
 
 Build dependencies are downloaded and verified at build time. The finished application does not fetch the FFmpeg runtime or font from GitHub, Google Fonts, a CDN, or any other external service while running.

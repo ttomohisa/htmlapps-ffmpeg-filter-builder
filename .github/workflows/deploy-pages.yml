@@ -84,9 +84,20 @@ jobs:
       - name: Final release regression smoke test
         run: node ./tests/release-smoke.mjs
 
+      - name: Runtime cache repair smoke test
+        run: node ./tests/runtime-cache-repair-smoke.mjs
+
       - name: Build ST and MT standalone HTML
         shell: pwsh
         run: ./build-standalone.ps1
+
+      - name: Prepare GitHub Pages site
+        shell: pwsh
+        run: ./scripts/prepare-pages.ps1
+
+      - name: Test GitHub Pages ST/MT layout
+        shell: pwsh
+        run: node ./tests/pages-deployment-smoke.mjs
 
       - name: Check whether GitHub Pages is enabled
         id: pages-status
@@ -111,7 +122,7 @@ jobs:
         if: steps.pages-status.outputs.ready == 'true'
         uses: actions/upload-pages-artifact@v5
         with:
-          path: dist
+          path: pages-dist
 
       - name: Upload standalone build artifact
         uses: actions/upload-artifact@v7
@@ -124,6 +135,8 @@ jobs:
             dist/index.mt.self-extract.html
             dist/runtime-manifest*.json
             dist/build-size-report*.json
+            pages-dist/mt/index.html
+            pages-dist/mt/coi-serviceworker.js
           if-no-files-found: error
           retention-days: 14
 

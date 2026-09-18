@@ -5,3 +5,5 @@ dist/*
 *.part
 .DS_Store
 Thumbs.db
+
+pages-dist/
