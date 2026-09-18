@@ -8,6 +8,8 @@
 
 MP4動画のFFmpeg Filter Graphをブラウザー上で組み立てるツールです。Video / Audio / Textの処理を編集可能なNodeとして構成し、内蔵FFmpeg WebAssemblyでPreviewし、そのまま動画全体を書き出せます。選択した動画をアプリからサーバーへアップロードしません。
 
+![FFmpeg Filter Builder スクリーンショット](assets/screenshot.png)
+
 ## 🚀 Live demo
 
 ### [GitHub PagesでFFmpeg Filter Builderを開く](https://ttomohisa.github.io/htmlapps-ffmpeg-filter-builder/)

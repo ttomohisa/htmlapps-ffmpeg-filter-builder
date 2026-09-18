@@ -8,6 +8,8 @@
 
 A browser-based FFmpeg filter graph editor for MP4 video. Build Video / Audio / Text processing as editable nodes, preview the result with embedded FFmpeg WebAssembly, and render the complete video without uploading the selected file to a server.
 
+![FFmpeg Filter Builder screenshot](assets/screenshot-en.png)
+
 ## 🚀 Live demo
 
 ### [Open FFmpeg Filter Builder on GitHub Pages](https://ttomohisa.github.io/htmlapps-ffmpeg-filter-builder/)
