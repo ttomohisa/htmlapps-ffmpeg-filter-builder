@@ -1,0 +1,14 @@
+import fs from 'node:fs';
+const html=fs.readFileSync(new URL('../src/index.template.html', import.meta.url),'utf8');
+const requireText=(needle,msg)=>{if(!html.includes(needle))throw new Error(msg+': '+needle)};
+requireText("function runtimeSupportsMultipleInputs()",'runtime capability guard missing');
+requireText("capabilities?.multipleInputs===true",'multipleInputs capability check missing');
+requireText("capabilities?.complexGraph===true",'complexGraph capability check missing');
+requireText("normalizeRawOutput",'raw multi-input output normalization missing');
+requireText("pass=streamType===PORT_TYPES.AUDIO?'anull':'null'",'null/anull pass-through missing');
+requireText("mainInputIndex",'main input runtime index missing');
+requireText("if(req.mode==='multi-input')",'multi-input file staging missing');
+requireText("runFiles.push({name:input.path,data:file,workerfs:true})",'WORKERFS staging for each input missing');
+requireText("['1.9.8','1.9.9'].includes(manifest.builderVersion)",'local v1.9.9 runtime acceptance missing');
+requireText("manifest.capabilities?.multipleInputs===true",'multi-input runtime manifest validation missing');
+console.log('[OK] Multi-input Preview / Full Render runtime contract smoke test passed.');

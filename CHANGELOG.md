@@ -2,6 +2,141 @@
 
 All notable changes to FFmpeg Filter Builder are documented here.
 
+## 1.2.0 - 2026-09-21
+
+### Stable
+
+- Promoted the v1.2.0-rc.1 codebase to Stable with no new feature or runtime dependency changes.
+- Finalized Multiple Input for video, image, and audio sources, including two-video PiP, Logo Overlay, BGM / Audio Mix, silent-video handling, and 24 editable Recipes.
+- Finalized Graph Restore / Auto Relink, Palette drag placement, fixed-height scrolling Palette / Inspector panels, and graph keyboard editing.
+- Kept FFmpeg WASM Builder pinned to v1.9.9 for both ST and MT runtime assets with SHA-256 verification.
+- Kept standalone runtime networking blocked with `connect-src 'none'`, and kept source media local to the browser.
+- Promoted the release-candidate regression gate to the Stable release gate and synchronized app/build/workflow/version markers and release screenshots to v1.2.0.
+
+## 1.2.0-rc.1 - 2026-09-21
+
+### Release candidate / full regression
+
+- Froze v1.2 feature work and promoted the beta.4 codebase to the first release candidate.
+- Added an RC gate covering Single Input, multi-input PiP, Logo Overlay, Audio Input / BGM / Audio Mix, silent-video handling, Graph Restore / Auto Relink, Recipes, keyboard editing, mobile workspace, ST / MT deployment, CSP, and runtime-network blocking.
+- Kept FFmpeg WASM Builder pinned to v1.9.9 with the existing reviewed ST / MT release assets; no runtime dependency was changed for the RC.
+- Synchronized app/build/repository/workflow version markers to v1.2.0-rc.1.
+- Refreshed README status and release screenshots for the RC UI.
+
+## 1.2.0-beta.4 - 2026-09-21
+
+### Graph Restore / Auto Relink
+
+- Added bulk re-link for Missing Input nodes after Graph JSON import or browser-local recovery.
+- Match local files by media kind, filename, and size; use `lastModified` and MIME type to prefer the strongest match without storing absolute paths or file bytes.
+- Reuse matching File objects already loaded in the current session when a Graph is opened again.
+- Added **Re-select media in bulk** to Graph actions and to the Missing Input Inspector flow when several Inputs are unresolved.
+- Canvas multi-file drop now restores matching Missing Inputs first, then adds only unmatched supported media as new Input nodes.
+- Keep explicit single-file drop / picker behavior for a specific Missing Input unchanged.
+- Added `tests/beta4-auto-relink-smoke.mjs` and synchronized release/version checks for beta.4.
+
+## 1.2.0-beta.3 - 2026-09-21
+
+### Audio Input / BGM / Audio Mix
+
+- Added **Add BGM** and **Replace Audio with BGM** Recipes, expanding the guided recipe set from 22 to 24.
+- Made external Audio Input a complete Preview / Full Render path: Main audio + BGM can be mixed, or the original soundtrack can be ignored and replaced.
+- Normalize both Audio Mix inputs through `aresample=48000,asetpts=PTS-STARTPTS` before `amix`, improving behavior when source sample rates or timestamps differ.
+- Added an Audio Mix duration mode: follow input A, stop at the shorter input, or continue to the longer input.
+- Default BGM level is -12 dB. The BGM Recipe mixes to the longer audio branch and then trims the final soundtrack to the Main video duration, so short Main audio does not cut BGM early and long music does not extend the video.
+- Handle silent Main videos explicitly: the BGM Recipe does not generate a missing `[0:a]` branch when the MP4 has no audio track.
+- Preserve an already-bound Audio Input when applying a BGM Recipe; otherwise create/select a Missing Audio Input with a clear next action. Audio file selection is limited to MP3 / WAV / M4A / FLAC / OGG / Opus supported by the pinned runtime.
+- Added `tests/beta3-audio-bgm-smoke.mjs` and expanded compiler/recipe/audio regressions for multi-source audio.
+
+## 1.2.0-beta.2 - 2026-09-20
+
+### Image Input / Logo Overlay
+
+- Added a true **Logo Overlay** Recipe using Main Video + Image Input + Scale + Overlay while keeping Main Input audio and duration.
+- Limited Image Input selection/drop to PNG and JPEG, matching the reviewed decoders in FFmpeg WASM Builder v1.9.9.
+- Added Overlay **Keep foreground visible** behavior, compiling to `eof_action=repeat:repeatlast=1` for still-image logos while preserving the beta.1 PiP behavior (`eof_action=pass:repeatlast=0`) for shorter foreground videos.
+- Preserve an already-bound Image Input when applying the Logo Recipe; otherwise create/select a Missing Image Input with a clear relink message.
+- Promoted the checked-in runtime lock to the published FFmpeg WASM Builder v1.9.9 ST / MT GitHub Release assets and reviewed SHA-256 values. Runtime network behavior remains unchanged because the generated standalone HTML embeds the runtime.
+- Added `tests/beta2-logo-overlay-smoke.mjs` and a PNG fixture for the Image Input / Logo Overlay contract.
+- Expanded Quick Recipes from 11 to 22 and grouped them into Size & orientation, Composite & look, and Time & audio. New recipes include 1080p resize, 16:9 landscape, square blurred background, horizontal mirror, 30 fps, centered title, grayscale, light sharpen, first 10 seconds, 0.5x, and 1.5x speed.
+- Removed the Recipe pre-load dead end: source-aware recipes now switch the primary action to **Choose video & build graph**, open the MP4 picker directly, read metadata locally, and generate the graph in the same flow. Cancelling the picker leaves the current graph unchanged.
+
+## 1.2.0-beta.1 - 2026-09-20
+
+### Two-video Picture in Picture
+
+- Replaced the legacy same-input PiP Recipe with a true two-Video-Input graph. Main Input feeds the background/output audio and the second Video Input feeds the scaled overlay branch.
+- Preserve an already selected secondary Video Input when applying the PiP Recipe; when none exists, create an explicit Missing Input and select it so the next action is clear.
+- Changed the PiP Recipe to keep Main Input duration. If the overlay video ends first, `overlay` uses `eof_action=pass:repeatlast=0` so the PiP disappears instead of freezing or truncating the output.
+- Added an Overlay Inspector toggle for intentionally ending at the shorter input when that behavior is wanted.
+- Added `tests/beta1-pip-smoke.mjs` for the two-input PiP contract.
+
+### Builder v1.9.9 release handoff
+
+- Added `docs/BUILDER_V1_9_9_RELEASE.md` with the v1.9.9 commit/tag/release flow.
+- Added `scripts/promote-builder-v1.9.9.ps1`. After the Builder GitHub Release exists, it downloads the ST/MT release ZIPs, computes SHA-256 locally, updates `runtime.lock.json`, and switches the default standalone build from the local-development path to the pinned GitHub Release.
+- The finished standalone HTML remains fully local at runtime; GitHub is only a build-time source for the pinned FFmpeg WASM release asset.
+
+## 1.2.0-alpha.5 - 2026-09-19
+
+### Multi-input Preview / Full Render runtime integration
+
+- Stage every bound Input File/Blob into WORKERFS for multi-input Preview and Full Render.
+- Execute compiled multi-input requests when the embedded Builder runtime advertises `multipleInputs` and `complexGraph`.
+- Normalize raw multi-input output branches through `null` / `anull` so the public-libav complex graph always has explicit output labels.
+- Preserve v1.9.8 single-input compatibility; local Builder v1.9.9 builds enable the new execution path during development.
+- Fixed local Builder v1.9.9 staging, Windows SHA-256 compatibility, and repository preflight checks discovered during the real Windows build.
+- Keep missing Input files blocked with a clear relink message rather than rendering a partial graph.
+
+## 1.2.0-alpha.4 - 2026-09-18
+
+### Multi-input FFmpeg Compiler
+
+- Added deterministic FFmpeg input indexing for schemaVersion 4 Input nodes in Graph node order; changing `mainInputId` no longer renumbers compiler inputs.
+- Added `resolveInputs()` with stable `/workerfs/input-N.ext` virtual paths, typed Video / Audio stream references, and still-image `-loop 1` input options.
+- Updated Graph validation to allow several typed Input sources when every node remains connected from an Input to the single Output.
+- Extended `compileGraph()` to generate multiple `-i` arguments, one cross-source `filter_complex`, and explicit Video / Audio maps for desktop FFmpeg.
+- Added a serializable multi-input Browser request contract with `inputs[]`, `filterComplex`, `videoMap`, and `audioMap`, while preserving the Builder v1.9.8 `videoFilter` / `audioFilter` path for one-Input Graphs.
+- Kept multi-input Preview / Full Render intentionally blocked until alpha.5; alpha.4 compiles the execution plan but does not silently run an incomplete multi-file path.
+- Added `tests/multi-input-compiler-smoke.mjs` and wired it into PR / GitHub Pages CI and repository checks.
+
+## 1.2.0-alpha.3 - 2026-09-18
+
+- Added direct Canvas drag-and-drop for supported Video / Audio / Image Inputs.
+- Added multi-file drop: supported media files create separate Input nodes near the drop position, while unsupported files are skipped with a clear message.
+- Added drop-to-relink for a single matching file on an unbound Input node.
+- Added a dedicated Canvas drop overlay and Input drop-target highlight without changing the v1.1 Graph navigation model.
+- Added explicit Missing Input presentation for Graph JSON / Autosave restores: saved source metadata remains visible, the Canvas marks Inputs that need media, and the Inspector explains how to re-select the local file.
+- Added missing-media counts to Graph import and Autosave recovery Toasts.
+- Added `tests/multi-input-drop-smoke.mjs` and wired it into PR / GitHub Pages CI and repository validation.
+- Kept multi-input FFmpeg execution gated until the later Compiler / Runtime milestones; alpha.3 does not silently process only one of several Inputs.
+
+## 1.2.0-alpha.2 - 2026-09-18
+
+### Input Node UI / source management
+
+- Added an **Input** Palette group for MP4 Video, Audio, and Image sources. Video can reuse the initial empty Input; Audio and Image are added as independent Input nodes.
+- Added media-kind-aware Input nodes: Video exposes Video + Audio ports, Audio exposes only Audio, and Image exposes only a Video-type port.
+- Added Input Inspector actions to replace or detach the selected local file, with filename, dimensions/duration, size, and an explicit unbound state after Graph JSON restore.
+- Added **Main Input** management with a Canvas `MAIN` badge and an Inspector action for promoting another Input.
+- Allowed extra Input nodes to be deleted with Undo/Redo support; the last Input is protected, and deleting the current Main Input promotes a remaining Input.
+- Kept browser `File` objects in runtime-only `inputBindings` and extended history snapshots so Input add/replace/remove/delete actions restore their runtime bindings during the current session.
+- Preserved the Input media kind after detaching a file and made the media kind part of Graph semantics/hash while keeping filename, size, timestamps, and other source metadata outside the semantic hash.
+- Kept multi-input FFmpeg execution intentionally blocked. Preview / Full Render still use exactly one Main Input until the later compiler/runtime milestones.
+- Added `tests/multi-input-ui-smoke.mjs` and wired the Input UI contract into PR and GitHub Pages CI.
+
+## 1.2.0-alpha.1 - 2026-09-18
+
+### Multiple Input data model groundwork
+
+- Moved newly created Graphs to **schemaVersion 4** and added an explicit `mainInputId` while keeping the existing single-main-input FFmpeg execution path for this alpha milestone.
+- Added serializable Input `source` metadata for kind, filename, size, last-modified time, MIME type, duration, width, and height without persisting local paths or media bytes.
+- Added runtime-only `inputBindings` so browser `File` objects stay outside Graph JSON and autosave data.
+- Added automatic schemaVersion 3 → 4 migration for v1.0 / v1.1 Graph JSON and previous-session autosave data.
+- Allowed the v4 project data model to represent multiple Input nodes and preserve an explicit main Input, while intentionally blocking multi-input Preview / Full Render until later v1.2.0 milestones.
+- Preserved the v1.1.0 Graph Workspace, ST / MT runtime contract, GitHub Pages `/mt/` deployment, FFmpeg WASM Builder v1.9.8 pin, and fully local runtime processing.
+- Added `tests/multi-input-schema-smoke.mjs` and wired the schema migration contract into pull-request and GitHub Pages CI gates.
+
 ## 1.1.0 - 2026-09-13
 
 ### Graph Workspace Redesign

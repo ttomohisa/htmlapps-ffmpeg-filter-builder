@@ -1346,17 +1346,15 @@ GraphをJSONとして保存可能。
 
 # 62. Graph再読込
 
-JSONを読み込み、
+JSONを読み込み、Graphを復元する。
 
-Graphを復元する。
+Graph JSON / Autosaveへ保存するのはInputの `kind` / filename / size / lastModified / MIMEなどのmetadataだけとし、File本体・Blob・絶対pathは保存しない。
 
-元Input Fileはセキュリティ上自動復元できないため、
+復元後にruntime File bindingがないInputは **Missing Input** として表示する。複数のMissing Inputがある場合は「素材をまとめて再選択」から複数ファイルを選択でき、media kind + filename + sizeで一致するInputへ自動relinkする。`lastModified` / MIMEは複数候補がある場合の優先度へ使用する。
 
-**この入力ファイルを選んでください**
+同じbrowser session内でGraph JSONを開き直す場合は、現在memory上に保持しているFile objectのうちmetadataが一致するものを再利用してよい。永続化はしない。
 
-と再指定させる。
-
-Filename / size / fingerprintを照合する。
+Canvasへ複数ファイルをDropした場合も、Missing Inputへの一致を先に試し、一致しなかった対応ファイルだけを新しいInputとして追加する。
 
 ---
 
@@ -1473,18 +1471,13 @@ FFmpegに近いoptionを確認可能。
 
 v1.0ではRecipeを提供する。
 
-候補：
+現在のRecipe（22種類）：
 
-1. 720pへ縮小
-2. 正方形にCrop
-3. 縦動画へ変換
-4. 90度回転
-5. Fade In / Out
-6. Watermark
-7. Picture in Picture
-8. 背景ぼかし縦動画
-9. 2倍速
-10. 音量を整える
+- サイズ・向き: 720pへ縮小 / 1080pへ縮小 / 正方形Crop / 縦動画 / 背景ぼかし縦動画 / 16:9横動画 / 背景ぼかし正方形 / 90度回転 / 左右反転 / 30fps
+- 合成・見た目: Fade In / Out / Watermark / Logo Overlay / Picture in Picture / 中央タイトル / モノクロ / 少しシャープ
+- 時間・音声: 最初の10秒 / 0.5倍速 / 1.5倍速 / 2倍速 / 音量を整える
+
+入力サイズや動画長が必要なRecipeは、事前読み込みを要求せず、Recipeから直接動画選択へ進んでメタデータ取得後にGraphを生成する。
 
 ---
 
@@ -2946,4 +2939,214 @@ v1.1.0-rc.1の実機調整を反映し、Graph Workspace Redesignを正式版と
 8. Scale / Speed + Audio sync / Trim / Split / Overlay / Audio filters / Draw Text / 10 Recipesが回帰しない
 9. Graph JSON / Autosaveはmedia bytesを保存しない
 10. runtime CSP `connect-src 'none'`、外部runtime依存なし、favicon / license / READMEが正式版と一致する
+
+# v1.2.0 — Multiple Input
+
+## v1.2.0-alpha.1 実装メモ（2026-09-18）
+
+Multiple Input実装の第1段階として、UIやFFmpeg複数入力実行より先にGraph / Projectのデータモデルを更新する。
+
+- Graph schemaを **schemaVersion 4** へ更新する。
+- Graph top-levelへ `mainInputId` を追加し、複数Input Nodeのうち処理基準となるInputを明示できる構造にする。
+- Input Nodeへoptionalな `source` metadataを追加する。保存対象は `kind` / `name` / `size` / `lastModified` / `mimeType` / `durationSeconds` / `width` / `height` とし、ローカルpath、Blob、File本体は保存しない。
+- browser `File` objectはGraphとは分離したruntime-only `inputBindings` で保持する。Graph JSON / Autosaveへmedia bytesを混入させない。
+- v1.0 / v1.1で保存されたschemaVersion 3 Graphは読み込み時にschemaVersion 4へ自動migrationする。最初のInput Nodeを `mainInputId` とし、既存Node / Edge / workspace metadataは保持する。
+- schemaVersion 4のProject Data Modelは複数Input Nodeを表現・保存・再読込できる。ただしalpha.1ではFFmpeg Compiler / Preview / Full Renderの実行経路は従来の1 main inputに限定し、複数Input Graphは実行不可として明示する。
+- Graph Hashには `mainInputId` を含める一方、ファイル名やサイズなどのsource metadataは含めない。実ファイル差し替えによるPreview cache無効化はruntime file token側で扱う。
+- RecipeでGraphを再生成した場合も、現在のmain Input source metadataを引き継ぐ。
+- Graph JSONを開いた場合、保存済みsource metadataは残すがbrowser `File` bindingは復元できないためruntime bindingを解除し、再選択を前提とする。
+- FFmpeg WASM Builder v1.9.8、ST / MT、`file://` ST、GitHub Pages `/mt/`、CSP `connect-src 'none'`、Draw Text、Graph Workspace v1.1.0の操作契約は変更しない。
+
+### alpha.1 Gate
+
+1. 新規Graph / Recipe GraphがschemaVersion 4 + `mainInputId`で生成される。
+2. schemaVersion 3 Graph JSONが非破壊でv4へmigrationされる。
+3. v4 Graph JSONで複数Input Nodeとmain Inputを保持できる。
+4. Input source metadataへローカルpathやFile bytesを保存しない。
+5. Graph JSON / Autosave読込後はruntime File bindingを引き継がない。
+6. source metadata変更だけではGraph Hashを変えず、`mainInputId`変更はGraph semanticsとしてHashへ反映する。
+7. 既存Scale / Speed / Trim / Split / Overlay / Audio / Draw Text / Recipe / Preview / Full Render回帰がない。
+8. ST / MT build、GitHub Pages ST / MT配信、runtime cache repairを維持する。
+
+## v1.2.0-alpha.2 実装メモ（2026-09-18）
+
+Multiple Input実装の第2段階として、alpha.1のschemaVersion 4をCanvas / Palette / Inspectorの実操作へ接続する。FFmpeg複数入力実行はまだ有効化しない。
+
+- Palette最上部へ **Input** categoryを追加し、Video / Audio / Imageを個別のInput Nodeとして追加できるようにする。現段階のVideo Inputは既存runtime契約に合わせMP4を選択対象とする。
+- 初期状態の空Video Inputは最初のVideo追加時だけ再利用する。Audio / Image追加時は既存Video Inputを別種類へ暗黙変換せず、独立したInput Nodeを作成する。
+- Input Nodeはsource kindに応じてportを動的にする。VideoはVideo + Audio、AudioはAudioのみ、ImageはVideo系portのみを表示する。Validation / connection UIも固定 `NODE_DEFS.input.outputPorts` ではなく動的portを参照する。
+- Canvas上ではInput種別に応じたicon / title / filename summaryを表示し、現在の `mainInputId` には `MAIN` badgeを表示する。
+- InspectorでInputごとのファイル名、解像度またはduration、sizeを表示し、ファイル変更 / ファイル解除 / メイン素材に設定を提供する。Graph JSON復元後にsource metadataだけ残っている場合は「ファイル未選択」を明示する。
+- ファイル解除後もInputのmedia kindは保持し、同じ種類のファイルを再選択できるようにする。
+- 追加Inputは削除可能とする。最後のInputは削除不可。Main Inputを削除した場合は残ったInputをMainへ昇格する。削除・差し替え・解除・Main切替は既存Undo / Redoへ統合する。
+- Runtime File bindingは引き続きGraph外の `inputBindings` で保持し、current-session Undo / Redo snapshotにもFile referenceを保持する。Graph JSON / AutosaveにはFile本体を保存しない。
+- Graph semanticsでは `mainInputId` に加えてInput media kindをHashへ含める。filename / size / lastModifiedなどのsource metadataはHashへ含めない。
+- 複数Inputを含むGraphのPreview / Full Renderは引き続き明示的にblockする。alpha.2ではUIだけ先行し、alpha.4 / alpha.5のCompiler / Runtime実装前に1素材だけを誤実行しない。
+- Mobileはv1.1.0のPalette / Inspector Bottom Sheetをそのまま利用し、Input追加・差し替え・Main切替をPCと同じ機能で提供する。
+
+### alpha.2 Gate
+
+1. PaletteからVideo / Audio / Image Inputを追加できる。
+2. Input種別に応じて利用可能portだけがCanvasへ表示される。
+3. Inspectorからファイル差し替え・解除ができ、解除後もInput種別が維持される。
+4. Main Inputを切り替えると`mainInputId`とCanvasの`MAIN`表示が更新され、legacy single-input Preview stateもMainへ追従する。
+5. Extra Inputを削除でき、最後のInputは削除できない。Main削除時は別InputがMainになる。
+6. Add / Replace / Remove / Delete / Main切替がUndo / Redoと競合しない。
+7. Graph JSON / Autosaveへlocal path / File / media bytesを保存しない。
+8. schemaVersion 3 → 4 migration、既存v1.1 Graph Workspace、ST / MT、CSP、Preview / Full Renderのsingle-input回帰を維持する。
+9. 複数Input GraphをPreview / Full Renderしようとしても、後続実装まで明示的にblockされる。
+
+
+
+## v1.2.0-alpha.3 実装メモ（2026-09-18）
+
+Multiple Input実装の第3段階として、Canvas DropとMissing Input状態を追加する。FFmpeg複数入力実行は引き続き後続phaseで有効化する。
+
+- Graph CanvasへOSからファイルを直接Dropできる。対応対象は現段階のVideo InputであるMP4、Audio Inputで扱う音声、Image Inputで扱う画像とする。
+- 複数ファイルを同時Dropした場合、対応ファイルごとに独立したInput Nodeを生成し、Drop位置を起点に重ならないよう配置する。未対応ファイルは無視せず、スキップした件数をToastで知らせる。
+- 空の初期Video Inputがある場合、最初のVideo DropではそのNodeを再利用する。不要なInput Node増加を避ける。
+- browser `File` bindingがないInputへ1ファイルをDropした場合、media kindが一致すれば既存Inputへbindして再利用する。kind不一致なら暗黙変換せず、種類が合わないことを通知する。
+- Graph JSON / Autosave復元後、`source.name`など保存済みmetadataはあるがbrowser `File` bindingがないInputを **Missing Input** として扱う。Canvasでは穏やかな要再選択表示、Inspectorでは元ファイルを選び直す案内を表示する。
+- Graph JSON import / Autosave recovery後は、Missing Input数をToastで知らせる。File本体・Blob・ローカルpathを保存しない境界は維持する。
+- Canvas Dropの視覚overlayはGraph navigation / MiniMap / Node drag / Wiringより上に表示するがpointer eventは奪わない。Drop終了時には必ず解除する。
+- Input File bindingの追加・再関連付けは既存Undo / Redo、Graph Hash、Preview stale処理と競合しない。
+- 複数Input GraphのPreview / Full Renderはalpha.4 / alpha.5まで引き続き明示的にblockする。
+
+### alpha.3 Gate
+
+1. Canvasへ1ファイルをDropして対応Inputを追加できる。
+2. 複数ファイルDropで複数Inputを生成でき、unsupported fileを明示的にskipできる。
+3. Drop位置を基準にInput Nodeが配置され、既存Graph操作と競合しない。
+4. Missing InputがCanvas / Inspectorの両方で明確に分かる。
+5. 未bind Inputへ対応ファイルをDropするとそのInputを再利用できる。
+6. Graph JSON / Autosave復元後もsource metadataは残るがFile object / bytes / local pathは復元・保存されない。
+7. Graph JSON / Autosave復元時にMissing Input数を案内できる。
+8. schemaVersion 3→4 migration、Main Input、Palette / Inspector、Mobile、ST / MT、GitHub Pages `/mt/`を回帰させない。
+9. 複数Input FFmpeg実行はまだ有効化せず、誤ってMain Inputだけを処理しない。
+
+## v1.2.0-alpha.5 実装メモ（2026-09-18）
+
+Multiple Input実装の第4段階として、schemaVersion 4の複数Input Graphを実際のFFmpeg input index / stream label / filter_complexへ落とすCompilerを実装する。Browser Preview / Full Renderへの接続はalpha.5へ分離する。
+
+- `resolveInputs()` をCompilerと次phase Runtimeの共通契約として追加する。Input NodeはGraph `nodes[]`内の順序でFFmpeg indexを持ち、`mainInputId`を変更してもindexを並べ替えない。
+- 各Inputを `/workerfs/input-N.ext` の安定したruntime virtual pathへ解決する。Videoは`N:v` + `N:a`、Audioは`N:a`、Imageは`N:v`として扱う。
+- Image Inputは静止画をOverlay等へ供給できるようcompiler input optionとして `-loop 1` を持つ。
+- Graph validationはInput Nodeが複数あるだけではerrorにしない。すべてのNodeが「いずれかのInputから到達可能」かつ「単一Outputへ到達可能」であることを要求し、unused Input / disconnected branchは引き続きinvalidとする。
+- `compileGraph()` は全Input stream labelをseedし、異なるInput由来のstreamをOverlay / Audio Mixなどで同じDAG内に合流できるようにする。
+- Desktop FFmpeg commandは複数 `-i` + 1つの `-filter_complex` + explicit `-map` を生成する。raw stream pass-throughの場合も対象Input indexを正しくmapする。
+- Browser requestは1 Input GraphではBuilder v1.9.8互換の `input` / `videoFilter` / `audioFilter` を維持する。複数Input Graphでは `mode: multi-input`、`inputs[]`、`filterComplex`、`videoMap`、`audioMap` を生成する。
+- Graph IRへ `inputs[]` と各Inputのindex / kind / Video stream / Audio streamを追加する。legacy用途の `input` fieldはMain Input descriptorとして維持する。
+- Video Speedのimplicit Audio syncはMain InputのAudioだけを対象とし、独立Audio Inputを暗黙にretimeしない。
+- alpha.4では複数Input GraphのPreview / Full Renderボタンを明示的に無効化する。Compiler contractだけ先に完成させ、alpha.5でbrowser `File` mountとFFmpeg argv生成へ接続する。
+- 既存1 Input GraphのDesktop command / Browser `videoFilter` / `audioFilter`、ST / MT、Draw Text、Recipe、Graph JSON、Autosave、Canvas Dropを回帰させない。
+
+### alpha.4 Gate
+
+1. Video + Image Overlay Graphが複数`-i`と`[0:v]` / `[1:v]`を含む`filter_complex`へcompileできる。
+2. 2つのAudio InputをAudio Mixへ接続したGraphが異なる`N:a` streamを正しく参照できる。
+3. Image Inputに`-loop 1`が付く。
+4. `mainInputId`を切り替えてもFFmpeg input indexが変わらない。
+5. multi-input Browser requestに`inputs[]` / `filterComplex` / `videoMap` / `audioMap`が入る。
+6. 1 Input Graphは従来のBuilder v1.9.8 Browser requestとcompile結果を維持する。
+7. 複数Input Graphはvalidation可能だがPreview / Full Renderはalpha.5まで実行されない。
+8. schemaVersion 3→4 migration、Missing Input、Canvas Drop、Mobile、GitHub Pages ST / MT、CSP、runtime cache repairを維持する。
+
+
+## v1.2.0-alpha.5 runtime integration
+
+Multiple Input Preview / Full Render uses the same compiled `filterComplex` contract as desktop command generation. Each Input binding is mounted into WORKERFS at its stable virtual path. Execution is enabled only when the embedded runtime manifest advertises both `multipleInputs: true` and `complexGraph: true`; the v1.9.8 single-input runtime remains valid for one-input graphs.
+
+## v1.2.0-beta.2 Two-video Picture in Picture（2026-09-20）
+
+v1.2.0-beta.2では、Picture in Picture Recipeを同一InputのSplit構成から、Main Input + 2本目のVideo Inputを使う実Multi-input構成へ変更する。
+
+- Main InputのVideoをOverlayのMAINへ接続する。
+- 2本目のVideo InputをScaleし、OverlayのOVERへ接続する。
+- AudioはMain InputからOutputへ接続する。beta.1では2本目のAudioを自動mixしない。
+- 既存GraphにMain以外のVideo Inputがある場合、Recipe適用時にそのFile bindingを`input-2`へ引き継ぐ。
+- 2本目が未選択の場合はMissing Inputとして`input-2`を作成し、そのInputを選択状態にする。
+- PiP RecipeのOverlayは`shortest:false`を既定とし、`eof_action=pass:repeatlast=0`で前景終了後もMain Inputを継続する。
+- Overlay Inspectorには「短い方で出力を終了」を残し、ユーザーが明示的に`shortest=1`を選べるようにする。
+- Preview / Full RenderはBuilder v1.9.9の`multipleInputs:true` / `complexGraph:true` runtimeを前提とする。
+
+### Builder v1.9.9 release handoff
+
+beta.1のrelease pathでは、開発用のローカルBuilder参照を最終形にしない。Builder v1.9.9をタグ付けしてGitHub Release workflowでST/MT runtime ZIPを公開した後、`scripts/promote-builder-v1.9.9.ps1`でRelease assetを取得し、SHA-256を計算して`runtime.lock.json`へ固定する。
+
+アプリの完成HTMLはFFmpeg runtimeを内部に埋め込むため、GitHubはbuild-timeの取得元であり、実行時ネットワーク依存にはしない。
+
+## v1.2.0-beta.2 Image Input / Logo Overlay（2026-09-20）
+
+- Image Inputを実行機能として有効化し、現在のreviewed runtimeで確実に扱う対象をPNG / JPEGに限定する。
+- Logo Overlay Recipeは Main Video + Image Input + Scale + Overlay + Main Audio のGraphへ展開する。
+- Image Inputが未選択の場合はMissing Inputとして作成し、選択状態にして次の操作を明確にする。既存のImage Input bindingがある場合は引き継ぐ。
+- Logo用途ではOverlayを`shortest=0:eof_action=repeat:repeatlast=1`として静止画をMain Inputの最後まで維持する。
+- 2動画PiPはbeta.1の`shortest=0:eof_action=pass:repeatlast=0`を維持し、短い前景動画の最終frameを固めない。
+- Overlay Inspectorから「前景の表示を維持」を切り替え可能にする。
+- runtime.lock.jsonは公開済みFFmpeg WASM Builder v1.9.9 ST / MT GitHub Releaseへ固定する。GitHubアクセスはbuild時のみで、standalone実行時はruntimeを内包して外部通信しない。
+
+
+## v1.2.0-beta.3 Audio Input / BGM / Audio Mix（2026-09-21）
+
+- Audio Inputを外部BGM / 置き換え音声としてPreview / Full Renderまで利用できるようにする。
+- Recipeに「BGMを追加」「音声をBGMに置き換える」を追加する。
+- Main音声 + BGMではBGMを既定-12 dBとし、Audio Mix前に各入力へ`aresample=48000,asetpts=PTS-STARTPTS`を適用する。
+- Audio Mixは`durationMode`を持ち、A基準 / shortest / longestを選択できる。BGM RecipeではlongestでMixしてからMain動画durationで切る。
+- Main動画が無音の場合は存在しない`[0:a]`を生成せず、外部Audioだけを出力へ接続する。
+- BGM / 置き換え音声はMain動画durationで`atrim`し、長い音声素材が動画durationを延ばさないようにする。短いBGMは無理にloopせず、終了後はMain音声のみ（無音Mainなら音声なし区間）とする。
+- Audio InputのFile body/pathはGraph JSON / Autosaveへ保存せず、既存のruntime-only binding境界を維持する。対応形式はMP3 / WAV / M4A / FLAC / OGG / Opusに限定し、raw `.aac`はUIで受け付けない。
+- Builder v1.9.9の既存`amix` / `aresample` / `asetpts` / `volume` / `atrim`を使用し、新しいruntime外部依存は追加しない。
+
+## v1.2.0-beta.4 Graph Restore / Auto Relink（2026-09-21）
+
+- Graph JSON / Autosaveから復元したInputは、source metadataを保持しつつFile本体を保存しない既存privacy境界を維持する。
+- Missing Inputが1件以上ある場合、Graph toolsに **「素材をまとめて再選択」** を表示し、複数ファイルを一度に選択できるようにする。
+- Auto Relinkはmedia kindが一致し、filenameが同一で、保存済みsizeがある場合はsizeも同一であることを必須条件とする。`lastModified`とMIME一致は候補の優先度を上げるが、コピー等でtimestampが変わった同一素材を不必要に拒否しない。
+- 一致しないファイルを推測で割り当てない。同名でもsizeが異なる場合やmedia kindが異なる場合はMissing Inputのまま残す。
+- 同じbrowser sessionでGraph JSONを開き直す場合は、現在のruntime-only `inputBindings` に残るFile objectから一致するものを再利用し、不要な再選択を省く。File objectをlocalStorage / IndexedDB / Graph JSONへ永続化しない。
+- Canvasへ複数ファイルをDropした場合はMissing InputへのAuto Relinkを先に行い、一致しなかった対応ファイルだけを新しいInputとして追加する。特定の未bind Inputへ1ファイルをDropする既存操作は維持する。
+- 一括relinkは1操作としてUndo履歴・Graph refresh・autosaveと整合させ、Preview / Full Renderは必要なInputがすべてboundになるまで実行しない。
+- filename / size / type / lastModified以外のlocal absolute pathは取得・保存しない。fingerprintはbeta.4では導入せず、必要性が確認された場合のみ将来検討する。
+
+### beta.4 Gate
+
+1. 複数Missing Inputへ元ファイルを順不同でまとめて再選択し、正しいInputへ自動relinkできる。
+2. filename + sizeが一致しないファイルを誤って自動relinkしない。
+3. lastModifiedが変わったコピーでもfilename + size + media kindが一致すれば復元できる。
+4. 同一session内では既存runtime File bindingを再利用できる。
+5. Canvas DropはMissing Inputを先に復元し、unmatched fileだけを新Inputとして追加する。
+6. Graph JSON / AutosaveにFile / Blob / media bytes / absolute pathを保存しない。
+7. PiP / Logo / BGM / Audio Mix / Recipe / Preview / Full Render / Undo / Redo / Mobile / ST / MTを回帰させない。
+
+## v1.2.0-rc.1 全体回帰（2026-09-21）
+
+v1.2.0-rc.1では新規機能追加を止め、v1.2.0 Stableへ向けた回帰確認を行う。beta.4までに確定したUI・Graph schema・runtime contract・privacy境界を変更しない。
+
+### rc.1 Gate
+
+1. Single InputのPreview / Full Render / Desktop commandを維持する。
+2. 2動画PiP、Image Input / Logo Overlay、Audio Input / BGM / Audio MixがST / MTの共通compiler contractを維持する。
+3. 無音Main動画では存在しないAudio streamを参照しない。
+4. Graph JSON / Autosave / Auto RelinkでFile body、Blob、絶対パスを永続化しない。
+5. 24 Recipe、Draw Text、Trim、Speed、Undo / Redo、Delete、keyboard移動、Palette drag、Canvas file dropを回帰させない。
+6. PCではPalette / Inspectorの固定高内部scroll、MobileではBottom Sheet / touch pan / pinch zoomを維持する。
+7. 標準ST版は`file://`、MT版はCOOP / COEP付きHTTP(S)という実行条件を維持する。
+8. standalone runtimeは`connect-src 'none'`を維持し、CDN / telemetry / user media uploadを追加しない。
+9. Builder v1.9.9 release pin、SHA-256 verification、single HTML生成、GitHub Pages ST / MT配置を維持する。
+10. JA / EN、README、favicon、screenshot、version表示をrc.1へ同期する。
+
+## v1.2.0 Stable（2026-09-21）
+
+v1.2.0 Stableはv1.2.0-rc.1の機能・runtime contract・privacy境界を変更せず、正式版として確定する。Stable化に伴う新規filter、Graph schema変更、外部依存追加は行わない。
+
+### Stable Gate
+
+1. app / build scripts / runtime User-Agent / repository check / CI / version badgeを `1.2.0` へ統一する。
+2. beta.1〜beta.4の専用回帰、24 Recipes、無音動画、Audio Mix、Auto Relink、Mobile、ST / MT、GitHub Pages配置をrelease gateとして維持する。
+3. Graph schemaVersion 4とschemaVersion 3 migrationを維持し、Graph JSON / AutosaveへFile body・Blob・絶対pathを保存しない。
+4. Builder v1.9.9のST / MT Release assetとSHA-256 pinを変更しない。
+5. 標準ST版は`file://`で利用可能、MT版はcross-origin isolation + `SharedArrayBuffer`を前提とする。
+6. standalone HTMLは`connect-src 'none'`を維持し、runtime時のCDN / telemetry / user media uploadを追加しない。
+7. PC / Mobile、JA / EN、README、favicon、release screenshotをStable状態へ同期する。
+8. rc.1からStableへの変更はrelease metadata / docs / gate更新に限定し、ユーザー向け機能挙動を変更しない。
 

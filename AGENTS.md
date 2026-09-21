@@ -29,7 +29,7 @@ This file is the first instruction for any coding LLM or agent working in this r
 ## Dependency rules
 
 - Runtime and font inputs are app-specific and must stay explicitly pinned.
-- `runtime.lock.json` pins the reviewed FFmpeg WASM Builder v1.9.8 ST / MT Release assets and SHA-256 values. Do not change the URLs, hashes, Builder version, or profile without reviewing the matching Builder release.
+- `runtime.lock.json` pins the reviewed FFmpeg WASM Builder v1.9.9 ST / MT Release assets and SHA-256 values. Do not change the URLs, hashes, Builder version, or profile without reviewing the matching Builder release.
 - `font.lock.json` pins the reviewed M PLUS 1p Regular snapshot. The font binary must not be committed to the source repository; fetch, verify, and embed it at build time.
 - Keep `THIRD_PARTY_NOTICES.md` and `licenses/MPLUS1p-OFL.txt` synchronized with any runtime or font change.
 - No runtime CDN or package registry access is allowed. Build-time downloads must be pinned and hash-verified before embedding.

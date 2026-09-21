@@ -9,4 +9,4 @@ assert.ok(source.includes("return `${n(p.db)} dB`;"), 'Volume summary missing.')
 assert.ok(source.includes("return 'Video → A + B';"), 'Split summary missing.');
 assert.ok(source.includes('const portTop=(ports,index)=>ports.length<=1?111:'), 'Fixed port rows missing.');
 assert.ok(source.includes('.node-port.audio::after'), 'Audio ports must remain distinct.');
-console.log('[OK] v1.1.0 Modern Node UI smoke tests passed.');
+console.log('[OK] v1.2.0 Modern Node UI smoke tests passed.');

@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
 const source = fs.readFileSync(new URL('../src/index.template.html', import.meta.url), 'utf8');
-const start = source.indexOf('      const PORT_TYPES = Object.freeze');
+const start = source.indexOf('      const GRAPH_SCHEMA_VERSION=4;');
 const end = source.indexOf('      function nodeSummary', start);
 assert.ok(start >= 0 && end > start, 'Audio Filter Set source block was not found.');
 const coreSource = source.slice(start, end);
@@ -35,6 +35,8 @@ assert.equal(core.filterForNode({type:'audioFade',params:{mode:'out',start:4,dur
 assert.equal(core.filterForNode({type:'highpass',params:{frequency:120}}), 'highpass=f=120');
 assert.equal(core.filterForNode({type:'lowpass',params:{frequency:12000}}), 'lowpass=f=12000');
 assert.equal(core.filterForNode({type:'normalize',params:{targetI:-16,lra:11,tp:-1.5}}), 'loudnorm=I=-16:LRA=11:TP=-1.5');
+assert.equal(core.filterForNode({type:'audioMix',params:{normalize:false,durationMode:'first'}}), 'amix=inputs=2:duration=first:normalize=0');
+assert.equal(core.filterForNode({type:'audioMix',params:{normalize:true,durationMode:'shortest'}}), 'amix=inputs=2:duration=shortest:normalize=1');
 
 core.state.graph = {
   schemaVersion:3,
@@ -65,9 +67,10 @@ assert.match(compiled.audioFilter, /asplit=2/);
 assert.match(compiled.audioFilter, /volume=-6dB/);
 assert.match(compiled.audioFilter, /highpass=f=120/);
 assert.match(compiled.audioFilter, /volume=-3dB/);
+assert.match(compiled.audioFilter, /aresample=48000,asetpts=PTS-STARTPTS/);
 assert.match(compiled.audioFilter, /amix=inputs=2:duration=longest:normalize=0$/);
 assert.match(compiled.command, /\[0:a\]asplit=2/);
-assert.equal(compiled.graphIR.schemaVersion, 3);
+assert.equal(compiled.graphIR.schemaVersion, 4);
 assert.equal(compiled.graphIR.streamType, 'av');
 
 const mismatched = structuredClone(core.state.graph);

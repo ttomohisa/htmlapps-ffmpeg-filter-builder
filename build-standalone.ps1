@@ -15,6 +15,7 @@ $PrepareFontPath = Join-Path $Root "scripts\prepare-text-font.ps1"
 $BuildVariantPath = Join-Path $Root "scripts\build-variant.ps1"
 $SyntaxCheckPath = Join-Path $Root "scripts\check-powershell-syntax.ps1"
 $RepositoryCheckPath = Join-Path $Root "scripts\check-repository.ps1"
+$SupportedLocalBuilderVersions = @("1.9.8", "1.9.9")
 
 function Get-Sha256FileHex([string]$Path) {
   $stream = [System.IO.File]::OpenRead($Path)
@@ -39,13 +40,23 @@ function Assert-RuntimeRoot([string]$Variant, [string]$RuntimeRoot) {
   $manifestPath = Join-Path $RuntimeRoot "manifest.json"
   $manifest = Get-Content -Raw -Encoding UTF8 $manifestPath | ConvertFrom-Json
   if ([int]$manifest.schemaVersion -ne 8) { throw "Local $Variant runtime manifest schema must be 8." }
-  if ([string]$manifest.builderVersion -ne "1.9.8") { throw "Local $Variant runtime must be built by FFmpeg WASM Builder v1.9.8." }
+  $builderVersion = [string]$manifest.builderVersion
+  if ($SupportedLocalBuilderVersions -notcontains $builderVersion) {
+    throw "Local $Variant runtime must be built by FFmpeg WASM Builder v1.9.8 or v1.9.9. Found: $builderVersion"
+  }
   if ([string]$manifest.profile -ne "ffmpeg-filter-builder") { throw "Local $Variant runtime must use the ffmpeg-filter-builder profile." }
   if ([string]$manifest.runtime.threading -ne $Variant) { throw "Local runtime threading mismatch: expected $Variant, got $($manifest.runtime.threading)." }
   if ($manifest.capabilities.timeRangeRender -ne $true) { throw "Local $Variant runtime must advertise timeRangeRender." }
   if ($manifest.capabilities.drawText -ne $true) { throw "Local $Variant runtime must advertise drawText." }
   foreach ($filter in @("trim", "setpts", "drawtext", "split", "overlay", "atrim", "asetpts", "volume", "afade", "atempo", "highpass", "lowpass", "loudnorm", "amix", "asplit", "aresample")) {
     if (@($manifest.catalog.filters) -notcontains $filter) { throw "Local $Variant runtime is missing required filter: $filter" }
+  }
+  if ($builderVersion -eq "1.9.9") {
+    if ($manifest.capabilities.multipleInputs -ne $true) { throw "Local $Variant Builder v1.9.9 runtime must advertise multipleInputs." }
+    if ($manifest.capabilities.complexGraph -ne $true) { throw "Local $Variant Builder v1.9.9 runtime must advertise complexGraph." }
+    foreach ($filter in @("null", "anull")) {
+      if (@($manifest.catalog.filters) -notcontains $filter) { throw "Local $Variant Builder v1.9.9 runtime is missing multi-input filter: $filter" }
+    }
   }
 
   $jsHash = Get-Sha256FileHex (Join-Path $RuntimeRoot "ffmpeg.js")
@@ -65,7 +76,11 @@ function Resolve-RuntimeRoot([string]$Variant, [string]$ExplicitRoot) {
       foreach ($token in @("ffmpegFilterBuilderArgs", "startTimeSeconds", "durationSeconds")) {
         if (-not $browserRuntimeText.Contains($token)) { throw "Local $Variant browser runtime helper is missing required API: $token" }
       }
-      Write-Host "[OK] Local FFmpeg runtime verified: $Variant / Builder v1.9.8" -ForegroundColor Green
+      $localManifest = Get-Content -Raw -Encoding UTF8 (Join-Path $resolved "manifest.json") | ConvertFrom-Json
+      if ([string]$localManifest.builderVersion -eq "1.9.9" -and -not $browserRuntimeText.Contains('options.mode === "multi-input"')) {
+        throw "Local $Variant Builder v1.9.9 browser runtime helper is missing the multi-input request path."
+      }
+      Write-Host "[OK] Local FFmpeg runtime verified: $Variant / Builder v$($localManifest.builderVersion)" -ForegroundColor Green
       return $resolved
     }
 
@@ -92,18 +107,22 @@ function Resolve-RuntimeRoot([string]$Variant, [string]$ExplicitRoot) {
     foreach ($token in @("ffmpegFilterBuilderArgs", "startTimeSeconds", "durationSeconds")) {
       if (-not $browserRuntimeText.Contains($token)) { throw "Local Builder browser runtime helper is missing required API: $token" }
     }
-    Write-Host "[OK] Local Builder runtime staged: $Variant / Builder v1.9.8" -ForegroundColor Green
+    $stagedManifest = Get-Content -Raw -Encoding UTF8 (Join-Path $stageRoot "manifest.json") | ConvertFrom-Json
+    if ([string]$stagedManifest.builderVersion -eq "1.9.9" -and -not $browserRuntimeText.Contains('options.mode === "multi-input"')) {
+      throw "Local Builder v1.9.9 browser runtime helper is missing the multi-input request path."
+    }
+    Write-Host "[OK] Local Builder runtime staged: $Variant / Builder v$($stagedManifest.builderVersion)" -ForegroundColor Green
     return $stageRoot
   }
 
-  Write-Host "[FFmpeg Runtime] Source: GitHub Release v1.9.8 ($Variant)" -ForegroundColor DarkGray
+  Write-Host "[FFmpeg Runtime] Source: GitHub Release v1.9.9 ($Variant)" -ForegroundColor DarkGray
   $lines = @(& $PreparePath -Variant $Variant -ForceDownload:$ForceDownload)
   if ($lines.Count -lt 1) { throw "Runtime resolver returned no path for $Variant." }
   return [string]$lines[-1]
 }
 
-Write-Host "FFmpeg Filter Builder v1.1.0" -ForegroundColor Cyan
-Write-Host "ST + MT standalone build / FFmpeg WASM Builder v1.9.8 / embedded M PLUS 1p"
+Write-Host "FFmpeg Filter Builder v1.2.0" -ForegroundColor Cyan
+Write-Host "ST + MT standalone build / Builder v1.9.9 GitHub Release / embedded M PLUS 1p"
 Write-Host ""
 
 Write-Host "[1/7] Validating PowerShell syntax..." -ForegroundColor Cyan
@@ -128,7 +147,10 @@ foreach ($property in @("filters", "encoders", "decoders", "muxers", "demuxers")
   $mtItems = @($mt.catalog.$property | ForEach-Object { [string]$_ } | Sort-Object)
   if (($stItems -join "`n") -ne ($mtItems -join "`n")) { throw "ST/MT runtime catalog mismatch: $property" }
 }
-if ([string]$st.builderVersion -ne "1.9.8" -or [string]$mt.builderVersion -ne "1.9.8") { throw "FFmpeg WASM Builder v1.9.8 is required." }
+$stBuilderVersion = [string]$st.builderVersion
+$mtBuilderVersion = [string]$mt.builderVersion
+if ($stBuilderVersion -ne $mtBuilderVersion) { throw "ST/MT runtime Builder version mismatch: $stBuilderVersion vs $mtBuilderVersion" }
+if ($SupportedLocalBuilderVersions -notcontains $stBuilderVersion) { throw "FFmpeg WASM Builder v1.9.8 or v1.9.9 is required. Found: $stBuilderVersion" }
 if ([string]$st.profile -ne "ffmpeg-filter-builder" -or [string]$mt.profile -ne "ffmpeg-filter-builder") { throw "ffmpeg-filter-builder runtime profile is required." }
 if ([string]$st.runtime.threading -ne "single-thread") { throw "Single-thread runtime manifest has an unexpected threading value." }
 if ([string]$mt.runtime.threading -ne "multi-thread") { throw "Multi-thread runtime manifest has an unexpected threading value." }
@@ -137,7 +159,15 @@ if ($st.capabilities.drawText -ne $true -or $mt.capabilities.drawText -ne $true)
 foreach ($filter in @("trim", "setpts", "drawtext", "split", "overlay", "atrim", "asetpts", "volume", "afade", "atempo", "highpass", "lowpass", "loudnorm", "amix", "asplit", "aresample")) {
   if (@($st.catalog.filters) -notcontains $filter -or @($mt.catalog.filters) -notcontains $filter) { throw "Both runtimes must include required filter: $filter" }
 }
-Write-Host "[OK] Runtime catalogs match and bounded Preview capabilities are available." -ForegroundColor Green
+if ($stBuilderVersion -eq "1.9.9") {
+  if ($st.capabilities.multipleInputs -ne $true -or $mt.capabilities.multipleInputs -ne $true) { throw "Builder v1.9.9 ST/MT runtimes must both advertise multipleInputs." }
+  if ($st.capabilities.complexGraph -ne $true -or $mt.capabilities.complexGraph -ne $true) { throw "Builder v1.9.9 ST/MT runtimes must both advertise complexGraph." }
+  foreach ($filter in @("null", "anull")) {
+    if (@($st.catalog.filters) -notcontains $filter -or @($mt.catalog.filters) -notcontains $filter) { throw "Builder v1.9.9 ST/MT runtimes must both include multi-input filter: $filter" }
+  }
+}
+$runtimeCapabilitySuffix = if ($stBuilderVersion -eq "1.9.9") { " / Multiple Input" } else { "" }
+Write-Host "[OK] Runtime catalogs match: Builder v$stBuilderVersion / bounded Preview$runtimeCapabilitySuffix." -ForegroundColor Green
 
 Write-Host "[6/7] Building single-thread standalone..." -ForegroundColor Cyan
 & $BuildVariantPath -Variant "single-thread" -RuntimeRoot $stRoot -FontPath $fontPath -SkipSelfExtract:$SkipSelfExtract
@@ -147,7 +177,7 @@ Write-Host "[7/7] Building multi-thread standalone..." -ForegroundColor Cyan
 
 & $RepositoryCheckPath
 Write-Host ""
-Write-Host "[OK] FFmpeg Filter Builder v1.1.0 dual-runtime build completed." -ForegroundColor Green
+Write-Host "[OK] FFmpeg Filter Builder v1.2.0 dual-runtime build completed." -ForegroundColor Green
 Write-Host "  dist\index.html             single-thread / file:// supported"
 Write-Host "  dist\index.mt.html          multi-thread / COOP+COEP required"
 if (-not $SkipSelfExtract) {

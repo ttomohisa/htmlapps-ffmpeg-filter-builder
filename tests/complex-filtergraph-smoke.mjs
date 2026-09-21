@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
 const source = fs.readFileSync(new URL('../src/index.template.html', import.meta.url), 'utf8');
-const start = source.indexOf('      const PORT_TYPES = Object.freeze');
+const start = source.indexOf('      const GRAPH_SCHEMA_VERSION=4;');
 const end = source.indexOf('      function nodeSummary', start);
 assert.ok(start >= 0 && end > start, 'Complex Filtergraph source block was not found.');
 const coreSource = source.slice(start, end);
@@ -50,7 +50,7 @@ assert.match(compiled.videoFilter, /overlay=x=20:y=20:shortest=1$/);
 assert.match(compiled.command, /-filter_complex/);
 assert.match(compiled.command, /split=2/);
 assert.match(compiled.command, /overlay=x=20:y=20:shortest=1/);
-assert.equal(compiled.graphIR.schemaVersion, 3);
+assert.equal(compiled.graphIR.schemaVersion, 4);
 assert.equal(core.runtimeSupportsNodeType('split'), true);
 assert.equal(core.runtimeSupportsNodeType('overlay'), true);
 

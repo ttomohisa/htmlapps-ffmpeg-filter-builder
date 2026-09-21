@@ -12,7 +12,7 @@ FFmpeg Filter Builder v0.6.0 adds typed Audio ports and compiles the Audio lane 
 - Low-pass → `lowpass`
 - Normalize → `loudnorm`
 - Audio Split → `asplit=2`
-- Audio Mix → `amix=inputs=2` with independent A/B volume
+- Audio Mix → `amix=inputs=2` with independent A/B volume and selectable duration basis
 
 ## Typed ports
 
@@ -33,3 +33,10 @@ The browser request uses `videoFilter` and `audioFilter` separately. The runner 
 - Multiple source files / independent external Audio inputs are not implemented yet.
 - Normalize uses a practical one-pass `loudnorm` preview; two-pass measured normalization is future work.
 - Audio Mix branches currently originate from the same input Audio stream through Audio Split.
+
+
+## v1.2.0-beta.3 update — external Audio Input / BGM
+
+Multiple-source Audio is now implemented with Builder v1.9.9. Before `amix`, each branch is normalized with `aresample=48000,asetpts=PTS-STARTPTS`; per-input volume is then applied. Audio Mix can follow input A, the shorter input, or the longer input.
+
+The **Add BGM** Recipe uses Main audio as A and external Audio Input as B at -12 dB by default, mixes to the longer audio branch, then trims the result to Main Video duration. A silent Main Video skips the missing Main-audio branch. **Replace Audio with BGM** ignores Main audio and uses the external input as the soundtrack. Short external audio is not implicitly looped. Audio Input selection is limited to MP3, WAV, M4A, FLAC, OGG, and Opus; raw AAC is excluded because the pinned runtime does not provide its demuxer.

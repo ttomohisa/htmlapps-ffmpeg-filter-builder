@@ -10,6 +10,16 @@ $MtPages = Join-Path $Pages "mt"
 $WorkerSource = Join-Path $Root "vendor\coi-serviceworker\coi-serviceworker.js"
 $WorkerLockPath = Join-Path $Root "coi-serviceworker.lock.json"
 
+function Get-Sha256FileHex([string]$Path) {
+  $bytes = [System.IO.File]::ReadAllBytes($Path)
+  $algorithm = [System.Security.Cryptography.SHA256]::Create()
+  try {
+    return (($algorithm.ComputeHash($bytes) | ForEach-Object { $_.ToString("x2") }) -join "")
+  } finally {
+    $algorithm.Dispose()
+  }
+}
+
 $stSource = Join-Path $Dist "index.html"
 $mtSource = Join-Path $Dist "index.mt.html"
 foreach ($path in @($stSource, $mtSource, $WorkerSource, $WorkerLockPath)) {
@@ -17,7 +27,7 @@ foreach ($path in @($stSource, $mtSource, $WorkerSource, $WorkerLockPath)) {
 }
 
 $lock = Get-Content -Raw -Encoding UTF8 $WorkerLockPath | ConvertFrom-Json
-$actualWorkerHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $WorkerSource).Hash.ToLowerInvariant()
+$actualWorkerHash = Get-Sha256FileHex $WorkerSource
 if ($actualWorkerHash -ne ([string]$lock.sha256).ToLowerInvariant()) {
   throw "coi-serviceworker.js SHA-256 does not match coi-serviceworker.lock.json."
 }

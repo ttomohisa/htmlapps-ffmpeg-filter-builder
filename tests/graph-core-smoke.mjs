@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
 const source = fs.readFileSync(new URL('../src/index.template.html', import.meta.url), 'utf8');
-const start = source.indexOf('      const PORT_TYPES = Object.freeze');
+const start = source.indexOf('      const GRAPH_SCHEMA_VERSION=4;');
 const end = source.indexOf('      function nodeSummary', start);
 assert.ok(start >= 0 && end > start, 'Graph Core source block was not found.');
 const coreSource = source.slice(start, end);

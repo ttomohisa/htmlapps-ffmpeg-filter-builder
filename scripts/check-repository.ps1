@@ -4,12 +4,22 @@ $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 $Root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 
+function Get-Sha256FileHex([string]$Path) {
+  $bytes = [System.IO.File]::ReadAllBytes($Path)
+  $algorithm = [System.Security.Cryptography.SHA256]::Create()
+  try {
+    return (($algorithm.ComputeHash($bytes) | ForEach-Object { $_.ToString("x2") }) -join "")
+  } finally {
+    $algorithm.Dispose()
+  }
+}
+
 $required = @(
   "AGENTS.md", "APP_SPEC.md", "app.config.json", "runtime.lock.json", "font.lock.json", "coi-serviceworker.lock.json", "licenses\MPLUS1p-OFL.txt", "licenses\coi-serviceworker-MIT.txt", "assets\favicon.svg",
   "src\index.template.html", "build-standalone.ps1", "build-standalone.bat", "build-with-local-ffmpeg.bat",
   "scripts\prepare-ffmpeg-runtime.ps1", "scripts\prepare-text-font.ps1", "scripts\build-variant.ps1", "scripts\build-self-extract.ps1",
   "scripts\check-powershell-syntax.ps1", "scripts\verify-standalone.ps1", "scripts\verify-self-extract.ps1", "scripts\prepare-pages.ps1",
-  "README.md", "README.ja.md", "LICENSE", "THIRD_PARTY_NOTICES.md", "docs\MULTI_THREAD_DEPLOYMENT.md", "docs\GRAPH_COMPILER.md", "docs\PREVIEW_ENGINE.md", "docs\VIDEO_FILTER_SET.md", "docs\COMPLEX_FILTERGRAPH.md", "docs\AUDIO_FILTER_SET.md", "docs\TEXT_FILTER_SET.md", "docs\RECIPES_FULL_RENDER.md", "vendor\coi-serviceworker\coi-serviceworker.js", "tests\pages-deployment-smoke.mjs", "tests\graph-core-smoke.mjs", "tests\preview-engine-smoke.mjs", "tests\video-filter-set-smoke.mjs", "tests\complex-filtergraph-smoke.mjs", "tests\audio-filter-set-smoke.mjs", "tests\text-filter-set-smoke.mjs", "tests\recipes-full-render-smoke.mjs", "tests\workspace-core-smoke.mjs", "tests\modern-node-ui-smoke.mjs", "tests\workspace-layout-polish-smoke.mjs", "tests\manual-layout-selection-smoke.mjs", "tests\palette-inspector-smoke.mjs", "tests\connection-minimap-smoke.mjs", "tests\mobile-workspace-smoke.mjs", "tests\release-smoke.mjs", "tests\i18n-smoke.mjs", "tests\fixtures\smoke-input.mp4"
+  "README.md", "README.ja.md", "LICENSE", "THIRD_PARTY_NOTICES.md", "docs\BUILDER_V1_9_9_RELEASE.md", "scripts\promote-builder-v1.9.9.ps1", "docs\MULTI_THREAD_DEPLOYMENT.md", "docs\GRAPH_COMPILER.md", "docs\PREVIEW_ENGINE.md", "docs\VIDEO_FILTER_SET.md", "docs\COMPLEX_FILTERGRAPH.md", "docs\AUDIO_FILTER_SET.md", "docs\TEXT_FILTER_SET.md", "docs\RECIPES_FULL_RENDER.md", "vendor\coi-serviceworker\coi-serviceworker.js", "tests\pages-deployment-smoke.mjs", "tests\graph-core-smoke.mjs", "tests\preview-engine-smoke.mjs", "tests\video-filter-set-smoke.mjs", "tests\complex-filtergraph-smoke.mjs", "tests\audio-filter-set-smoke.mjs", "tests\text-filter-set-smoke.mjs", "tests\recipes-full-render-smoke.mjs", "tests\workspace-core-smoke.mjs", "tests\modern-node-ui-smoke.mjs", "tests\workspace-layout-polish-smoke.mjs", "tests\manual-layout-selection-smoke.mjs", "tests\palette-inspector-smoke.mjs", "tests\connection-minimap-smoke.mjs", "tests\mobile-workspace-smoke.mjs", "tests\multi-input-schema-smoke.mjs", "tests\multi-input-ui-smoke.mjs", "tests\multi-input-drop-smoke.mjs", "tests\multi-input-compiler-smoke.mjs", "tests\multi-input-runtime-smoke.mjs", "tests\local-runtime-integration-smoke.mjs", "tests\powershell-hash-compat-smoke.mjs", "tests\beta1-pip-smoke.mjs", "tests\beta2-logo-overlay-smoke.mjs", "tests\beta3-audio-bgm-smoke.mjs", "tests\beta4-auto-relink-smoke.mjs", "tests\mp4-track-detection-smoke.mjs", "tests\runtime-promotion-smoke.mjs", "tests\stable-release-smoke.mjs", "tests\release-smoke.mjs", "tests\i18n-smoke.mjs", "tests\fixtures\smoke-input.mp4", "tests\fixtures\logo-overlay.png"
 )
 foreach ($relative in $required) {
   if (-not (Test-Path -LiteralPath (Join-Path $Root $relative))) { throw "Required repository file is missing: $relative" }
@@ -26,23 +36,23 @@ foreach ($relative in $forbidden) {
 }
 
 $app = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "app.config.json") | ConvertFrom-Json
-if ([string]$app.version -ne "1.1.0") { throw "app.config.json version must be 1.1.0 for this release." }
+if ([string]$app.version -ne "1.2.0") { throw "app.config.json version must be 1.2.0 for this release." }
 if ([string]$app.repository.owner -ne "ttomohisa" -or [string]$app.repository.name -ne "htmlapps-ffmpeg-filter-builder") { throw "Repository metadata is incorrect." }
 
 $lock = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "runtime.lock.json") | ConvertFrom-Json
-if ([string]$lock.builderVersion -ne "1.9.8") { throw "runtime.lock.json must pin FFmpeg WASM Builder v1.9.8." }
+if ([string]$lock.builderVersion -ne "1.9.9") { throw "runtime.lock.json must pin FFmpeg WASM Builder v1.9.9." }
 if ([string]$lock.profile -ne "ffmpeg-filter-builder") { throw "runtime.lock.json must use ffmpeg-filter-builder profile." }
 foreach ($variant in @("single-thread", "multi-thread")) {
   $entry = $lock.variants.PSObject.Properties[$variant].Value
   if ([string]$entry.sha256 -notmatch '^[a-f0-9]{64}$') { throw "runtime.lock.json has an invalid SHA-256 for $variant." }
-  if (-not ([string]$entry.url).Contains("/releases/download/v1.9.8/")) { throw "Runtime URL is not pinned to v1.9.8 for $variant." }
+  if (-not ([string]$entry.url).Contains("/releases/download/v1.9.9/")) { throw "Runtime URL is not pinned to v1.9.9 for $variant." }
 }
 
 $coiLock = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "coi-serviceworker.lock.json") | ConvertFrom-Json
 if ([string]$coiLock.version -ne "0.1.7") { throw "coi-serviceworker.lock.json must pin v0.1.7." }
 if ([string]$coiLock.commit -ne "7b1d2a092d0d2dd2b7270b6f12f13605de26f214") { throw "coi-serviceworker.lock.json commit is unexpected." }
 $coiWorkerPath = Join-Path $Root "vendor\coi-serviceworker\coi-serviceworker.js"
-$coiHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $coiWorkerPath).Hash.ToLowerInvariant()
+$coiHash = Get-Sha256FileHex $coiWorkerPath
 if ($coiHash -ne ([string]$coiLock.sha256).ToLowerInvariant()) { throw "Vendored coi-serviceworker.js does not match its lock file." }
 
 $fontLock = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "font.lock.json") | ConvertFrom-Json
@@ -67,6 +77,11 @@ if ($committedFonts.Count -gt 0) {
   throw "Font binaries must not be committed to the source package. The build must fetch the pinned font and embed it into generated HTML. Found: $fontList"
 }
 
+$buildStandaloneText = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "build-standalone.ps1")
+if (-not $buildStandaloneText.Contains('$SupportedLocalBuilderVersions = @("1.9.8", "1.9.9")')) { throw "Local Builder v1.9.9 integration allowlist is missing." }
+if (-not $buildStandaloneText.Contains('Builder v1.9.9 runtime must advertise multipleInputs')) { throw "Local Builder v1.9.9 multipleInputs guard is missing." }
+if (-not $buildStandaloneText.Contains('Builder v1.9.9 runtime must advertise complexGraph')) { throw "Local Builder v1.9.9 complexGraph guard is missing." }
+
 $source = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "src\index.template.html")
 $placeholderCounts = @{
   "__APP_CONFIG_JSON__" = 1; "__BUILD_MANIFEST_JSON__" = 1; "__EMBEDDED_ASSET_BUNDLE_JSON__" = 1;
@@ -82,14 +97,14 @@ $sourceMarkers = @(
   "workerfs:true", "crossOriginIsolated", "SharedArrayBuffer", 'id="appBrandIcon"', ".preview-empty[hidden]",
   'data-add-node="trim"', 'data-add-node="speed"', 'data-add-node="fps"', 'data-add-node="crop"', 'data-add-node="scale"', 'data-add-node="pad"', 'data-add-node="rotate"', 'data-add-node="flip"', 'data-add-node="aspect"', 'data-add-node="colorAdjust"', 'data-add-node="hue"', 'data-add-node="blur"', 'data-add-node="sharpen"', 'data-add-node="fade"', 'data-add-node="split"', 'data-add-node="overlay"',
   'data-add-node="drawText"', 'data-add-node="audioTrim"', 'data-add-node="volume"', 'data-add-node="audioFade"', 'data-add-node="audioSpeed"', 'data-add-node="highpass"', 'data-add-node="lowpass"', 'data-add-node="normalize"', 'data-add-node="audioSplit"', 'data-add-node="audioMix"', 'id="graphCanvas"', 'id="inspectorBody"', 'id="fitGraphButton"', 'id="zoomOutButton"', 'id="zoomResetButton"', 'id="zoomInButton"', "GRAPH_ZOOM_MIN=.4", "GRAPH_ZOOM_MAX=2", "function fitGraph", "workspace:{viewport:{x:0,y:0,zoom:1}", "workspace:{viewport:graphViewportSnapshot(),positions:clone(state.workspace.positions||{})}",
-  "PORT_TYPES", "AUDIO:'audio'", "TEXT_FONT_ASSET_ID", "TEXT_FONT_LICENSE_ASSET_KEY", "TEXT_FONT_VIRTUAL_PATH", "MPLUS1p-Regular.ttf", "textFontLicense", "thirdPartyLicenses", "drawTextFilter", "drawTextTextFilePath", "drawTextTextFilePath(node)", "fontfile=", "expansion=none", "fromPort", "toPort", "split=2", "overlay=x=", "asplit=2", "amix=inputs=2", "audioFilter", "atempoChain", "inferSyncedVideoSpeedRate", "data-stream-type", "edge-path.audio", "function topologicalOrder", "function validateGraph", "function compileGraph", "filter_complex", "graphIR", "videoFilter",
+  "PORT_TYPES", "AUDIO:'audio'", "GRAPH_SCHEMA_VERSION=4", "LEGACY_GRAPH_SCHEMA_VERSION=3", "function migrateGraphToV4(graph)", "mainInputId", "inputBindings:new Map()", "TEXT_FONT_ASSET_ID", "TEXT_FONT_LICENSE_ASSET_KEY", "TEXT_FONT_VIRTUAL_PATH", "MPLUS1p-Regular.ttf", "textFontLicense", "thirdPartyLicenses", "drawTextFilter", "drawTextTextFilePath", "drawTextTextFilePath(node)", "fontfile=", "expansion=none", "fromPort", "toPort", "split=2", "overlay=x=", "asplit=2", "amix=inputs=2", "audioFilter", "atempoChain", "inferSyncedVideoSpeedRate", "data-stream-type", "edge-path.audio", "function topologicalOrder", "function validateGraph", "function compileGraph", "function resolveInputs", "inspectMp4Tracks", "hasAudio", "mode:'multi-input'", "inputOptions:kind==='image'?['-loop','1']", "filter_complex", "graphIR", "videoFilter", "runtimeSupportsMultipleInputs", "normalizeRawOutput", "mainInputIndex", "shortest=0:eof_action=pass:repeatlast=0", "eof_action=repeat:repeatlast=1", "recipeLogoNeedsImage", 'value="logo" data-i18n="recipeLogo"', "recipePipNeedsSecondVideo", 'value="bgm" data-i18n="recipeBgm"', 'value="replaceAudio" data-i18n="recipeReplaceAudio"', "recipeBgmNeedsAudio", "mixDurationFirst", "aresample=48000", "makeInputNode('input-2',secondarySource)",
   "state.history", 'id="undoButton"', 'id="redoButton"', 'id="commandCode"', 'id="previewButton"', 'id="cancelButton"',
   "PREVIEW_CACHE_MAX_ENTRIES=2", "PREVIEW_CACHE_MAX_BYTES=128*1024*1024", "function graphHash", "function previewCacheKey",
   'data-preview-duration="3"', 'data-preview-duration="5"', 'data-preview-duration="10"', 'id="previewStartInput"', 'id="previewStaleBadge"',
   'id="graphHashValue"', 'id="previewCacheValue"', "function mapPreviewError", "state.logEntries", "getBoundingClientRect()", "state.workspace.viewport.zoom||1", "data-port-key", "runtimeSupportsNodeType", "startTimeSeconds", "durationSeconds", "timeRangeRender", "drawText", "drawtext", "TIMELINE_SENSITIVE_NODE_TYPES", "previewSourceHorizon", "gblur=sigma=", "unsharp=5:5:", "setdar=", "eq=brightness=",
-  'id="recipeSelect"', 'id="applyRecipeButton"', 'id="saveGraphButton"', 'id="loadGraphButton"', 'id="recoveryBanner"', "PROJECT_STORAGE_KEY", "ffmpeg-filter-builder-project-v1", "RECIPE_DEFS", "makeRecipeGraph",
+  'id="recipeSelect"', 'id="applyRecipeButton"', 'id="saveGraphButton"', 'id="loadGraphButton"', 'id="relinkInputsButton"', 'id="relinkFilesInput"', 'id="recoveryBanner"', "PROJECT_STORAGE_KEY", "ffmpeg-filter-builder-project-v1", "RECIPE_DEFS", "makeRecipeGraph", "function inputRelinkScore", "function autoRelinkMissingFiles", "previousBindings=[...state.inputBindings.values()]",
   'id="fullRenderButton"', 'id="saveOutputButton"', 'id="outputFilenameInput"', "function renderFullVideo", "function saveFullRenderOutput", "const req={...state.compiled.request}", "showSaveFilePicker",
-  '<details class="palette-group palette-disclosure">', '<summary class="palette-label" data-i18n="videoFilters">', 'id="graphActionsButton"', 'id="graphActionsPopover"', 'id="paletteSearchInput"', 'id="paletteSearchEmpty"', 'id="graphMinimap"', 'id="minimapViewport"', 'id="toggleMinimapButton"', 'function normalizeConnectionPair', 'function renderMiniMap', 'function centerGraphFromMiniMap', 'id="mobileSheetBackdrop"', "const MOBILE_GRAPH_MEDIA='(max-width:700px)'", 'function startTouchPinch', 'function updateTouchPinch', 'mobile-workspace-sheet-open', ".palette-disclosure > summary.palette-label:focus-visible"
+  '<details class="palette-group palette-disclosure">', '<summary class="palette-label" data-i18n="videoFilters">', 'data-add-input="video"', 'data-add-input="audio"', 'data-add-input="image"', 'id="inputAssetPicker"', 'function addInputWithFile(kind,file,', 'function bindInputFile(nodeId,file', 'function removeInputFile(nodeId)', 'function setMainInput(nodeId)', 'node-main-badge', 'id="graphActionsButton"', 'id="graphActionsPopover"', 'id="paletteSearchInput"', 'id="paletteSearchEmpty"', 'id="graphMinimap"', 'id="minimapViewport"', 'id="toggleMinimapButton"', 'function normalizeConnectionPair', 'function renderMiniMap', 'function centerGraphFromMiniMap', 'id="mobileSheetBackdrop"', "const MOBILE_GRAPH_MEDIA='(max-width:700px)'", 'function startTouchPinch', 'function updateTouchPinch', 'mobile-workspace-sheet-open', ".palette-disclosure > summary.palette-label:focus-visible"
 )
 foreach ($token in $sourceMarkers) {
   if (-not $source.Contains($token)) { throw "src\index.template.html is missing required marker: $token" }
@@ -98,29 +113,29 @@ if ($source -match '<script[^>]+src\s*=\s*["'']https?://') { throw "Runtime exte
 if ($source -match '<link[^>]+href\s*=\s*["'']https?://') { throw "Runtime external stylesheet URL must not be added to source HTML." }
 
 $buildVariant = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "scripts\build-variant.ps1")
-foreach ($token in @("ffmpeg.js.gz", "ffmpeg.wasm.gz", "__RUNTIME_VARIANT__", "runtime-manifest", "github-release", "htmlapps-ffmpeg-filter-builder/1.1.0", "text-font", "font/ttf", "text/plain; charset=utf-8", "FontPath", "FontLicensePath", "licenseFile", "font.lock.json")) {
+foreach ($token in @("ffmpeg.js.gz", "ffmpeg.wasm.gz", "__RUNTIME_VARIANT__", "runtime-manifest", "github-release", "htmlapps-ffmpeg-filter-builder/1.2.0", "text-font", "font/ttf", "text/plain; charset=utf-8", "FontPath", "FontLicensePath", "licenseFile", "font.lock.json")) {
   if (-not $buildVariant.Contains($token)) { throw "scripts\build-variant.ps1 is missing required runtime embedding marker: $token" }
 }
 $prepare = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "scripts\prepare-ffmpeg-runtime.ps1")
-foreach ($token in @("runtime.lock.json", "SHA-256 mismatch", "manifest.files.'ffmpeg.wasm'.sha256", "Expand-Archive", "GetTempPath", "runtime.zip", "CreateDirectory", "Get-MissingRuntimeFiles", "Cached extraction is incomplete", "Expand-VerifiedRuntimeArchive", "ffmpegFilterBuilderArgs", "startTimeSeconds", "durationSeconds", "timeRangeRender", "trim", "setpts", "split", "overlay", "atrim", "asetpts", "volume", "afade", "atempo", "highpass", "lowpass", "loudnorm", "amix", "asplit", "drawtext", "drawText", "htmlapps-ffmpeg-filter-builder/1.1.0")) {
+foreach ($token in @("runtime.lock.json", "SHA-256 mismatch", "manifest.files.'ffmpeg.wasm'.sha256", "Expand-Archive", "GetTempPath", "runtime.zip", "CreateDirectory", "Get-MissingRuntimeFiles", "Cached extraction is incomplete", "Expand-VerifiedRuntimeArchive", "ffmpegFilterBuilderArgs", "startTimeSeconds", "durationSeconds", "timeRangeRender", "trim", "setpts", "split", "overlay", "atrim", "asetpts", "volume", "afade", "atempo", "highpass", "lowpass", "loudnorm", "amix", "asplit", "aresample", "drawtext", "drawText", "htmlapps-ffmpeg-filter-builder/1.2.0")) {
   if (-not $prepare.Contains($token)) { throw "scripts\prepare-ffmpeg-runtime.ps1 is missing required lock/verification marker: $token" }
 }
 $prepareFont = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "scripts\prepare-text-font.ps1")
-foreach ($token in @("font.lock.json", "Get-GitBlobSha1", "gitBlobSha1", "MPLUS1p-Regular.ttf", "htmlapps-ffmpeg-filter-builder/1.1.0", "GetTempPath")) {
+foreach ($token in @("font.lock.json", "Get-GitBlobSha1", "gitBlobSha1", "MPLUS1p-Regular.ttf", "htmlapps-ffmpeg-filter-builder/1.2.0", "GetTempPath")) {
   if (-not $prepareFont.Contains($token)) { throw "scripts\prepare-text-font.ps1 is missing required pinned-font marker: $token" }
 }
 $buildStandalone = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "build-standalone.ps1")
-foreach ($token in @("SingleThreadRuntimeRoot", "MultiThreadRuntimeRoot", "Assert-RuntimeRoot", "Local ffmpeg.wasm does not match", "Source: GitHub Release v1.9.8", "runtime\browser-ffmpeg.js", "ffb-local-runtime", "ffmpegFilterBuilderArgs", "startTimeSeconds", "durationSeconds", "timeRangeRender", "trim", "setpts", "split", "overlay", "atrim", "asetpts", "volume", "afade", "atempo", "highpass", "lowpass", "loudnorm", "amix", "asplit", "drawtext", "drawText", "PrepareFontPath", "-FontPath", "v1.1.0")) {
+foreach ($token in @("SingleThreadRuntimeRoot", "MultiThreadRuntimeRoot", "Assert-RuntimeRoot", "Local ffmpeg.wasm does not match", "Source: GitHub Release v1.9.9", "runtime\browser-ffmpeg.js", "ffb-local-runtime", "ffmpegFilterBuilderArgs", "startTimeSeconds", "durationSeconds", "timeRangeRender", "trim", "setpts", "split", "overlay", "atrim", "asetpts", "volume", "afade", "atempo", "highpass", "lowpass", "loudnorm", "amix", "asplit", "aresample", "drawtext", "drawText", "PrepareFontPath", "-FontPath", "v1.2.0")) {
   if (-not $buildStandalone.Contains($token)) { throw "build-standalone.ps1 is missing required runtime resolution marker: $token" }
 }
 $defaultBuildBat = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "build-standalone.bat")
-if (-not $defaultBuildBat.Contains("Runtime source: GitHub Release v1.9.8")) { throw "build-standalone.bat must advertise GitHub Release v1.9.8 as the default runtime source." }
+if (-not $defaultBuildBat.Contains("Runtime source: GitHub Release v1.9.9")) { throw "build-standalone.bat must advertise GitHub Release v1.9.9 as the default runtime source." }
 $mtServer = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "scripts\serve-mt.ps1")
 foreach ($token in @("System.Net.Sockets.TcpListener", "Cross-Origin-Opener-Policy", "Cross-Origin-Embedder-Policy", "Cross-Origin-Resource-Policy")) {
   if (-not $mtServer.Contains($token)) { throw "scripts\serve-mt.ps1 is missing required cross-origin-isolation marker: $token" }
 }
 
-foreach ($relative in @("build-standalone.ps1", "scripts\prepare-ffmpeg-runtime.ps1", "scripts\prepare-text-font.ps1", "scripts\build-variant.ps1", "scripts\build-self-extract.ps1", "scripts\verify-standalone.ps1")) {
+foreach ($relative in @("build-standalone.ps1", "scripts\prepare-ffmpeg-runtime.ps1", "scripts\prepare-text-font.ps1", "scripts\build-variant.ps1", "scripts\build-self-extract.ps1", "scripts\verify-standalone.ps1", "scripts\prepare-pages.ps1")) {
   $text = Get-Content -Raw -Encoding UTF8 (Join-Path $Root $relative)
   if ($text -match '(?i)\bGet-FileHash\b') { throw "$relative must not depend on Get-FileHash." }
   if ($text -match '::new\s*\(') { throw "$relative must stay compatible with Windows PowerShell 5.1 and avoid ::new()." }

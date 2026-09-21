@@ -5,7 +5,7 @@ const source = fs.readFileSync(new URL('../src/index.template.html', import.meta
 const app = JSON.parse(fs.readFileSync(new URL('../app.config.json', import.meta.url), 'utf8'));
 const repositoryCheck = fs.readFileSync(new URL('../scripts/check-repository.ps1', import.meta.url), 'utf8');
 
-assert.equal(app.version, '1.1.0', 'Palette / Inspector build must report v1.1.0.');
+assert.equal(app.version, '1.2.0', 'Palette / Inspector build must report v1.2.0.');
 assert.ok(source.includes('id="recipeToolbarButton"'), 'Recipe toolbar button missing.');
 assert.ok(source.includes('id="recipePopover"'), 'Recipe toolbar popover missing.');
 assert.ok(!source.includes('<section class="recipe-panel"'), 'Standalone Recipe page panel must be removed.');
@@ -39,5 +39,11 @@ assert.ok(source.includes("setWorkspaceSidebar('inspector',true)"), 'Node double
 assert.ok(source.includes('function ensureSelectedNodeVisible()'), 'Inspector viewport compensation missing.');
 assert.ok(source.includes("if(side==='inspector'&&open&&!mobile)ensureSelectedNodeVisible()"), 'Reopening Inspector must keep selected node visible.');
 assert.ok(source.includes("document.querySelectorAll('[data-i18n-placeholder]')"), 'Translated search placeholder support missing.');
-assert.ok(source.includes('schemaVersion=3') || source.includes('schemaVersion:3'), 'Graph schemaVersion 3 must remain in use.');
-console.log('[OK] v1.1.0 Palette / Inspector smoke tests passed.');
+assert.ok(source.includes('GRAPH_SCHEMA_VERSION=4'), 'Graph schemaVersion 4 must be active.');
+assert.ok(source.includes("const PALETTE_DRAG_MIME='application/x-browser-kitty-node'"), 'Palette node drag MIME marker missing.');
+assert.ok(source.includes("button.draggable=true"), 'Palette buttons must be draggable.');
+assert.ok(source.includes("function handlePaletteNodeDrop(event)"), 'Palette node drop handler missing.');
+assert.ok(source.includes("addNode(value,{position})"), 'Dropped filter nodes must preserve the Canvas drop position.');
+assert.ok(source.includes("addInputNode(value,{position})"), 'Dropped Input nodes must preserve the Canvas drop position.');
+assert.ok(source.includes('.graph-scroll.palette-dragover::after'), 'Canvas palette drag-over feedback missing.');
+console.log('[OK] v1.2.0 Palette / Inspector smoke tests passed.');

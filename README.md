@@ -10,6 +10,8 @@ A browser-based FFmpeg filter graph editor for MP4 video. Build Video / Audio / 
 
 ![FFmpeg Filter Builder screenshot](assets/screenshot-en.png)
 
+> Current release: **v1.2.0**. This stable release includes Multiple Input, PiP, Logo Overlay, BGM / Audio Mix, Graph Restore / Auto Relink, the desktop/mobile Graph Workspace, and ST / MT standalone builds.
+
 ## 🚀 Live demo
 
 ### [Open FFmpeg Filter Builder on GitHub Pages](https://ttomohisa.github.io/htmlapps-ffmpeg-filter-builder/)
@@ -18,14 +20,15 @@ GitHub Pages delivers the initial HTML. After the page loads, the selected MP4, 
 
 ## Features
 
-- **Start from a recipe or build the Graph yourself** — Ten recipes expand into normal editable nodes and edges instead of hiding the processing behind a preset.
+- **Start from a recipe or build the Graph yourself** — Twenty-four recipes expand into normal editable nodes and edges instead of hiding the processing behind a preset.
 - **Edit around the Graph Canvas** — Pan / zoom / fit, manual node layout, multi-selection, bidirectional drag-to-connect, and a MiniMap make the Graph behave like a dedicated node editor.
 - **Edit common video filters visually** — Trim, Speed, FPS, Scale, Crop, Pad, Rotate, Flip, Aspect Ratio, Color Adjust, Hue, Blur, Sharpen, and Fade.
 - **Build branching video graphs** — Split and Overlay support branch / merge layouts such as Picture in Picture and blurred-background video.
-- **Process audio in the same Graph** — Audio Trim, Volume, Fade, Speed, High-pass, Low-pass, Normalize, Split, and Mix are available, including synchronized audio for Video Speed.
+- **Process audio in the same Graph** — Audio Trim, Volume, Fade, Speed, High-pass, Low-pass, Normalize, Split, and Mix are available, including synchronized audio for Video Speed and external Audio Input for BGM / soundtrack replacement.
 - **Add Japanese or English text** — Draw Text uses the embedded M PLUS 1p Regular font and supports position, color, background, padding, and display timing.
 - **Preview and render with the same Graph** — Preview uses a bounded range; Full Render removes the preview range and processes the complete input.
-- **Save and restore Graph projects** — Export/import Graph JSON and optionally restore the last Graph from browser-local autosave. Media files are not stored by autosave.
+- **Save and restore Graph projects** — Export/import Graph JSON and optionally restore the last Graph from browser-local autosave. Media bytes and absolute paths are not stored; after restore, bulk-select the original files and matching Missing Inputs are re-linked automatically.
+- **Manage multiple media Inputs** — Add MP4 video, audio, and PNG / JPEG image files as separate Input nodes, replace or detach their files, and drop media directly onto the Canvas. Multiple Input Preview / Full Render runs with Builder v1.9.9.
 - **Generate a desktop FFmpeg command** — The current Graph can also be compiled into a copyable desktop command.
 - **Single-thread and multi-thread builds** — The standard build supports direct `file://` use. The multi-thread build requires cross-origin isolation over HTTP(S).
 - **Fully local runtime processing** — FFmpeg WASM and the standard font are embedded into the generated HTML. Runtime CSP uses `connect-src 'none'`.
@@ -48,8 +51,8 @@ The normal build uses Windows PowerShell and does not require Node.js for the ap
 
 ## Usage
 
-1. Load an MP4 from the Input node.
-2. Choose a task from **Recipes** and select **Build graph**, or add filter nodes manually.
+1. Choose a task from **Recipes** or load an MP4 from the Input node. Recipes that need source dimensions or duration offer **Choose video & build graph**, so you can select the MP4 in the same step.
+2. Build the recipe graph or add filter nodes manually.
 3. Select a node to edit its settings. Connect compatible Video and Audio ports to change the processing order.
 4. Use **Preview** to check a 3, 5, or 10 second range without rendering the whole file.
 5. When the result looks correct, use **Full Render** to apply the same Graph to the complete video.
@@ -57,20 +60,13 @@ The normal build uses Windows PowerShell and does not require Node.js for the ap
 
 ### Recipes
 
-The current recipe set contains:
+The current recipe set contains 24 recipes:
 
-1. Resize to 720p
-2. Square Crop
-3. Vertical Video
-4. Rotate 90°
-5. Video + Audio Fade
-6. Watermark
-7. Picture in Picture
-8. Blur Background Vertical
-9. 2x Speed + synchronized Audio
-10. Audio Normalize
+- **Size & orientation** — Resize to 720p, Resize to 1080p, Square Crop, Vertical Video, Blur Background Vertical, 16:9 Landscape, Blur Background Square, Rotate 90°, Mirror Horizontally, Convert to 30 fps
+- **Composite & look** — Fade In / Out, Watermark, Logo Overlay, Picture in Picture, Centered Title, Grayscale, Light Sharpen
+- **Time & audio** — Keep First 10 Seconds, 0.5x Speed, 1.5x Speed, 2x Speed, Audio Normalize, Add BGM, Replace Audio with BGM
 
-Recipes that depend on source dimensions or duration should be applied after loading the video.
+Recipes that depend on source dimensions or duration no longer require pre-loading the video. Select the recipe and use **Choose video & build graph** to pick the MP4 and generate source-aware node settings in one step.
 
 ### Graph tools
 
@@ -78,6 +74,7 @@ Recipes that depend on source dimensions or duration should be applied after loa
 
 - Save Graph JSON
 - Open Graph JSON
+- **Re-select media in bulk** when Missing Inputs exist
 - Reset Graph with confirmation
 
 Undo / Redo remain directly available in the Graph toolbar. The legacy Split + Overlay and Audio Mix sample shortcuts were removed from the user-facing menu because Recipes now cover the guided starting flow. Video filters, Text, Complex graph, and Audio filters remain available in the Palette.
@@ -90,20 +87,43 @@ On smartphones, the Graph Canvas uses the available width while Filter Palette a
 
 **Save Graph JSON** exports the editable Graph project. **Load Graph JSON** restores it later.
 
-Autosave stores only the Graph and output filename in this browser's local storage. It does not store the selected MP4 or rendered output. After restoring a previous Graph, select the media file again.
+Autosave stores the Graph, Input media metadata, and output filename in this browser's local storage. It does not store media bytes, absolute local paths, or rendered output. After restore, use **Re-select media in bulk** to choose the original files; matching filename and size are used to re-link Missing Inputs automatically. Dropping several files on the Canvas performs the same matching first, then adds only unmatched supported files as new Inputs.
 
-## Current multi-input boundary
+## v1.2.0 Stable
 
-FFmpeg WASM Builder v1.9.8 currently exposes one main media input to this app. Therefore:
+v1.2.0 promotes the beta.4 / rc.1 codebase to Stable after the full release regression. It includes Single Input, Multiple Video Input, Image Input, Audio Input, PiP, Logo Overlay, BGM / Audio Mix, Draw Text, Trim / Speed, Preview / Full Render, 24 Recipes, Graph JSON, Auto Relink, Autosave, Undo / Redo, keyboard editing, desktop/mobile UI, ST / MT, `file://`, cross-origin isolation, CSP, and runtime-network blocking.
 
-- **Watermark** uses Draw Text rather than a separate image file.
-- **Picture in Picture** uses a branch of the same input video rather than a second independent video.
+Stable adds no new runtime dependency. FFmpeg WASM Builder remains pinned to v1.9.9 and the generated standalone HTML keeps `connect-src 'none'`.
 
-Independent image-watermark and second-video input are not supported in v1.1.0; this workspace redesign intentionally keeps the v1.0.0 runtime/input boundary.
+## v1.2.0-beta.4 Graph Restore / Auto Relink
+
+v1.2.0-beta.4 improves the Missing Input flow after opening Graph JSON or restoring browser-local autosave. The project still never stores media bytes or absolute local paths. It keeps only metadata such as `filename / size / type / lastModified`.
+
+When several Inputs are missing, **Re-select media in bulk** lets you choose the original files together. Files are matched to Missing Inputs by media kind, filename, and size; `lastModified` and MIME type are used to prefer the strongest match. If matching media is already loaded in the current session, opening a Graph can reuse those File objects immediately without another picker round-trip.
+
+Canvas file drop uses the same matching step first. Matching files restore Missing Inputs, while remaining supported files are added as new Inputs. Explicitly choosing or dropping one file onto a specific Missing Input still binds directly to that Input.
+
+## v1.2.0-beta.3 Audio Input / BGM / Audio Mix
+
+v1.2.0-beta.3 makes external Audio Input a complete video workflow rather than only a graph primitive. **Add BGM** builds Main Video + Audio Input + Audio Mix, with BGM at -12 dB by default. **Replace Audio with BGM** ignores the Main soundtrack and uses the selected Audio Input instead. If the Main video is silent, Add BGM automatically uses the external audio without referencing a missing `[0:a]` stream.
+
+Before `amix`, both branches are resampled to 48 kHz and their timestamps restart from zero. Audio Mix now lets you choose whether duration follows input A, the shorter input, or the longer input. The BGM recipe keeps the longer audio branch during the mix, then caps the final soundtrack to the Main video duration, so a short Main audio track does not cut off a longer BGM and a long music file still cannot extend the rendered video. Different sample rates and ordinary mono/stereo differences are handled through FFmpeg's audio resampling path.
+
+The BGM / replacement file is still a normal local Audio Input. Supported Audio Input files are MP3, WAV, M4A, FLAC, OGG, and Opus; raw `.aac` is not offered because the pinned runtime does not include the raw AAC demuxer. If it has not been selected yet, the Recipe creates a visible Missing Audio Input that can be filled later. Preview and Full Render use the same compiled multi-input graph with the pinned Builder v1.9.9 runtime.
+
+## v1.2.0-beta.2 Image Input / Logo Overlay
+
+v1.2.0-beta.2 makes Image Input a practical runtime feature for logo overlays. The new **Logo Overlay** recipe builds `Main Video → Overlay` plus `Image Input → Scale → Overlay`, keeps Main Input audio, and selects a visible Missing Image Input when no logo file has been assigned yet.
+
+Image Input is intentionally limited to **PNG / JPEG** because those formats are compiled into the reviewed Builder v1.9.9 runtime. The Overlay Inspector now has **Keep foreground visible**. The Logo recipe enables it so the image remains visible after its single decoded frame reaches EOF; normal two-video PiP keeps it off so a shorter foreground video disappears instead of freezing.
+
+The checked-in `runtime.lock.json` now pins the published Builder **v1.9.9** ST / MT GitHub Release assets and SHA-256 values. GitHub is only contacted while building the standalone HTML. The generated HTML still embeds FFmpeg WASM and keeps runtime `connect-src 'none'`.
+
+Graph JSON / Autosave still stores metadata only, never local media bytes or paths. Restored projects require the source files to be selected again.
 
 ## Browser support
 
-Chrome and Edge are the primary supported browsers. The standard single-thread build is intended to work as a directly opened `file://` HTML file. The multi-thread build requires a browser and HTTP(S) deployment that support cross-origin isolation and `SharedArrayBuffer`. Firefox and Safari may work for parts of the app, but Chrome and Edge remain the primary targets for v1.1.0.
+Chrome and Edge are the primary supported browsers. The standard single-thread build is intended to work as a directly opened `file://` HTML file. The multi-thread build requires a browser and HTTP(S) deployment that support cross-origin isolation and `SharedArrayBuffer`. Firefox and Safari may work for parts of the app, but Chrome and Edge remain the primary targets for v1.2.0.
 
 ## Standard and multi-thread builds
 
@@ -161,13 +181,20 @@ Force the pinned build inputs to be downloaded again:
 .\build-standalone.ps1 -ForceDownload
 ```
 
-For FFmpeg WASM Builder development only:
+For FFmpeg WASM Builder development only, the local integration accepts Builder v1.9.8 and v1.9.9. v1.9.9 is additionally required to advertise `multipleInputs` + `complexGraph` and include `null` / `anull` before it is embedded:
 
 ```bat
 build-with-local-ffmpeg.bat C:\path\to\htmlapps-ffmpeg-wasm-builder
 ```
 
-The build produces both readable and self-extracting ST / MT standalone HTML variants together with runtime and size manifests.
+After Builder v1.9.9 is tagged and its GitHub Release workflow publishes the ST/MT assets, promote this app to the published runtime:
+
+```powershell
+.\scripts\promote-builder-v1.9.9.ps1
+.\build-standalone.bat
+```
+
+See `docs/BUILDER_V1_9_9_RELEASE.md` for the release/tag checklist. The build produces both readable and self-extracting ST / MT standalone HTML variants together with runtime and size manifests.
 
 ## Privacy and runtime network protection
 
@@ -184,9 +211,9 @@ Network access is required when using the hosted GitHub Pages page itself and wh
 
 ## Limitations
 
-- Input is currently limited to one main MP4 media file.
+- The checked-in runtime lock pins Builder v1.9.9 from GitHub Release. Local Builder integration remains available only for runtime development and verification.
 - Output is H.264 video + AAC audio in MP4.
-- Image-watermark input and an independent second video for Picture in Picture are not supported yet.
+- Multi-input execution requires a runtime that advertises `multipleInputs` and `complexGraph`; restored projects still require local source files to be re-selected.
 - Full browser-side transcoding can use substantial CPU time and memory, especially for long or high-resolution videos.
 - The multi-thread build cannot run directly from `file://`; it requires HTTP(S) with COOP / COEP and `SharedArrayBuffer` support.
 - Browser codec and memory limits can prevent some MP4 files from being processed even when the container format is accepted.
@@ -195,7 +222,7 @@ Network access is required when using the hosted GitHub Pages page itself and wh
 
 | Component | Version / snapshot | License | Purpose |
 | --- | --- | --- | --- |
-| FFmpeg WASM Builder | v1.9.8 / `ffmpeg-filter-builder` profile | See generated runtime manifest and third-party notices | FFmpeg WebAssembly runtime, H.264/AAC processing, filters |
+| FFmpeg WASM Builder | v1.9.9 / `ffmpeg-filter-builder` profile | See generated runtime manifest and third-party notices | FFmpeg WebAssembly runtime, H.264/AAC processing, filters |
 | M PLUS 1p Regular | pinned Google Fonts snapshot | OFL-1.1 | Draw Text font for Japanese / English text |
 
 The source package does not commit the font binary. It is fetched only during the build, verified against `font.lock.json`, and embedded into generated standalone HTML. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for details.

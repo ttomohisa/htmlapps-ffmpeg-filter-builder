@@ -31,7 +31,7 @@ const en = Object.keys(translations.en).sort();
 assert.deepEqual(en, ja, 'JA/EN translation key sets must match');
 
 const used = new Set();
-for (const re of [/data-i18n="([^"]+)"/g, /data-i18n-title="([^"]+)"/g, /data-i18n-aria-label="([^"]+)"/g]) {
+for (const re of [/data-i18n="([^"]+)"/g, /data-i18n-label="([^"]+)"/g, /data-i18n-title="([^"]+)"/g, /data-i18n-aria-label="([^"]+)"/g]) {
   for (const match of source.matchAll(re)) used.add(match[1]);
 }
 for (const key of used) {

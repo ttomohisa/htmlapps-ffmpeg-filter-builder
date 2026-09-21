@@ -13,7 +13,18 @@ assert.ok(source.includes("$('#nodeLayer').addEventListener('pointermove'"), 'Ma
 assert.ok(source.includes('for(const [id,start] of Object.entries(drag.starts))'), 'Group node drag missing.');
 assert.ok(source.includes('class="edge-hit" data-edge-id='), 'Selectable edge hit paths missing.');
 assert.ok(source.includes('function deleteSelectedEdge()'), 'Edge deletion missing.');
-assert.ok(source.includes("event.key==='Delete'||event.key==='Backspace'"), 'Keyboard edge delete missing.');
+assert.ok(source.includes('function deleteSelectedNodes()'), 'Selected-node keyboard deletion helper missing.');
+assert.ok(source.includes("event.key==='Delete'||event.key==='Backspace'"), 'Delete / Backspace shortcut missing.');
+assert.ok(source.includes('deleteSelectedNodes();return;'), 'Delete / Backspace must remove the selected node(s) or edge.');
+assert.ok(source.includes("if(key==='z')"), 'Ctrl/Cmd+Z undo shortcut missing.');
+assert.ok(source.includes("if(key==='y')"), 'Ctrl/Cmd+Y redo shortcut missing.');
+assert.ok(source.includes('event.shiftKey?redo():undo()'), 'Shift+Ctrl/Cmd+Z redo shortcut missing.');
+assert.ok(source.includes('function nudgeSelectedNodes(dx,dy)'), 'Arrow-key node nudge helper missing.');
+assert.ok(source.includes("['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key)"), 'Arrow-key nudge shortcut missing.');
+assert.ok(source.includes('const step=event.shiftKey?10:1'), 'Shift+Arrow 10px nudge missing.');
+assert.ok(source.includes('function selectAllGraphNodes()'), 'Graph select-all helper missing.');
+assert.ok(source.includes("if(key==='a'&&graphFocused)"), 'Ctrl/Cmd+A graph select-all shortcut missing.');
+assert.ok(source.includes('function clearGraphSelection()'), 'Esc clear-selection helper missing.');
 assert.ok(source.includes('positions:clone(state.workspace.positions||{})'), 'Workspace positions must save with Graph JSON.');
 assert.ok(source.includes('positions:clone(state.workspace.positions||{})}; }') || source.includes('positions:clone(state.workspace.positions||{})'), 'Positions must participate in history snapshots.');
 assert.ok(source.includes('function startConnectionDrag(port,event)'), 'Drag-to-connect start missing.');
@@ -24,4 +35,4 @@ assert.ok(source.includes('connection-valid'), 'Valid connection target highligh
 assert.ok(source.includes('function nearestConnectionTarget(clientX,clientY,event)'), 'Magnetic connection target lookup missing.');
 assert.ok(source.includes('connection-magnet'), 'Magnetic target visual state missing.');
 assert.ok(source.includes('drag.point=target?graphPortCenter'), 'Connection preview must snap to magnetic target.');
-console.log('[OK] v1.1.0 Manual Layout / Selection + wiring smoke tests passed.');
+console.log('[OK] v1.2.0 Manual Layout / Selection + wiring smoke tests passed.');

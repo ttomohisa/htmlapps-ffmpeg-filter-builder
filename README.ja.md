@@ -10,6 +10,8 @@ MP4動画のFFmpeg Filter Graphをブラウザー上で組み立てるツール�
 
 ![FFmpeg Filter Builder スクリーンショット](assets/screenshot.png)
 
+> 現在の正式版: **v1.2.0**。Multiple Input、PiP、Logo Overlay、BGM / Audio Mix、Graph Restore / Auto Relink、PC / スマートフォン向けGraph Workspace、ST / MT単一HTMLを含むStable版です。
+
 ## 🚀 Live demo
 
 ### [GitHub PagesでFFmpeg Filter Builderを開く](https://ttomohisa.github.io/htmlapps-ffmpeg-filter-builder/)
@@ -21,14 +23,15 @@ GitHub Pagesから最初のHTMLを読み込んだ後、選択したMP4、Graph�
 
 ## Features
 
-- **Recipeから始めてもGraphを直接作っても使える** — 10種類のRecipeはブラックボックスではなく、通常の編集可能なNode / Edgeへ展開されます。
+- **Recipeから始めてもGraphを直接作っても使える** — 24種類のRecipeはブラックボックスではなく、通常の編集可能なNode / Edgeへ展開されます。
 - **Graph Canvasを中心に編集** — Pan / Zoom / Fit、Node自由配置、複数選択、双方向drag-to-connect、MiniMapを備えたNode EditorとしてGraphを操作できます。
 - **よく使うVideo filterをGUIで編集** — Trim、Speed、FPS、Scale、Crop、Pad、Rotate、Flip、Aspect Ratio、Color Adjust、Hue、Blur、Sharpen、Fadeに対応します。
 - **分岐・合流Graphを構築** — Split / Overlayを使い、Picture in Pictureや背景ぼかしのようなbranch / merge構成を作れます。
-- **Audioも同じGraphで処理** — Audio Trim、Volume、Fade、Speed、High-pass、Low-pass、Normalize、Split、Mixに対応し、Video Speed時の音声同期も行えます。
+- **Audioも同じGraphで処理** — Audio Trim、Volume、Fade、Speed、High-pass、Low-pass、Normalize、Split、Mixに対応し、Video Speed時の音声同期に加えて外部Audio InputからBGM追加・音声置き換えもできます。
 - **日本語・英語の文字を重ねる** — Draw Textは内蔵M PLUS 1p Regularを使い、位置、色、背景、余白、表示時間を設定できます。
 - **PreviewとFull Renderで同じGraphを使用** — Previewだけ処理範囲を限定し、Full Renderでは同じGraphを入力動画全体へ適用します。
-- **Graphプロジェクトを保存・復元** — Graph JSONの保存 / 読み込みと、端末内Autosaveによる前回Graph復元に対応します。動画ファイルはAutosaveしません。
+- **Graphプロジェクトを保存・復元** — Graph JSONの保存 / 読み込みと端末内Autosaveに対応します。素材本体や絶対パスは保存せず、復元後は元ファイルをまとめて選ぶと一致するInputへ自動再関連付けします。
+- **複数素材Inputを編集** — MP4動画・音声・PNG / JPEG画像を個別のInput Nodeとして追加し、ファイル変更・解除やCanvasへのDropができます。複数InputのPreview / Full RenderはBuilder v1.9.9で実行します。
 - **Desktop FFmpeg commandを生成** — 現在のGraphをコピー可能なFFmpegコマンドへコンパイルできます。
 - **Single-thread / Multi-thread版** — 標準版は`file://`から直接利用でき、高速版はHTTP(S) + cross-origin isolationを前提とします。
 - **完全ローカル処理** — 生成HTMLにはFFmpeg WASMと標準フォントを埋め込み、runtime CSPは`connect-src 'none'`です。
@@ -51,8 +54,8 @@ GitHub Pagesから最初のHTMLを読み込んだ後、選択したMP4、Graph�
 
 ## Usage
 
-1. Input NodeからMP4を読み込みます。
-2. **Recipe**からやりたい処理を選んで**Graphへ展開**するか、Filter Nodeを直接追加します。
+1. **Recipe**からやりたい処理を選ぶか、Input NodeからMP4を読み込みます。サイズや長さが必要なRecipeは、**動画を選んでGraphへ展開**からそのままMP4を選べます。
+2. RecipeをGraphへ展開するか、Filter Nodeを直接追加します。
 3. Nodeを選択して設定を変更します。Video / Audioの対応するportを接続して処理順を組み替えられます。
 4. **Preview**で3秒 / 5秒 / 10秒の範囲を確認します。動画全体を毎回処理する必要はありません。
 5. 問題なければ**動画を書き出す**で、同じGraphを入力動画全体へ適用します。
@@ -60,20 +63,13 @@ GitHub Pagesから最初のHTMLを読み込んだ後、選択したMP4、Graph�
 
 ### Recipes
 
-現在は以下の10種類です。
+現在は24種類です。
 
-1. 720pへ縮小
-2. 正方形Crop
-3. 縦動画
-4. 90°回転
-5. Video + Audio Fade
-6. Watermark
-7. Picture in Picture
-8. 背景ぼかし縦動画
-9. 2倍速 + Audio同期
-10. Audio Normalize
+- **サイズ・向き** — 720pへ縮小、1080pへ縮小、正方形Crop、縦動画、背景ぼかし縦動画、16:9横動画、背景ぼかし正方形、90°回転、左右反転、30fps
+- **合成・見た目** — Fade In / Out、Watermark、ロゴを重ねる、Picture in Picture、中央タイトル、モノクロ、少しシャープ
+- **時間・音声** — 最初の10秒、0.5倍速、1.5倍速、2倍速、Audio Normalize、BGMを追加、音声をBGMに置き換える
 
-入力サイズや動画長に依存するRecipeは、動画を読み込んだ後に適用してください。
+入力サイズや動画長に依存するRecipeでも、事前に動画を読み込む必要はありません。Recipeを選んで**動画を選んでGraphへ展開**を押すと、その場でMP4を選び、サイズ・長さに合わせたGraphを生成します。
 
 ### Graph操作
 
@@ -81,6 +77,7 @@ GitHub Pagesから最初のHTMLを読み込んだ後、選択したMP4、Graph�
 
 - Graph JSONを保存
 - Graph JSONを開く
+- Missing Inputがある場合は**素材をまとめて再選択**
 - Graph初期化（確認ダイアログあり）
 
 Undo / RedoはGraph Toolbarから直接操作できます。旧バージョンにあったSplit + Overlay / Audio MixのサンプルGraphショートカットは、Recipeと役割が重なるため利用者向けメニューから削除しました。Video filters、Text、Complex graph、Audio filtersはPalette内で利用できます。
@@ -93,20 +90,43 @@ Undo / RedoはGraph Toolbarから直接操作できます。旧バージョン�
 
 **Graph JSONを保存**で編集可能なGraphプロジェクトを書き出し、**Graph JSONを読み込む**で復元できます。
 
-Autosaveが保存するのはGraphと出力ファイル名だけです。選択したMP4や生成動画は保存しません。前回Graphを復元した場合も、動画ファイルはもう一度選択してください。
+Autosaveが保存するのはGraph、Inputの素材メタデータ、出力ファイル名だけです。素材ファイル本体や絶対パス、生成動画は保存しません。復元後に**素材をまとめて再選択**すると、ファイル名とサイズが一致するMissing Inputへ自動で再関連付けします。Canvasへ複数ファイルをドロップした場合も、まず一致するMissing Inputへ再関連付けし、残りだけを新しいInputとして追加します。
 
-## 現在のMultiple Input境界
+## v1.2.0 Stable
 
-FFmpeg WASM Builder v1.9.8からこのアプリへ渡せるmain media inputは現在1つです。v1.1.0でもGraph Workspace刷新に集中するため、このv1.0.0の境界を維持します。
+v1.2.0は、beta.4 / rc.1の機能を全体回帰後にStableへ確定した正式版です。Single Input、Multiple Video Input、Image Input、Audio Input、PiP、Logo Overlay、BGM / Audio Mix、Draw Text、Trim / Speed、Preview / Full Render、24種類のRecipe、Graph JSON、Auto Relink、Autosave、Undo / Redo、キーボード操作、PC / Mobile、ST / MT、`file://`、cross-origin isolation、CSP、runtime外部通信禁止を含みます。
 
-- **Watermark**: 別画像ではなくDraw Textによる文字透かし
-- **Picture in Picture**: 2本目動画ではなく、同じ入力動画をSplitしたbranchを利用
+Stable化にあたり新しいruntime依存は追加していません。FFmpeg WASM Builderは引き続きv1.9.9固定で、生成するstandalone HTMLも`connect-src 'none'`を維持します。
 
-別画像Watermarkや独立した2本目動画入力は、現時点では対応済みとはしていません。
+## v1.2.0-beta.4 Graph Restore / Auto Relink
+
+v1.2.0-beta.4では、Graph JSONやAutosaveから復元したときのMissing Input再設定を改善しました。Graphには従来どおり素材ファイル本体やローカルの絶対パスを保存せず、`filename / size / type / lastModified`などのメタデータだけを保持します。
+
+Missing Inputが複数ある場合、Graph操作の**素材をまとめて再選択**から元ファイルを複数選択できます。ファイル名とサイズが一致するInputへ自動で再関連付けし、`lastModified`とMIME typeは一致候補の優先度に使います。現在のセッションですでに同じ素材を読み込んでいる場合は、Graph JSONを開いた時点で再利用できる素材を自動で戻します。
+
+CanvasへのファイルDropも同じ照合を先に行います。一致するMissing Inputは復元し、一致しない対応ファイルだけを新しいInputとして追加します。明示的に1つのMissing InputへファイルをDrop / 選択した場合は、従来どおりそのInputへ直接割り当てられます。
+
+## v1.2.0-beta.3 Audio Input / BGM / Audio Mix
+
+v1.2.0-beta.3では、外部Audio Inputを単にGraphへ置けるだけでなく、動画用途として最後まで使えるようにしました。**BGMを追加**はMain動画 + Audio Input + Audio Mixを作り、BGMを既定で-12 dBにします。**音声をBGMに置き換える**はMain動画の元音声を使わず、選択したAudio Inputを出力音声にします。Main動画が無音の場合も、存在しない`[0:a]`を参照せずBGMだけを使用します。
+
+Audio Mixの直前で両入力を48 kHzへ揃え、timestampを0から合わせます。Audio Mixには「Aに合わせる / 短い方 / 長い方」の長さ基準を追加しました。BGM Recipeでは音声の長い方までMixしてから最終音声をMain動画の長さで切るため、Main音声が短くてもBGMを途中で切らず、長いBGMを選んでも動画の書き出し時間は延長しません。sample rateの違いや通常のmono / stereo差はFFmpegのaudio resample経路で扱います。
+
+BGM / 置き換え用ファイルも通常のローカルAudio Inputです。対応するAudio InputはMP3 / WAV / M4A / FLAC / OGG / Opusです。固定済みruntimeにraw AAC demuxerがないため、`.aac`単体は選択対象に含めません。未選択ならMissing Audio Inputを作るため、あとから割り当てられます。PreviewとFull Renderは同じmulti-input Graphを、固定済みBuilder v1.9.9 runtimeで処理します。
+
+## v1.2.0-beta.2 Image Input / Logo Overlay
+
+v1.2.0-beta.2では、Image Inputを実用的なロゴ重ねとして使えるようにしました。新しい**ロゴを重ねる**Recipeは、`Main Video → Overlay` と `Image Input → Scale → Overlay` を作り、AudioはMain Inputからそのまま出力します。画像がまだ選ばれていない場合はMissing Image Inputを作成して選択するため、次に何をすればよいか分かる状態を維持します。
+
+Image Inputは、現在のBuilder v1.9.9 runtimeで確認している **PNG / JPEG** に限定しました。Overlay Inspectorには**前景の表示を維持**を追加し、Logo RecipeではONにします。これにより静止画が1フレームでEOFになってもMain Inputの最後まで表示を続けます。通常の2動画PiPではOFFのため、前景動画が先に終わった場合は最終フレームを固めずPiPだけ消えます。
+
+`runtime.lock.json`は公開済みのFFmpeg WASM Builder **v1.9.9** ST / MT GitHub Release assetとSHA-256へ更新しました。GitHubへのアクセスはstandalone build時だけで、生成HTMLにはFFmpeg WASMを埋め込み、実行時は従来どおり`connect-src 'none'`です。
+
+Graph JSON / Autosaveにはローカルpathや素材本体を保存しません。復元時は素材ファイルをもう一度選択します。
 
 ## Browser support
 
-主要対象はChrome / Edgeです。標準Single-thread版は`file://`で直接開いて使える構成です。Multi-thread版はcross-origin isolationと`SharedArrayBuffer`に対応したブラウザーおよびHTTP(S)配信が必要です。Firefox / Safariでは一部機能が動く可能性がありますが、v1.1.0でもChrome / Edgeを主要対象とします。
+主要対象はChrome / Edgeです。標準Single-thread版は`file://`で直接開いて使える構成です。Multi-thread版はcross-origin isolationと`SharedArrayBuffer`に対応したブラウザーおよびHTTP(S)配信が必要です。Firefox / Safariでは一部機能が動く可能性がありますが、v1.2.0でもChrome / Edgeを主要対象とします。
 
 ## 標準版 / Multi-thread版
 
@@ -164,7 +184,7 @@ build-standalone.bat
 .\build-standalone.ps1 -ForceDownload
 ```
 
-FFmpeg WASM Builder開発時だけ、ローカルruntimeを指定できます。
+FFmpeg WASM Builder開発時だけ、ローカルruntimeを指定できます。ローカル統合はBuilder v1.9.8 / v1.9.9を受け付け、v1.9.9では`multipleInputs` + `complexGraph`と`null` / `anull`を確認してから埋め込みます。
 
 ```bat
 build-with-local-ffmpeg.bat C:\path\to\htmlapps-ffmpeg-wasm-builder
@@ -187,9 +207,9 @@ GitHub Pages版そのものを最初に開く通信と、ソースから初回bu
 
 ## Limitations
 
-- 入力は現在、1つのmain MP4 media fileに限定しています。
+- デフォルトruntimeはBuilder v1.9.9 GitHub Releaseへ固定済みです。複数のVideo / Audio / Image InputをPreview / Full Renderで実行できます。
 - 出力形式はH.264 video + AAC audioのMP4です。
-- 画像Watermark入力と、独立した2本目動画によるPicture in Pictureには未対応です。
+- Multiple Input実行には`multipleInputs`と`complexGraph`を広告するruntimeが必要です。復元したprojectではローカル素材の再選択も必要です。
 - ブラウザー内で動画全体を再エンコードするため、長時間・高解像度動画ではCPU負荷とメモリ使用量が大きくなります。
 - Multi-thread版は`file://`から直接実行できません。COOP / COEPと`SharedArrayBuffer`を利用できるHTTP(S)環境が必要です。
 - MP4 containerを選択できても、内部codecや端末メモリの制約で処理できない場合があります。
@@ -198,7 +218,7 @@ GitHub Pages版そのものを最初に開く通信と、ソースから初回bu
 
 | Component | Version / snapshot | License | 用途 |
 | --- | --- | --- | --- |
-| FFmpeg WASM Builder | v1.9.8 / `ffmpeg-filter-builder` profile | 生成runtime manifest / Third-party notices参照 | FFmpeg WebAssembly runtime、H.264/AAC処理、Filter |
+| FFmpeg WASM Builder | v1.9.9 / `ffmpeg-filter-builder` profile | 生成runtime manifest / Third-party notices参照 | FFmpeg WebAssembly runtime、H.264/AAC処理、Filter |
 | M PLUS 1p Regular | 固定Google Fonts snapshot | OFL-1.1 | Draw Text用の日本語 / 英語font |
 
 ソースパッケージにはfont binaryをcommitしません。build時だけ`font.lock.json`に固定したsnapshotを取得・検証し、生成standalone HTMLへ埋め込みます。詳細は[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)を参照してください。
