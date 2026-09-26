@@ -2,6 +2,17 @@
 
 All notable changes to FFmpeg Filter Builder are documented here.
 
+## Unreleased
+
+### Mobile workspace UX
+
+- Added a fixed smartphone action bar for Add, Undo, Fit, More, and Preview so core Graph operations no longer depend on a horizontally scrolling toolbar.
+- Open Node Inspector with one tap on mobile and move newly added filters / Inputs directly into settings.
+- Added a clear **Done** action to the mobile Inspector and separated destructive node actions from normal settings.
+- Kept Recipe, Redo, Graph JSON, re-link, and reset reachable from the mobile More sheet.
+- Added bottom safe-area spacing and moved toast / mobile popovers above the fixed action bar.
+- Added an inline-script syntax regression test so template JavaScript parse errors fail CI before standalone build verification.
+
 ## 1.2.0 - 2026-09-21
 
 ### Stable
