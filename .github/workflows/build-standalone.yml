@@ -40,6 +40,10 @@ jobs:
         shell: powershell
         run: .\scripts\check-powershell-syntax.ps1
 
+      - name: Check inline template script syntax
+        shell: pwsh
+        run: node ./tests/template-script-syntax-smoke.mjs
+
       - name: Test Graph Core / Compiler
         shell: pwsh
         run: node ./tests/graph-core-smoke.mjs
