@@ -79,6 +79,9 @@ assert.ok(repositoryCheck.includes('tests\\stable-release-smoke.mjs'), 'Reposito
 assert.ok(repositoryCheck.includes('tests\\template-script-syntax-smoke.mjs'), 'Repository checker must require the inline script syntax test.');
 assert.ok(buildBat.includes('v1.2.0'), 'Windows build entry point version is not synchronized.');
 assert.ok(buildPs1.includes('v1.2.0'), 'PowerShell build version is not synchronized.');
+assert.ok(buildPs1.includes('ffmpeg-filter-builder.html'), 'PowerShell build must refresh the root ST standalone alias.');
+assert.ok(buildPs1.includes('ffmpeg-filter-builder.mt.html'), 'PowerShell build must refresh the root MT standalone alias.');
+assert.ok(buildPs1.includes('Root standalone aliases refreshed and verified.'), 'Root standalone alias verification is missing.');
 for (const workflow of [buildWorkflow, deployWorkflow]) {
   assert.ok(workflow.includes('node ./tests/release-smoke.mjs'), 'Workflow does not run the baseline regression test.');
   assert.ok(workflow.includes('node ./tests/stable-release-smoke.mjs'), 'Workflow does not run the Stable gate.');
@@ -88,6 +91,8 @@ for (const workflow of [buildWorkflow, deployWorkflow]) {
   assert.ok(workflow.includes('node ./tests/multi-input-schema-smoke.mjs'), 'Workflow does not run the schema v4 migration test.');
   assert.ok(workflow.includes('node ./tests/multi-input-ui-smoke.mjs'), 'Workflow does not run the Multiple Input UI test.');
   assert.ok(workflow.includes('node ./tests/multi-input-drop-smoke.mjs'), 'Workflow does not run the Canvas Drop / Missing Input test.');
+  assert.ok(workflow.includes('ffmpeg-filter-builder.html'), 'Workflow artifact must include the root ST standalone alias.');
+  assert.ok(workflow.includes('ffmpeg-filter-builder.mt.html'), 'Workflow artifact must include the root MT standalone alias.');
 }
 
 console.log('[OK] v1.2.0 baseline regression contract passed.');
