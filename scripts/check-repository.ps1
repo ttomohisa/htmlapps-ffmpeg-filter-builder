@@ -15,7 +15,7 @@ function Get-Sha256FileHex([string]$Path) {
 }
 
 $required = @(
-  "AGENTS.md", "APP_SPEC.md", "app.config.json", "runtime.lock.json", "font.lock.json", "coi-serviceworker.lock.json", "licenses\MPLUS1p-OFL.txt", "licenses\coi-serviceworker-MIT.txt", "assets\favicon.svg",
+  "AGENTS.md", "APP_SPEC.md", "app.config.json", "runtime.lock.json", "font.lock.json", "coi-serviceworker.lock.json", "licenses\MPLUS1p-OFL.txt", "licenses\coi-serviceworker-MIT.txt", "assets\favicon.svg", "ffmpeg-filter-builder.html", "ffmpeg-filter-builder.mt.html",
   "src\index.template.html", "build-standalone.ps1", "build-standalone.bat", "build-with-local-ffmpeg.bat",
   "scripts\prepare-ffmpeg-runtime.ps1", "scripts\prepare-text-font.ps1", "scripts\build-variant.ps1", "scripts\build-self-extract.ps1",
   "scripts\check-powershell-syntax.ps1", "scripts\verify-standalone.ps1", "scripts\verify-self-extract.ps1", "scripts\prepare-pages.ps1",
@@ -152,6 +152,14 @@ if (Test-Path $mtPath) {
   & (Join-Path $Root "scripts\verify-standalone.ps1") -Path $mtPath -RequireNetworkBlock $true -ForbiddenPlaceholders @("__APP_CONFIG_JSON__","__BUILD_MANIFEST_JSON__","__EMBEDDED_ASSET_BUNDLE_JSON__","__APP_ICON_DATA_URI__","__RUNTIME_VARIANT__")
   $mtText = Get-Content -Raw -Encoding UTF8 $mtPath
   if (-not $mtText.Contains('const RUNTIME_VARIANT = "multi-thread";')) { throw "dist\index.mt.html is not the multi-thread build." }
+}
+if (Test-Path $stPath) {
+  $rootStPath = Join-Path $Root "ffmpeg-filter-builder.html"
+  if ((Get-Sha256FileHex $rootStPath) -ne (Get-Sha256FileHex $stPath)) { throw "ffmpeg-filter-builder.html must match dist\index.html after build." }
+}
+if (Test-Path $mtPath) {
+  $rootMtPath = Join-Path $Root "ffmpeg-filter-builder.mt.html"
+  if ((Get-Sha256FileHex $rootMtPath) -ne (Get-Sha256FileHex $mtPath)) { throw "ffmpeg-filter-builder.mt.html must match dist\index.mt.html after build." }
 }
 
 Write-Host "[OK] Repository check passed." -ForegroundColor Green
