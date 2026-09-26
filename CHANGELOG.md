@@ -12,6 +12,7 @@ All notable changes to FFmpeg Filter Builder are documented here.
 - Kept Recipe, Redo, Graph JSON, re-link, and reset reachable from the mobile More sheet.
 - Added bottom safe-area spacing and moved toast / mobile popovers above the fixed action bar.
 - Added an inline-script syntax regression test so template JavaScript parse errors fail CI before standalone build verification.
+- The dual-runtime build now refreshes root-level `ffmpeg-filter-builder.html` / `ffmpeg-filter-builder.mt.html` from the generated dist files and verifies byte identity by SHA-256.
 
 ## 1.2.0 - 2026-09-21
 
