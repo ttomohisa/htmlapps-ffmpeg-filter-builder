@@ -84,7 +84,9 @@ Undo / RedoはGraph Toolbarから直接操作できます。旧バージョン�
 
 ### スマートフォンでのGraph編集
 
-スマートフォンではGraph Canvasを横幅いっぱいに表示し、Filter PaletteとNode Inspectorは下から開くBottom Sheetとして表示します。1本指でCanvasをPan、NodeをDragして移動でき、2本指のPinchでZoomできます。PortはDrag接続に加えて、開始Portと接続先Portを順にTapしても接続できます。
+スマートフォンではGraph Canvasを横幅いっぱいに表示し、主要操作を下部固定の **追加 / 戻す / 全体 / その他 / プレビュー** にまとめます。**追加**はFilter PaletteをBottom Sheetで開き、**その他**からRecipe、やり直し、Graph JSON、素材の再選択、初期化へ移動できます。横スクロールするToolbarはスマートフォンでは表示しません。
+
+Nodeは1回TapするとNode Inspectorが開きます。FilterやInputを追加した直後もそのNodeの設定へ進み、設定後は右上の**完了**でCanvasへ戻れます。削除などNode自体への操作は通常の設定とは分けて表示します。Canvasは1本指でPan、NodeをDragして移動でき、2本指のPinchでZoomできます。PortはDrag接続に加えて、開始Portと接続先Portを順にTapしても接続できます。
 
 ### Graph JSON / Autosave
 
