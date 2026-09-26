@@ -1772,7 +1772,7 @@ v0.6.0で、
 
 を可能にすることを目標とする。
 
-主要操作は下部固定の **追加 / 戻す / 全体 / その他 / Preview** にまとめ、Canvas上部へ横スクロールToolbarを残さない。
+主要操作は下部固定の **Recipe / 追加 / 戻す / その他 / Preview** にまとめ、Canvas上部へ横スクロールToolbarを残さない。RecipeはFFmpeg Filter Builderの主導線として常時1Tapで開ける位置に置き、全体表示は「その他」へ移す。
 
 ただし複雑Graph編集とFull RenderはPC推奨。
 
@@ -1782,6 +1782,8 @@ v0.6.0で、
 
 スマートフォンでは、
 
+- Recipeを専用Bottom Sheet化し、カテゴリ別のタップカードで一覧表示する
+- Recipe選択後は説明とGraph展開Actionを同じSheet内に固定表示する
 - Filter PaletteをBottom Sheet化する
 - Node InspectorをBottom Sheet化する
 - Nodeを1回TapするとInspectorを開く
