@@ -15,4 +15,18 @@ assert.ok(source.includes('function updateTouchPinch()'), 'Pinch zoom update han
 assert.ok(source.includes("state.pendingConnection={nodeId:id,startSide:side,portKey:portKeyValue,type}"), 'Bidirectional tap-to-connect state is missing.');
 assert.ok(source.includes('.graph-minimap,#toggleMinimapButton { display:none !important; }'), 'MiniMap must stay hidden on mobile.');
 assert.ok(source.includes('overflow-x:hidden'), 'Mobile page horizontal overflow guard is missing.');
+assert.ok(source.includes('id="mobileActionBar"'), 'Fixed mobile action bar is missing.');
+for (const id of ['mobileAddButton','mobileUndoButton','mobileFitButton','mobileMoreButton','mobilePreviewButton']) {
+  assert.ok(source.includes(`id="${id}"`), `Mobile action is missing: ${id}`);
+}
+assert.ok(source.includes('body { padding-bottom:calc(var(--mobile-action-height) + env(safe-area-inset-bottom)); }'), 'Mobile action bar safe-area spacing is missing.');
+assert.ok(source.includes('.graph-toolbar { display:none; }'), 'Legacy horizontal toolbar should stay hidden on mobile.');
+assert.ok(source.includes('id="mobileInspectorDoneButton"'), 'Inspector Done action is missing.');
+assert.ok(source.includes("mobileDone:'完了'"), 'Japanese Inspector completion label is missing.');
+assert.ok(source.includes("mobileDone:'Done'"), 'English Inspector completion label is missing.');
+assert.ok(source.includes("nodeActions:'ノード操作'"), 'Node actions must be separated from settings on mobile.');
+assert.ok(source.includes("if(isMobileGraphWorkspace()&&plain)setWorkspaceSidebar('inspector',true)"), 'A single mobile node tap must open settings.');
+assert.ok(source.includes("setWorkspaceSidebar('palette',false);setWorkspaceSidebar('inspector',true);"), 'Newly added mobile nodes should move directly into settings.');
+assert.ok(source.includes('id="mobileRecipeAction"'), 'Recipe must remain reachable from the mobile More sheet.');
+assert.ok(source.includes('function syncMobileActionBar()'), 'Mobile action state synchronization is missing.');
 console.log('[OK] v1.2.0 Mobile Graph Workspace smoke tests passed.');
