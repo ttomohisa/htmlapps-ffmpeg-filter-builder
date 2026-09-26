@@ -1767,11 +1767,14 @@ v0.6.0で、
 - Node追加
 - Node接続
 - Parameter編集
+- Preview
 - Commandコピー
 
 を可能にすることを目標とする。
 
-ただし複雑Graph編集とRenderはPC推奨。
+主要操作は下部固定の **追加 / 戻す / 全体 / その他 / Preview** にまとめ、Canvas上部へ横スクロールToolbarを残さない。
+
+ただし複雑Graph編集とFull RenderはPC推奨。
 
 ---
 
@@ -1779,11 +1782,16 @@ v0.6.0で、
 
 スマートフォンでは、
 
-右panelをbottom sheet化。
+- Filter PaletteをBottom Sheet化する
+- Node InspectorをBottom Sheet化する
+- Nodeを1回TapするとInspectorを開く
+- Node追加直後はそのNodeの設定へ進む
+- Inspectorには明示的な「完了」を置く
+- 削除などNode自体への操作はParameter設定と視覚的に分離する
+- Bottom Sheet表示中は背景Canvasへの誤操作を防ぐ
+- 下部固定Action BarとToast / Popoverはsafe areaを考慮する
+- Connection操作はtouch targetを十分大きくする
 
-Node Paletteもdrawer化する。
-
-Connection操作はtouch targetを十分大きくする。
 
 ---
 
