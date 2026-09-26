@@ -2,6 +2,19 @@
 
 All notable changes to FFmpeg Filter Builder are documented here.
 
+## Unreleased
+
+### Mobile workspace UX
+
+- Added a fixed smartphone action bar for Recipe, Add, Undo, More, and Preview so core Graph operations no longer depend on a horizontally scrolling toolbar.
+- Promoted Recipe to a first-class mobile flow with a dedicated bottom sheet, category-grouped recipe cards, selected-recipe description, and a sticky Graph expansion action; moved Fit into More.
+- Open Node Inspector with one tap on mobile and move newly added filters / Inputs directly into settings.
+- Added a clear **Done** action to the mobile Inspector and separated destructive node actions from normal settings.
+- Kept Recipe, Redo, Graph JSON, re-link, and reset reachable from the mobile More sheet.
+- Added bottom safe-area spacing and moved toast / mobile popovers above the fixed action bar.
+- Added an inline-script syntax regression test so template JavaScript parse errors fail CI before standalone build verification.
+- The dual-runtime build now refreshes root-level `ffmpeg-filter-builder.html` / `ffmpeg-filter-builder.mt.html` from the generated dist files and verifies byte identity by SHA-256.
+
 ## 1.2.0 - 2026-09-21
 
 ### Stable
