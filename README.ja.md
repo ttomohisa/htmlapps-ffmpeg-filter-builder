@@ -47,8 +47,8 @@ GitHub Pagesから最初のHTMLを読み込んだ後、選択したMP4、Graph�
 1. このリポジトリをダウンロードまたはcloneします。
 2. `build-standalone.bat`をダブルクリックするか、コマンドプロンプトから実行します。
 3. 初回buildでは固定済みのFFmpeg WASM runtimeとM PLUS 1p font snapshotを取得して検証します。
-4. 標準Single-thread版は`dist/index.html`です。
-5. 必要なら生成したHTMLだけを保存し、オフライン用の単一ファイルとして利用できます。
+4. 標準Single-thread版はルート直下の`ffmpeg-filter-builder.html`です。内容は`dist/index.html`と完全に同一です。
+5. Multi-thread版は`ffmpeg-filter-builder.mt.html`で、`dist/index.mt.html`と完全に同一です。
 
 通常のアプリbuild自体にNode.jsは必要ありません。Windows PowerShellでbuildします。
 
@@ -167,6 +167,8 @@ start-local-mt.bat
 ├─ font.lock.json                # M PLUS 1p font snapshotの固定情報
 ├─ build-standalone.bat          # Windows build入口
 ├─ build-standalone.ps1          # ST / MT standalone builder
+├─ ffmpeg-filter-builder.html     # dist/index.htmlと同一の生成ST版
+├─ ffmpeg-filter-builder.mt.html  # dist/index.mt.htmlと同一の生成MT版
 ├─ scripts/                      # runtime準備・検証・repository check
 ├─ tests/                        # Graph / Preview / Filter / Recipe / Pages smoke test
 ├─ vendor/coi-serviceworker/     # GitHub Pages専用COI fallback（固定版）
@@ -192,7 +194,7 @@ FFmpeg WASM Builder開発時だけ、ローカルruntimeを指定できます。
 build-with-local-ffmpeg.bat C:\path\to\htmlapps-ffmpeg-wasm-builder
 ```
 
-buildではST / MTそれぞれの通常版・self-extract版HTMLとruntime / size manifestを生成します。
+buildではST / MTそれぞれの通常版・self-extract版HTMLとruntime / size manifestを生成し、最後にルート直下のST / MT単一HTMLも更新してSHA-256一致を確認します。
 
 ## Privacy / Runtime network protection
 
@@ -205,7 +207,7 @@ buildではST / MTそれぞれの通常版・self-extract版HTMLとruntime / siz
 - runtime Content Security Policyの`connect-src 'none'`
 - GitHub / Google Fonts / CDNへの実行時依存なし
 
-GitHub Pages版そのものを最初に開く通信と、ソースから初回buildするときの依存取得にはネットワークが必要です。完全にオフラインで使う場合は、一度buildした標準版`dist/index.html`をローカルで開いてください。
+GitHub Pages版そのものを最初に開く通信と、ソースから初回buildするときの依存取得にはネットワークが必要です。完全にオフラインで使う場合は、一度buildした標準版`ffmpeg-filter-builder.html`（または同一内容の`dist/index.html`）をローカルで開いてください。
 
 ## Limitations
 
