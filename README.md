@@ -81,7 +81,9 @@ Undo / Redo remain directly available in the Graph toolbar. The legacy Split + O
 
 ### Mobile Graph editing
 
-On smartphones, the Graph Canvas uses the available width while Filter Palette and Node Inspector open as bottom sheets. Drag one finger on the Canvas to pan, drag a node to move it, and use a two-finger pinch to zoom. Ports can be connected either by dragging a wire or by tapping the start and destination ports in sequence.
+On smartphones, the Graph Canvas uses the available width and the main controls move to a fixed bottom action bar: **Add / Undo / Fit / More / Preview**. **Add** opens the Filter Palette as a bottom sheet, while **More** keeps Recipe, Redo, Graph JSON, re-link, and reset actions reachable without a horizontally scrolling toolbar.
+
+Tap a node once to open its Node Inspector. Newly added filter or Input nodes move directly into settings, and the Inspector uses a clear **Done** action to return to the Canvas. Destructive node actions are separated from normal settings. Drag one finger on the Canvas to pan, drag a node to move it, and use a two-finger pinch to zoom. Ports can be connected either by dragging a wire or by tapping the start and destination ports in sequence.
 
 ### Graph JSON and autosave
 
