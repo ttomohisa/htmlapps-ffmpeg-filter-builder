@@ -248,76 +248,9 @@ jobs:
             }
 
             $scriptPath = Join-Path $env:RUNNER_TEMP "verify-mt-isolation.mjs"
-            $script = @'
-          const mtUrl = process.env.MT_URL;
-          const targets = await fetch("http://127.0.0.1:9222/json/list").then((response) => response.json());
-          const target =
-            targets.find((item) => item.type === "page" && item.url.startsWith(mtUrl)) ??
-            targets.find((item) => item.type === "page");
-
-          if (!target?.webSocketDebuggerUrl) {
-            throw new Error("No debuggable page target was found.");
-          }
-
-          const socket = new WebSocket(target.webSocketDebuggerUrl);
-          await new Promise((resolve, reject) => {
-            const timer = setTimeout(() => reject(new Error("Timed out connecting to Chromium DevTools.")), 10000);
-            socket.addEventListener("open", () => {
-              clearTimeout(timer);
-              resolve();
-            }, { once: true });
-            socket.addEventListener("error", (event) => {
-              clearTimeout(timer);
-              reject(event.error ?? new Error("Chromium DevTools WebSocket error."));
-            }, { once: true });
-          });
-
-          let sequence = 0;
-          const call = (method, params = {}) => new Promise((resolve, reject) => {
-            const id = ++sequence;
-            const timer = setTimeout(() => {
-              socket.removeEventListener("message", onMessage);
-              reject(new Error(`Timed out waiting for CDP method ${method}.`));
-            }, 10000);
-
-            const onMessage = (event) => {
-              const message = JSON.parse(event.data);
-              if (message.id !== id) return;
-              clearTimeout(timer);
-              socket.removeEventListener("message", onMessage);
-              if (message.error) {
-                reject(new Error(JSON.stringify(message.error)));
-              } else {
-                resolve(message.result);
-              }
-            };
-
-            socket.addEventListener("message", onMessage);
-            socket.send(JSON.stringify({ id, method, params }));
-          });
-
-          await call("Runtime.enable");
-          const evaluation = await call("Runtime.evaluate", {
-            expression: 'JSON.stringify({ crossOriginIsolated: self.crossOriginIsolated, sharedArrayBuffer: typeof SharedArrayBuffer === "function", href: location.href })',
-            returnByValue: true
-          });
-
-          const state = JSON.parse(evaluation.result.value);
-          console.log(JSON.stringify(state));
-          socket.close();
-
-          if (state.crossOriginIsolated !== true) {
-            throw new Error("MT Preview is not cross-origin isolated.");
-          }
-          if (state.sharedArrayBuffer !== true) {
-            throw new Error("SharedArrayBuffer is unavailable in the MT Preview.");
-          }
-'@
-
-            [System.IO.File]::WriteAllText(
+            [System.IO.File]::WriteAllBytes(
               $scriptPath,
-              $script,
-              (New-Object System.Text.UTF8Encoding($false))
+              [System.Convert]::FromBase64String("Y29uc3QgbXRVcmwgPSBwcm9jZXNzLmVudi5NVF9VUkw7CmNvbnN0IHRhcmdldHMgPSBhd2FpdCBmZXRjaCgiaHR0cDovLzEyNy4wLjAuMTo5MjIyL2pzb24vbGlzdCIpLnRoZW4oKHJlc3BvbnNlKSA9PiByZXNwb25zZS5qc29uKCkpOwpjb25zdCB0YXJnZXQgPQogIHRhcmdldHMuZmluZCgoaXRlbSkgPT4gaXRlbS50eXBlID09PSAicGFnZSIgJiYgaXRlbS51cmwuc3RhcnRzV2l0aChtdFVybCkpID8/CiAgdGFyZ2V0cy5maW5kKChpdGVtKSA9PiBpdGVtLnR5cGUgPT09ICJwYWdlIik7CgppZiAoIXRhcmdldD8ud2ViU29ja2V0RGVidWdnZXJVcmwpIHsKICB0aHJvdyBuZXcgRXJyb3IoIk5vIGRlYnVnZ2FibGUgcGFnZSB0YXJnZXQgd2FzIGZvdW5kLiIpOwp9Cgpjb25zdCBzb2NrZXQgPSBuZXcgV2ViU29ja2V0KHRhcmdldC53ZWJTb2NrZXREZWJ1Z2dlclVybCk7CmF3YWl0IG5ldyBQcm9taXNlKChyZXNvbHZlLCByZWplY3QpID0+IHsKICBjb25zdCB0aW1lciA9IHNldFRpbWVvdXQoKCkgPT4gcmVqZWN0KG5ldyBFcnJvcigiVGltZWQgb3V0IGNvbm5lY3RpbmcgdG8gQ2hyb21pdW0gRGV2VG9vbHMuIikpLCAxMDAwMCk7CiAgc29ja2V0LmFkZEV2ZW50TGlzdGVuZXIoIm9wZW4iLCAoKSA9PiB7CiAgICBjbGVhclRpbWVvdXQodGltZXIpOwogICAgcmVzb2x2ZSgpOwogIH0sIHsgb25jZTogdHJ1ZSB9KTsKICBzb2NrZXQuYWRkRXZlbnRMaXN0ZW5lcigiZXJyb3IiLCAoZXZlbnQpID0+IHsKICAgIGNsZWFyVGltZW91dCh0aW1lcik7CiAgICByZWplY3QoZXZlbnQuZXJyb3IgPz8gbmV3IEVycm9yKCJDaHJvbWl1bSBEZXZUb29scyBXZWJTb2NrZXQgZXJyb3IuIikpOwogIH0sIHsgb25jZTogdHJ1ZSB9KTsKfSk7CgpsZXQgc2VxdWVuY2UgPSAwOwpjb25zdCBjYWxsID0gKG1ldGhvZCwgcGFyYW1zID0ge30pID0+IG5ldyBQcm9taXNlKChyZXNvbHZlLCByZWplY3QpID0+IHsKICBjb25zdCBpZCA9ICsrc2VxdWVuY2U7CiAgY29uc3QgdGltZXIgPSBzZXRUaW1lb3V0KCgpID0+IHsKICAgIHNvY2tldC5yZW1vdmVFdmVudExpc3RlbmVyKCJtZXNzYWdlIiwgb25NZXNzYWdlKTsKICAgIHJlamVjdChuZXcgRXJyb3IoYFRpbWVkIG91dCB3YWl0aW5nIGZvciBDRFAgbWV0aG9kICR7bWV0aG9kfS5gKSk7CiAgfSwgMTAwMDApOwoKICBjb25zdCBvbk1lc3NhZ2UgPSAoZXZlbnQpID0+IHsKICAgIGNvbnN0IG1lc3NhZ2UgPSBKU09OLnBhcnNlKGV2ZW50LmRhdGEpOwogICAgaWYgKG1lc3NhZ2UuaWQgIT09IGlkKSByZXR1cm47CiAgICBjbGVhclRpbWVvdXQodGltZXIpOwogICAgc29ja2V0LnJlbW92ZUV2ZW50TGlzdGVuZXIoIm1lc3NhZ2UiLCBvbk1lc3NhZ2UpOwogICAgaWYgKG1lc3NhZ2UuZXJyb3IpIHsKICAgICAgcmVqZWN0KG5ldyBFcnJvcihKU09OLnN0cmluZ2lmeShtZXNzYWdlLmVycm9yKSkpOwogICAgfSBlbHNlIHsKICAgICAgcmVzb2x2ZShtZXNzYWdlLnJlc3VsdCk7CiAgICB9CiAgfTsKCiAgc29ja2V0LmFkZEV2ZW50TGlzdGVuZXIoIm1lc3NhZ2UiLCBvbk1lc3NhZ2UpOwogIHNvY2tldC5zZW5kKEpTT04uc3RyaW5naWZ5KHsgaWQsIG1ldGhvZCwgcGFyYW1zIH0pKTsKfSk7Cgphd2FpdCBjYWxsKCJSdW50aW1lLmVuYWJsZSIpOwpjb25zdCBldmFsdWF0aW9uID0gYXdhaXQgY2FsbCgiUnVudGltZS5ldmFsdWF0ZSIsIHsKICBleHByZXNzaW9uOiAnSlNPTi5zdHJpbmdpZnkoeyBjcm9zc09yaWdpbklzb2xhdGVkOiBzZWxmLmNyb3NzT3JpZ2luSXNvbGF0ZWQsIHNoYXJlZEFycmF5QnVmZmVyOiB0eXBlb2YgU2hhcmVkQXJyYXlCdWZmZXIgPT09ICJmdW5jdGlvbiIsIGhyZWY6IGxvY2F0aW9uLmhyZWYgfSknLAogIHJldHVybkJ5VmFsdWU6IHRydWUKfSk7Cgpjb25zdCBzdGF0ZSA9IEpTT04ucGFyc2UoZXZhbHVhdGlvbi5yZXN1bHQudmFsdWUpOwpjb25zb2xlLmxvZyhKU09OLnN0cmluZ2lmeShzdGF0ZSkpOwpzb2NrZXQuY2xvc2UoKTsKCmlmIChzdGF0ZS5jcm9zc09yaWdpbklzb2xhdGVkICE9PSB0cnVlKSB7CiAgdGhyb3cgbmV3IEVycm9yKCJNVCBQcmV2aWV3IGlzIG5vdCBjcm9zcy1vcmlnaW4gaXNvbGF0ZWQuIik7Cn0KaWYgKHN0YXRlLnNoYXJlZEFycmF5QnVmZmVyICE9PSB0cnVlKSB7CiAgdGhyb3cgbmV3IEVycm9yKCJTaGFyZWRBcnJheUJ1ZmZlciBpcyB1bmF2YWlsYWJsZSBpbiB0aGUgTVQgUHJldmlldy4iKTsKfQo=")
             )
 
             $env:MT_URL = $mtUrl
