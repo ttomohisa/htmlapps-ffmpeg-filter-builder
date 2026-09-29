@@ -1,4 +1,5 @@
 {
+  // ST: /, MT: /mt/ (Cloudflare Preview)
   "name": "bk-previews",
   "compatibility_date": "2026-09-29",
   "preview_urls": true,
