@@ -198,6 +198,141 @@ jobs:
 
           throw "ST/MT Preview did not become ready with required headers: $lastError"
 
+      - name: Verify MT browser isolation
+        if: steps.cloudflare.outputs.configured == 'true'
+        shell: pwsh
+        env:
+          PREVIEW_URL: ${{ steps.preview.outputs.preview_url }}
+        run: |
+          $baseUrl = $env:PREVIEW_URL.TrimEnd('/')
+          $mtUrl = "$baseUrl/mt/"
+          $browserCandidates = @(
+            (Join-Path ${env:ProgramFiles(x86)} "Microsoft\Edge\Application\msedge.exe"),
+            (Join-Path $env:ProgramFiles "Microsoft\Edge\Application\msedge.exe"),
+            (Join-Path $env:ProgramFiles "Google\Chrome\Application\chrome.exe"),
+            (Join-Path ${env:ProgramFiles(x86)} "Google\Chrome\Application\chrome.exe")
+          ) | Where-Object { Test-Path -LiteralPath $_ }
+
+          if (@($browserCandidates).Count -lt 1) {
+            throw "No supported Chromium browser was found on the Windows runner."
+          }
+
+          $browserPath = [string]$browserCandidates[0]
+          $profilePath = Join-Path $env:RUNNER_TEMP "ffb-preview-browser-profile"
+          if (Test-Path -LiteralPath $profilePath) {
+            Remove-Item -LiteralPath $profilePath -Recurse -Force
+          }
+
+          $browserProcess = Start-Process -FilePath $browserPath -ArgumentList @(
+            "--headless=new",
+            "--disable-gpu",
+            "--no-first-run",
+            "--remote-debugging-port=9222",
+            "--user-data-dir=$profilePath",
+            $mtUrl
+          ) -PassThru
+
+          try {
+            $targets = $null
+            for ($attempt = 1; $attempt -le 20; $attempt++) {
+              try {
+                $targets = Invoke-RestMethod -Uri "http://127.0.0.1:9222/json/list" -TimeoutSec 5
+                if (@($targets).Count -gt 0) { break }
+              } catch {
+                Start-Sleep -Milliseconds 500
+              }
+            }
+
+            if (@($targets).Count -lt 1) {
+              throw "Chromium DevTools endpoint did not become ready."
+            }
+
+            $scriptPath = Join-Path $env:RUNNER_TEMP "verify-mt-isolation.mjs"
+            $script = @'
+          const mtUrl = process.env.MT_URL;
+          const targets = await fetch("http://127.0.0.1:9222/json/list").then((response) => response.json());
+          const target =
+            targets.find((item) => item.type === "page" && item.url.startsWith(mtUrl)) ??
+            targets.find((item) => item.type === "page");
+
+          if (!target?.webSocketDebuggerUrl) {
+            throw new Error("No debuggable page target was found.");
+          }
+
+          const socket = new WebSocket(target.webSocketDebuggerUrl);
+          await new Promise((resolve, reject) => {
+            const timer = setTimeout(() => reject(new Error("Timed out connecting to Chromium DevTools.")), 10000);
+            socket.addEventListener("open", () => {
+              clearTimeout(timer);
+              resolve();
+            }, { once: true });
+            socket.addEventListener("error", (event) => {
+              clearTimeout(timer);
+              reject(event.error ?? new Error("Chromium DevTools WebSocket error."));
+            }, { once: true });
+          });
+
+          let sequence = 0;
+          const call = (method, params = {}) => new Promise((resolve, reject) => {
+            const id = ++sequence;
+            const timer = setTimeout(() => {
+              socket.removeEventListener("message", onMessage);
+              reject(new Error(`Timed out waiting for CDP method ${method}.`));
+            }, 10000);
+
+            const onMessage = (event) => {
+              const message = JSON.parse(event.data);
+              if (message.id !== id) return;
+              clearTimeout(timer);
+              socket.removeEventListener("message", onMessage);
+              if (message.error) {
+                reject(new Error(JSON.stringify(message.error)));
+              } else {
+                resolve(message.result);
+              }
+            };
+
+            socket.addEventListener("message", onMessage);
+            socket.send(JSON.stringify({ id, method, params }));
+          });
+
+          await call("Runtime.enable");
+          const evaluation = await call("Runtime.evaluate", {
+            expression: 'JSON.stringify({ crossOriginIsolated: self.crossOriginIsolated, sharedArrayBuffer: typeof SharedArrayBuffer === "function", href: location.href })',
+            returnByValue: true
+          });
+
+          const state = JSON.parse(evaluation.result.value);
+          console.log(JSON.stringify(state));
+          socket.close();
+
+          if (state.crossOriginIsolated !== true) {
+            throw new Error("MT Preview is not cross-origin isolated.");
+          }
+          if (state.sharedArrayBuffer !== true) {
+            throw new Error("SharedArrayBuffer is unavailable in the MT Preview.");
+          }
+'@
+
+            [System.IO.File]::WriteAllText(
+              $scriptPath,
+              $script,
+              (New-Object System.Text.UTF8Encoding($false))
+            )
+
+            $env:MT_URL = $mtUrl
+            node $scriptPath
+            if ($LASTEXITCODE -ne 0) {
+              throw "MT browser isolation verification failed."
+            }
+
+            Write-Host "MT Preview browser check passed: crossOriginIsolated=true / SharedArrayBuffer=true."
+          } finally {
+            if ($null -ne $browserProcess -and -not $browserProcess.HasExited) {
+              Stop-Process -Id $browserProcess.Id -Force -ErrorAction SilentlyContinue
+            }
+          }
+
       - name: Comment Preview URLs
         if: steps.cloudflare.outputs.configured == 'true'
         shell: pwsh
@@ -216,7 +351,7 @@ jobs:
           - Preview: ``$env:PREVIEW_NAME``
           - Commit: ``${{ github.event.pull_request.head.sha }}``
           - Hosting: Cloudflare Workers Preview
-          - MT: COOP / COEP / CORP response headers verified
+          - MT: COOP / COEP / CORP + crossOriginIsolated / SharedArrayBuffer verified
 
           このPRへ追加でpushすると同じPreview URLが最新版へ更新されます。PRを閉じるとPreviewは自動削除されます。
           "@
