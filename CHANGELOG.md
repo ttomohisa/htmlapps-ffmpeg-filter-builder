@@ -2,6 +2,27 @@
 
 All notable changes to FFmpeg Filter Builder are documented here.
 
+## Unreleased - mobile workspace integration
+
+- Retained the existing mobile Recipe / Add / Undo / More / Preview workflow while incorporating the latest ST/MT PR-preview configuration.
+- Fixed the first stationary node tap and Enter / Space so they open the mobile Inspector; drag and cancelled gestures remain suppressed.
+- Restored **Disconnect input** in mobile More with the existing operation, Undo support, and disabled-state rules.
+- Exit desktop floating mode when entering smartphone width so Recipe / More stay above their backdrop, and hide mobile-only More controls on desktop.
+- Added executable gesture, dismissal, breakpoint, and disconnect regression tests to the existing mobile CI gate; refreshed ST/MT standalone aliases.
+
+## Unreleased
+
+### Mobile workspace UX
+
+- Added a fixed smartphone action bar for Recipe, Add, Undo, More, and Preview so core Graph operations no longer depend on a horizontally scrolling toolbar.
+- Promoted Recipe to a first-class mobile flow with a dedicated bottom sheet, category-grouped recipe cards, selected-recipe description, and a sticky Graph expansion action; moved Fit into More.
+- Open Node Inspector with one tap on mobile and move newly added filters / Inputs directly into settings.
+- Added a clear **Done** action to the mobile Inspector and separated destructive node actions from normal settings.
+- Kept Fit, Redo, Graph JSON, re-link, and reset reachable from the mobile More sheet.
+- Added bottom safe-area spacing and moved toast / mobile popovers above the fixed action bar.
+- Added an inline-script syntax regression test so template JavaScript parse errors fail CI before standalone build verification.
+- The dual-runtime build now refreshes root-level `ffmpeg-filter-builder.html` / `ffmpeg-filter-builder.mt.html` from the generated dist files and verifies byte identity by SHA-256.
+
 ## 1.2.0 - 2026-09-21
 
 ### Stable

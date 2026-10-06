@@ -40,6 +40,10 @@ jobs:
         shell: powershell
         run: .\scripts\check-powershell-syntax.ps1
 
+      - name: Check inline template script syntax
+        shell: pwsh
+        run: node ./tests/template-script-syntax-smoke.mjs
+
       - name: Test Graph Core / Compiler
         shell: pwsh
         run: node ./tests/graph-core-smoke.mjs
@@ -155,8 +159,8 @@ jobs:
         with:
           name: ffmpeg-filter-builder-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
-            dist/index.html
-            dist/index.mt.html
+            ffmpeg-filter-builder.html
+            ffmpeg-filter-builder.mt.html
             dist/index.self-extract.html
             dist/index.mt.self-extract.html
             dist/dependency-manifest.json

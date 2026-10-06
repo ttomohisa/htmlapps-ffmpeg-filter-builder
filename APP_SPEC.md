@@ -1767,11 +1767,14 @@ v0.6.0で、
 - Node追加
 - Node接続
 - Parameter編集
+- Preview
 - Commandコピー
 
 を可能にすることを目標とする。
 
-ただし複雑Graph編集とRenderはPC推奨。
+主要操作は下部固定の **Recipe / 追加 / 戻す / その他 / Preview** にまとめ、Canvas上部へ横スクロールToolbarを残さない。RecipeはFFmpeg Filter Builderの主導線として常時1Tapで開ける位置に置き、全体表示は「その他」へ移す。
+
+ただし複雑Graph編集とFull RenderはPC推奨。
 
 ---
 
@@ -1779,11 +1782,21 @@ v0.6.0で、
 
 スマートフォンでは、
 
-右panelをbottom sheet化。
+- Recipeを専用Bottom Sheet化し、カテゴリ別のタップカードで一覧表示する
+- Recipe選択後は説明とGraph展開Actionを同じSheet内に固定表示する
+- Filter PaletteをBottom Sheet化する
+- Node InspectorをBottom Sheet化する
+- Nodeを1回TapするとInspectorを開く
+- Node追加直後はそのNodeの設定へ進む
+- Inspectorには明示的な「完了」を置く
+- NodeへのEnter / SpaceでもInspectorを開ける。Dragやpointercancelでは開かない
+- 「その他」から選択Nodeの入力接続を切断できる。既存の切断処理とUndoを共用し、処理中・接続なしでは無効にする
+- DesktopのFloating WorkspaceからMobile幅へ移る際は浮動表示を解除し、Recipe / Moreの背景がSheetを覆わないようにする
+- 削除などNode自体への操作はParameter設定と視覚的に分離する
+- Bottom Sheet表示中は背景Canvasへの誤操作を防ぐ
+- 下部固定Action BarとToast / Popoverはsafe areaを考慮する
+- Connection操作はtouch targetを十分大きくする
 
-Node Paletteもdrawer化する。
-
-Connection操作はtouch targetを十分大きくする。
 
 ---
 

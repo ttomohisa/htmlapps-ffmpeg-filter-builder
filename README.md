@@ -44,8 +44,8 @@ Open the [GitHub Pages demo](https://ttomohisa.github.io/htmlapps-ffmpeg-filter-
 1. Download or clone this repository.
 2. Double-click `build-standalone.bat` or run it from Command Prompt.
 3. The first build downloads and verifies the pinned FFmpeg WASM runtime and M PLUS 1p font snapshot.
-4. Open `dist/index.html` for the standard single-thread build.
-5. Keep that generated HTML as a single-file offline tool if needed.
+4. Open the root-level `ffmpeg-filter-builder.html` for the standard single-thread build. It is byte-identical to `dist/index.html`.
+5. The root-level `ffmpeg-filter-builder.mt.html` is the matching multi-thread build and is byte-identical to `dist/index.mt.html`.
 
 The normal build uses Windows PowerShell and does not require Node.js for the application build itself.
 
@@ -81,7 +81,11 @@ Undo / Redo remain directly available in the Graph toolbar. The legacy Split + O
 
 ### Mobile Graph editing
 
-On smartphones, the Graph Canvas uses the available width while Filter Palette and Node Inspector open as bottom sheets. Drag one finger on the Canvas to pan, drag a node to move it, and use a two-finger pinch to zoom. Ports can be connected either by dragging a wire or by tapping the start and destination ports in sequence.
+Tap a node once, or activate it with Enter / Space, to open its Inspector. To remove its incoming connections without deleting the node, use **More → Disconnect input**; Undo restores them. Moving from a floating desktop Canvas to smartphone width exits floating mode.
+
+On smartphones, the Graph Canvas uses the available width and the main controls move to a fixed bottom action bar: **Recipe / Add / Undo / More / Preview**. Recipe is intentionally first-class: tapping it opens a dedicated bottom sheet with all 24 recipes grouped into **Size & orientation / Composite & look / Time & audio** cards. Select a card, review its description, then expand it into the editable Graph from the sticky action area.
+
+**Add** opens the Filter Palette as a bottom sheet. **More** keeps Fit, Redo, Graph JSON, re-link, and reset actions reachable without a horizontally scrolling toolbar. Tap a node once to open its Node Inspector. Newly added filter or Input nodes move directly into settings, and the Inspector uses a clear **Done** action to return to the Canvas. Destructive node actions are separated from normal settings. Drag one finger on the Canvas to pan, drag a node to move it, and use a two-finger pinch to zoom. Ports can be connected either by dragging a wire or by tapping the start and destination ports in sequence.
 
 ### Graph JSON and autosave
 
@@ -162,6 +166,8 @@ The Pages workflow keeps `dist/index.mt.html` as the standalone MT artifact, the
 ├─ font.lock.json                # Pinned M PLUS 1p font snapshot
 ├─ build-standalone.bat          # Windows build entry point
 ├─ build-standalone.ps1          # ST / MT standalone builder
+├─ ffmpeg-filter-builder.html     # Generated ST copy of dist/index.html
+├─ ffmpeg-filter-builder.mt.html  # Generated MT copy of dist/index.mt.html
 ├─ scripts/                      # Runtime preparation, verification, and repository checks
 ├─ tests/                        # Graph / Preview / filter / recipe / Pages smoke tests
 ├─ vendor/coi-serviceworker/     # Pinned GitHub Pages-only COI fallback
@@ -194,7 +200,7 @@ After Builder v1.9.9 is tagged and its GitHub Release workflow publishes the ST/
 .\build-standalone.bat
 ```
 
-See `docs/BUILDER_V1_9_9_RELEASE.md` for the release/tag checklist. The build produces both readable and self-extracting ST / MT standalone HTML variants together with runtime and size manifests.
+See `docs/BUILDER_V1_9_9_RELEASE.md` for the release/tag checklist. The build produces both readable and self-extracting ST / MT standalone HTML variants together with runtime and size manifests, then refreshes the root-level ST / MT standalone copies and verifies them by SHA-256.
 
 ## Privacy and runtime network protection
 
@@ -207,7 +213,7 @@ The generated application includes:
 - `connect-src 'none'` in its runtime Content Security Policy
 - no runtime dependency on GitHub, Google Fonts, or a CDN
 
-Network access is required when using the hosted GitHub Pages page itself and when building from source for the first time. For use with the network disconnected, open the generated standard `dist/index.html` locally after building it.
+Network access is required when using the hosted GitHub Pages page itself and when building from source for the first time. For use with the network disconnected, open the generated standard `ffmpeg-filter-builder.html` (or the identical `dist/index.html`) locally after building it.
 
 ## Limitations
 

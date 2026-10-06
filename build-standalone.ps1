@@ -175,11 +175,23 @@ Write-Host "[6/7] Building single-thread standalone..." -ForegroundColor Cyan
 Write-Host "[7/7] Building multi-thread standalone..." -ForegroundColor Cyan
 & $BuildVariantPath -Variant "multi-thread" -RuntimeRoot $mtRoot -FontPath $fontPath -SkipSelfExtract:$SkipSelfExtract
 
+$stOutputPath = Join-Path $Root "dist\index.html"
+$mtOutputPath = Join-Path $Root "dist\index.mt.html"
+$stRootPath = Join-Path $Root "ffmpeg-filter-builder.html"
+$mtRootPath = Join-Path $Root "ffmpeg-filter-builder.mt.html"
+[System.IO.File]::Copy($stOutputPath, $stRootPath, $true)
+[System.IO.File]::Copy($mtOutputPath, $mtRootPath, $true)
+if ((Get-Sha256FileHex $stOutputPath) -ne (Get-Sha256FileHex $stRootPath)) { throw "Root ST standalone HTML does not match dist\index.html." }
+if ((Get-Sha256FileHex $mtOutputPath) -ne (Get-Sha256FileHex $mtRootPath)) { throw "Root MT standalone HTML does not match dist\index.mt.html." }
+Write-Host "[OK] Root standalone aliases refreshed and verified." -ForegroundColor Green
+
 & $RepositoryCheckPath
 Write-Host ""
 Write-Host "[OK] FFmpeg Filter Builder v1.2.0 dual-runtime build completed." -ForegroundColor Green
-Write-Host "  dist\index.html             single-thread / file:// supported"
-Write-Host "  dist\index.mt.html          multi-thread / COOP+COEP required"
+Write-Host "  ffmpeg-filter-builder.html      single-thread / file:// supported"
+Write-Host "  ffmpeg-filter-builder.mt.html   multi-thread / COOP+COEP required"
+Write-Host "  dist\index.html                 identical ST build artifact"
+Write-Host "  dist\index.mt.html              identical MT build artifact"
 if (-not $SkipSelfExtract) {
   Write-Host "  dist\index.self-extract.html"
   Write-Host "  dist\index.mt.self-extract.html"
