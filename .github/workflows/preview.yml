@@ -1,0 +1,295 @@
+name: Deploy PR preview
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: cloudflare-pr-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  WRANGLER_VERSION: "4.135.0"
+
+jobs:
+  preview:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Validate PowerShell syntax and encoding
+        shell: powershell
+        run: .\scripts\check-powershell-syntax.ps1
+
+      - name: Build ST and MT standalone HTML
+        shell: pwsh
+        run: ./build-standalone.ps1
+
+      - name: Prepare preview site
+        shell: pwsh
+        run: |
+          ./scripts/prepare-pages.ps1
+          node ./tests/pages-deployment-smoke.mjs
+
+          $headers = @"
+          /mt/*
+            Cross-Origin-Opener-Policy: same-origin
+            Cross-Origin-Embedder-Policy: require-corp
+            Cross-Origin-Resource-Policy: same-origin
+          "@
+
+          [System.IO.File]::WriteAllText(
+            (Join-Path $PWD "pages-dist\_headers"),
+            $headers.TrimStart(),
+            (New-Object System.Text.UTF8Encoding($false))
+          )
+
+      - name: Check Cloudflare preview credentials
+        id: cloudflare
+        shell: pwsh
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          $configured = -not [string]::IsNullOrWhiteSpace($env:CLOUDFLARE_API_TOKEN) -and
+            -not [string]::IsNullOrWhiteSpace($env:CLOUDFLARE_ACCOUNT_ID)
+
+          "configured=$($configured.ToString().ToLowerInvariant())" |
+            Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+          if (-not $configured) {
+            Write-Host "::notice::Cloudflare PR Preview skipped because CLOUDFLARE_API_TOKEN or CLOUDFLARE_ACCOUNT_ID is not configured."
+          }
+
+      - name: Create or update Cloudflare Preview
+        id: preview
+        if: steps.cloudflare.outputs.configured == 'true'
+        shell: pwsh
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          $env:CLOUDFLARE_API_TOKEN = $env:CLOUDFLARE_API_TOKEN.Trim()
+          $env:CLOUDFLARE_ACCOUNT_ID = $env:CLOUDFLARE_ACCOUNT_ID.Trim()
+          $env:NO_COLOR = "1"
+
+          if ($env:CLOUDFLARE_ACCOUNT_ID -notmatch '^[A-Za-z0-9_-]+$') {
+            throw "CLOUDFLARE_ACCOUNT_ID contains invalid characters. Save only the Account ID value in the GitHub secret, without quotes or extra text."
+          }
+
+          $previewName = "r${{ github.event.repository.id }}-pr-${{ github.event.pull_request.number }}"
+          $stdoutPath = Join-Path $env:RUNNER_TEMP "wrangler-preview.json"
+          $stderrPath = Join-Path $env:RUNNER_TEMP "wrangler-preview.stderr.log"
+
+          $arguments = @(
+            "--yes"
+            "wrangler@$env:WRANGLER_VERSION"
+            "preview"
+            "--config"
+            "wrangler.preview.jsonc"
+            "--name"
+            $previewName
+            "--json"
+          )
+
+          $process = Start-Process -FilePath "npx.cmd" `
+            -ArgumentList $arguments `
+            -NoNewWindow `
+            -Wait `
+            -PassThru `
+            -RedirectStandardOutput $stdoutPath `
+            -RedirectStandardError $stderrPath
+
+          if (Test-Path $stderrPath) {
+            $stderrText = Get-Content -Raw -Encoding UTF8 $stderrPath
+            if (-not [string]::IsNullOrWhiteSpace($stderrText)) {
+              Write-Host $stderrText
+            }
+          }
+
+          if ($process.ExitCode -ne 0) {
+            throw "Cloudflare Preview deployment failed with exit code $($process.ExitCode)."
+          }
+
+          $stdoutBytes = [System.IO.File]::ReadAllBytes($stdoutPath)
+          if ($stdoutBytes.Length -ge 2 -and $stdoutBytes[0] -eq 0xFF -and $stdoutBytes[1] -eq 0xFE) {
+            $jsonText = [System.Text.Encoding]::Unicode.GetString($stdoutBytes)
+          } elseif ($stdoutBytes.Length -ge 2 -and $stdoutBytes[0] -eq 0xFE -and $stdoutBytes[1] -eq 0xFF) {
+            $jsonText = [System.Text.Encoding]::BigEndianUnicode.GetString($stdoutBytes)
+          } else {
+            $jsonText = [System.Text.Encoding]::UTF8.GetString($stdoutBytes)
+          }
+
+          $jsonStart = $jsonText.IndexOf('{')
+          $jsonEnd = $jsonText.LastIndexOf('}')
+          if ($jsonStart -lt 0 -or $jsonEnd -lt $jsonStart) {
+            throw "Wrangler completed successfully but did not return a JSON object."
+          }
+
+          $result = $jsonText.Substring($jsonStart, $jsonEnd - $jsonStart + 1) | ConvertFrom-Json
+          $previewUrl = [string]$result.preview.urls[0]
+          if ([string]::IsNullOrWhiteSpace($previewUrl)) {
+            throw "Wrangler did not return a Preview URL."
+          }
+
+          "preview_url=$previewUrl" |
+            Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "preview_name=$previewName" |
+            Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Probe ST and MT Preview
+        if: steps.cloudflare.outputs.configured == 'true'
+        shell: pwsh
+        env:
+          PREVIEW_URL: ${{ steps.preview.outputs.preview_url }}
+        run: |
+          $baseUrl = $env:PREVIEW_URL.TrimEnd('/')
+          $stUrl = "$baseUrl/"
+          $mtUrl = "$baseUrl/mt/"
+          $lastError = $null
+
+          for ($attempt = 1; $attempt -le 12; $attempt++) {
+            try {
+              $st = Invoke-WebRequest -Uri $stUrl -MaximumRedirection 5 -TimeoutSec 30
+              $mt = Invoke-WebRequest -Uri $mtUrl -MaximumRedirection 5 -TimeoutSec 30
+
+              $coop = [string]$mt.Headers["Cross-Origin-Opener-Policy"]
+              $coep = [string]$mt.Headers["Cross-Origin-Embedder-Policy"]
+              $corp = [string]$mt.Headers["Cross-Origin-Resource-Policy"]
+
+              if (
+                $st.StatusCode -eq 200 -and
+                $mt.StatusCode -eq 200 -and
+                $coop -eq "same-origin" -and
+                $coep -eq "require-corp" -and
+                $corp -eq "same-origin"
+              ) {
+                Write-Host "ST Preview returned HTTP 200."
+                Write-Host "MT Preview returned HTTP 200 with COOP/COEP/CORP."
+                exit 0
+              }
+
+              $lastError = "ST=$($st.StatusCode), MT=$($mt.StatusCode), COOP='$coop', COEP='$coep', CORP='$corp'"
+            } catch {
+              $lastError = $_.Exception.Message
+            }
+
+            Write-Host "Preview is not ready yet (attempt $attempt/12): $lastError"
+            Start-Sleep -Seconds 5
+          }
+
+          throw "ST/MT Preview did not become ready with required headers: $lastError"
+
+      - name: Verify MT browser isolation
+        if: steps.cloudflare.outputs.configured == 'true'
+        shell: pwsh
+        env:
+          PREVIEW_URL: ${{ steps.preview.outputs.preview_url }}
+        run: |
+          $baseUrl = $env:PREVIEW_URL.TrimEnd('/')
+          $mtUrl = "$baseUrl/mt/"
+          $browserCandidates = @(
+            (Join-Path ${env:ProgramFiles(x86)} "Microsoft\Edge\Application\msedge.exe"),
+            (Join-Path $env:ProgramFiles "Microsoft\Edge\Application\msedge.exe"),
+            (Join-Path $env:ProgramFiles "Google\Chrome\Application\chrome.exe"),
+            (Join-Path ${env:ProgramFiles(x86)} "Google\Chrome\Application\chrome.exe")
+          ) | Where-Object { Test-Path -LiteralPath $_ }
+
+          if (@($browserCandidates).Count -lt 1) {
+            throw "No supported Chromium browser was found on the Windows runner."
+          }
+
+          $browserPath = [string]$browserCandidates[0]
+          $profilePath = Join-Path $env:RUNNER_TEMP "ffb-preview-browser-profile"
+          if (Test-Path -LiteralPath $profilePath) {
+            Remove-Item -LiteralPath $profilePath -Recurse -Force
+          }
+
+          $browserProcess = Start-Process -FilePath $browserPath -ArgumentList @(
+            "--headless=new",
+            "--disable-gpu",
+            "--no-first-run",
+            "--remote-debugging-port=9222",
+            "--user-data-dir=$profilePath",
+            $mtUrl
+          ) -PassThru
+
+          try {
+            $targets = $null
+            for ($attempt = 1; $attempt -le 20; $attempt++) {
+              try {
+                $targets = Invoke-RestMethod -Uri "http://127.0.0.1:9222/json/list" -TimeoutSec 5
+                if (@($targets).Count -gt 0) { break }
+              } catch {
+                Start-Sleep -Milliseconds 500
+              }
+            }
+
+            if (@($targets).Count -lt 1) {
+              throw "Chromium DevTools endpoint did not become ready."
+            }
+
+            $scriptPath = Join-Path $env:RUNNER_TEMP "verify-mt-isolation.mjs"
+            [System.IO.File]::WriteAllBytes(
+              $scriptPath,
+              [System.Convert]::FromBase64String("Y29uc3QgbXRVcmwgPSBwcm9jZXNzLmVudi5NVF9VUkw7CmNvbnN0IHRhcmdldHMgPSBhd2FpdCBmZXRjaCgiaHR0cDovLzEyNy4wLjAuMTo5MjIyL2pzb24vbGlzdCIpLnRoZW4oKHJlc3BvbnNlKSA9PiByZXNwb25zZS5qc29uKCkpOwpjb25zdCB0YXJnZXQgPQogIHRhcmdldHMuZmluZCgoaXRlbSkgPT4gaXRlbS50eXBlID09PSAicGFnZSIgJiYgaXRlbS51cmwuc3RhcnRzV2l0aChtdFVybCkpID8/CiAgdGFyZ2V0cy5maW5kKChpdGVtKSA9PiBpdGVtLnR5cGUgPT09ICJwYWdlIik7CgppZiAoIXRhcmdldD8ud2ViU29ja2V0RGVidWdnZXJVcmwpIHsKICB0aHJvdyBuZXcgRXJyb3IoIk5vIGRlYnVnZ2FibGUgcGFnZSB0YXJnZXQgd2FzIGZvdW5kLiIpOwp9Cgpjb25zdCBzb2NrZXQgPSBuZXcgV2ViU29ja2V0KHRhcmdldC53ZWJTb2NrZXREZWJ1Z2dlclVybCk7CmF3YWl0IG5ldyBQcm9taXNlKChyZXNvbHZlLCByZWplY3QpID0+IHsKICBjb25zdCB0aW1lciA9IHNldFRpbWVvdXQoKCkgPT4gcmVqZWN0KG5ldyBFcnJvcigiVGltZWQgb3V0IGNvbm5lY3RpbmcgdG8gQ2hyb21pdW0gRGV2VG9vbHMuIikpLCAxMDAwMCk7CiAgc29ja2V0LmFkZEV2ZW50TGlzdGVuZXIoIm9wZW4iLCAoKSA9PiB7CiAgICBjbGVhclRpbWVvdXQodGltZXIpOwogICAgcmVzb2x2ZSgpOwogIH0sIHsgb25jZTogdHJ1ZSB9KTsKICBzb2NrZXQuYWRkRXZlbnRMaXN0ZW5lcigiZXJyb3IiLCAoZXZlbnQpID0+IHsKICAgIGNsZWFyVGltZW91dCh0aW1lcik7CiAgICByZWplY3QoZXZlbnQuZXJyb3IgPz8gbmV3IEVycm9yKCJDaHJvbWl1bSBEZXZUb29scyBXZWJTb2NrZXQgZXJyb3IuIikpOwogIH0sIHsgb25jZTogdHJ1ZSB9KTsKfSk7CgpsZXQgc2VxdWVuY2UgPSAwOwpjb25zdCBjYWxsID0gKG1ldGhvZCwgcGFyYW1zID0ge30pID0+IG5ldyBQcm9taXNlKChyZXNvbHZlLCByZWplY3QpID0+IHsKICBjb25zdCBpZCA9ICsrc2VxdWVuY2U7CiAgY29uc3QgdGltZXIgPSBzZXRUaW1lb3V0KCgpID0+IHsKICAgIHNvY2tldC5yZW1vdmVFdmVudExpc3RlbmVyKCJtZXNzYWdlIiwgb25NZXNzYWdlKTsKICAgIHJlamVjdChuZXcgRXJyb3IoYFRpbWVkIG91dCB3YWl0aW5nIGZvciBDRFAgbWV0aG9kICR7bWV0aG9kfS5gKSk7CiAgfSwgMTAwMDApOwoKICBjb25zdCBvbk1lc3NhZ2UgPSAoZXZlbnQpID0+IHsKICAgIGNvbnN0IG1lc3NhZ2UgPSBKU09OLnBhcnNlKGV2ZW50LmRhdGEpOwogICAgaWYgKG1lc3NhZ2UuaWQgIT09IGlkKSByZXR1cm47CiAgICBjbGVhclRpbWVvdXQodGltZXIpOwogICAgc29ja2V0LnJlbW92ZUV2ZW50TGlzdGVuZXIoIm1lc3NhZ2UiLCBvbk1lc3NhZ2UpOwogICAgaWYgKG1lc3NhZ2UuZXJyb3IpIHsKICAgICAgcmVqZWN0KG5ldyBFcnJvcihKU09OLnN0cmluZ2lmeShtZXNzYWdlLmVycm9yKSkpOwogICAgfSBlbHNlIHsKICAgICAgcmVzb2x2ZShtZXNzYWdlLnJlc3VsdCk7CiAgICB9CiAgfTsKCiAgc29ja2V0LmFkZEV2ZW50TGlzdGVuZXIoIm1lc3NhZ2UiLCBvbk1lc3NhZ2UpOwogIHNvY2tldC5zZW5kKEpTT04uc3RyaW5naWZ5KHsgaWQsIG1ldGhvZCwgcGFyYW1zIH0pKTsKfSk7Cgphd2FpdCBjYWxsKCJSdW50aW1lLmVuYWJsZSIpOwpjb25zdCBldmFsdWF0aW9uID0gYXdhaXQgY2FsbCgiUnVudGltZS5ldmFsdWF0ZSIsIHsKICBleHByZXNzaW9uOiAnSlNPTi5zdHJpbmdpZnkoeyBjcm9zc09yaWdpbklzb2xhdGVkOiBzZWxmLmNyb3NzT3JpZ2luSXNvbGF0ZWQsIHNoYXJlZEFycmF5QnVmZmVyOiB0eXBlb2YgU2hhcmVkQXJyYXlCdWZmZXIgPT09ICJmdW5jdGlvbiIsIGhyZWY6IGxvY2F0aW9uLmhyZWYgfSknLAogIHJldHVybkJ5VmFsdWU6IHRydWUKfSk7Cgpjb25zdCBzdGF0ZSA9IEpTT04ucGFyc2UoZXZhbHVhdGlvbi5yZXN1bHQudmFsdWUpOwpjb25zb2xlLmxvZyhKU09OLnN0cmluZ2lmeShzdGF0ZSkpOwpzb2NrZXQuY2xvc2UoKTsKCmlmIChzdGF0ZS5jcm9zc09yaWdpbklzb2xhdGVkICE9PSB0cnVlKSB7CiAgdGhyb3cgbmV3IEVycm9yKCJNVCBQcmV2aWV3IGlzIG5vdCBjcm9zcy1vcmlnaW4gaXNvbGF0ZWQuIik7Cn0KaWYgKHN0YXRlLnNoYXJlZEFycmF5QnVmZmVyICE9PSB0cnVlKSB7CiAgdGhyb3cgbmV3IEVycm9yKCJTaGFyZWRBcnJheUJ1ZmZlciBpcyB1bmF2YWlsYWJsZSBpbiB0aGUgTVQgUHJldmlldy4iKTsKfQo=")
+            )
+
+            $env:MT_URL = $mtUrl
+            node $scriptPath
+            if ($LASTEXITCODE -ne 0) {
+              throw "MT browser isolation verification failed."
+            }
+
+            Write-Host "MT Preview browser check passed: crossOriginIsolated=true / SharedArrayBuffer=true."
+          } finally {
+            if ($null -ne $browserProcess -and -not $browserProcess.HasExited) {
+              Stop-Process -Id $browserProcess.Id -Force -ErrorAction SilentlyContinue
+            }
+          }
+
+      - name: Comment Preview URLs
+        if: steps.cloudflare.outputs.configured == 'true'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PREVIEW_URL: ${{ steps.preview.outputs.preview_url }}
+          PREVIEW_NAME: ${{ steps.preview.outputs.preview_name }}
+        run: |
+          $baseUrl = $env:PREVIEW_URL.TrimEnd('/')
+          $body = @"
+          ## Browser Kitty PR Preview
+
+          **[ST Previewを開く]($baseUrl/)**  
+          **[MT Previewを開く]($baseUrl/mt/)**
+
+          - Preview: ``$env:PREVIEW_NAME``
+          - Commit: ``${{ github.event.pull_request.head.sha }}``
+          - Hosting: Cloudflare Workers Preview
+          - MT: COOP / COEP / CORP + crossOriginIsolated / SharedArrayBuffer verified
+
+          このPRへ追加でpushすると同じPreview URLが最新版へ更新されます。PRを閉じるとPreviewは自動削除されます。
+          "@
+
+          gh pr comment "${{ github.event.pull_request.number }}" `
+            --body $body `
+            --edit-last `
+            --create-if-none
