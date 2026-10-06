@@ -84,6 +84,8 @@ Undo / RedoはGraph Toolbarから直接操作できます。旧バージョン�
 
 ### スマートフォンでのGraph編集
 
+ノードを1回タップするかEnter / Spaceで設定を開きます。ノードを残して入力接続を外すには **その他 → 入力を切断** を使い、戻す場合はUndoを押します。PCの浮動Canvasからスマートフォン幅に切り替えると浮動表示を解除します。
+
 スマートフォンではGraph Canvasを横幅いっぱいに表示し、主要操作を下部固定の **レシピ / 追加 / 戻す / その他 / プレビュー** にまとめます。FFmpeg Filter BuilderではRecipeを主導線として扱い、**レシピ**を押すと24種類を **サイズ・向き / 合成・見た目 / 時間・音声** に分けたタップカードのBottom Sheetを開きます。Recipeを選ぶと説明を確認でき、そのまま固定アクションから編集可能なGraphへ展開できます。
 
 **追加**はFilter PaletteをBottom Sheetで開きます。**その他**には全体表示、やり直し、Graph JSON、素材の再選択、初期化をまとめ、横スクロールするToolbarはスマートフォンでは表示しません。Nodeは1回TapするとNode Inspectorが開きます。FilterやInputを追加した直後もそのNodeの設定へ進み、設定後は右上の**完了**でCanvasへ戻れます。削除などNode自体への操作は通常の設定とは分けて表示します。Canvasは1本指でPan、NodeをDragして移動でき、2本指のPinchでZoomできます。PortはDrag接続に加えて、開始Portと接続先Portを順にTapしても接続できます。

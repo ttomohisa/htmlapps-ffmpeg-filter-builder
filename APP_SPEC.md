@@ -1789,6 +1789,9 @@ v0.6.0で、
 - Nodeを1回TapするとInspectorを開く
 - Node追加直後はそのNodeの設定へ進む
 - Inspectorには明示的な「完了」を置く
+- NodeへのEnter / SpaceでもInspectorを開ける。Dragやpointercancelでは開かない
+- 「その他」から選択Nodeの入力接続を切断できる。既存の切断処理とUndoを共用し、処理中・接続なしでは無効にする
+- DesktopのFloating WorkspaceからMobile幅へ移る際は浮動表示を解除し、Recipe / Moreの背景がSheetを覆わないようにする
 - 削除などNode自体への操作はParameter設定と視覚的に分離する
 - Bottom Sheet表示中は背景Canvasへの誤操作を防ぐ
 - 下部固定Action BarとToast / Popoverはsafe areaを考慮する
