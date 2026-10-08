@@ -28,7 +28,7 @@ if not exist "%MT_ROOT%\manifest.json" (
 
 echo.
 echo FFmpeg Filter Builder
-echo v1.2.0 - local Builder integration (v1.9.8 or v1.9.9)
+echo v1.2.1 - local Builder integration (v1.9.8, v1.9.9 or v1.10.2)
 echo Builder root: %BUILDER_ROOT%
 echo.
 

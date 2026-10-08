@@ -9,6 +9,6 @@ requireText("pass=streamType===PORT_TYPES.AUDIO?'anull':'null'",'null/anull pass
 requireText("mainInputIndex",'main input runtime index missing');
 requireText("if(req.mode==='multi-input')",'multi-input file staging missing');
 requireText("runFiles.push({name:input.path,data:file,workerfs:true})",'WORKERFS staging for each input missing');
-requireText("['1.9.8','1.9.9'].includes(manifest.builderVersion)",'local v1.9.9 runtime acceptance missing');
+requireText("['1.9.8','1.9.9','1.10.2'].includes(manifest.builderVersion)",'local v1.9.9 runtime acceptance missing');
 requireText("manifest.capabilities?.multipleInputs===true",'multi-input runtime manifest validation missing');
 console.log('[OK] Multi-input Preview / Full Render runtime contract smoke test passed.');

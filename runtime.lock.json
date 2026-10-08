@@ -1,18 +1,18 @@
 {
   "schemaVersion": 1,
   "builderRepository": "ttomohisa/htmlapps-ffmpeg-wasm-builder",
-  "builderVersion": "1.9.9",
+  "builderVersion": "1.10.2",
   "profile": "ffmpeg-filter-builder",
   "variants": {
     "single-thread": {
-      "asset": "ffmpeg-wasm-ffmpeg-filter-builder-single-thread-v1.9.9.zip",
-      "url": "https://github.com/ttomohisa/htmlapps-ffmpeg-wasm-builder/releases/download/v1.9.9/ffmpeg-wasm-ffmpeg-filter-builder-single-thread-v1.9.9.zip",
-      "sha256": "c3c42b584f3932dfd69dd185fa879ea8222091817af8a2aa58addac0e69defa0"
+      "asset": "ffmpeg-wasm-ffmpeg-filter-builder-single-thread-v1.10.2.zip",
+      "url": "https://github.com/ttomohisa/htmlapps-ffmpeg-wasm-builder/releases/download/v1.10.2/ffmpeg-wasm-ffmpeg-filter-builder-single-thread-v1.10.2.zip",
+      "sha256": "32ae9873bd198a94ac7d4b762d49fae8b971a7eda1e01c0f3b1b6abd3a13bf15"
     },
     "multi-thread": {
-      "asset": "ffmpeg-wasm-ffmpeg-filter-builder-multi-thread-v1.9.9.zip",
-      "url": "https://github.com/ttomohisa/htmlapps-ffmpeg-wasm-builder/releases/download/v1.9.9/ffmpeg-wasm-ffmpeg-filter-builder-multi-thread-v1.9.9.zip",
-      "sha256": "04f853629c1e2eae5dac60f6a5b92a0f1aea3119566b6e11a5bc2171554ead6e"
+      "asset": "ffmpeg-wasm-ffmpeg-filter-builder-multi-thread-v1.10.2.zip",
+      "url": "https://github.com/ttomohisa/htmlapps-ffmpeg-wasm-builder/releases/download/v1.10.2/ffmpeg-wasm-ffmpeg-filter-builder-multi-thread-v1.10.2.zip",
+      "sha256": "8183cd0e5e07fa5fcaeb93bb3eb3dac758d7a040710b243d97c27c10fd004f81"
     }
   }
 }

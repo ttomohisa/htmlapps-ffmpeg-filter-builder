@@ -2,6 +2,13 @@
 
 All notable changes to FFmpeg Filter Builder are documented here.
 
+## 1.2.1 - 2026-10-08
+
+- Pin verified FFmpeg WASM Builder v1.10.2 ST/MT releases to repair terminal frame duration and bounded-preview timing.
+- Preserve runtime capabilities, compiler semantics, GPL licensing, and offline boundaries; extend reviewed runtime validation without admitting unreviewed versions.
+- Normalize the header language switch to EN / JA with localized destination tooltips and accessible names.
+- Keep Help labels localized and synchronize the three-part app version without changing local-processing behavior.
+
 ## Unreleased - mobile workspace integration
 
 - Retained the existing mobile Recipe / Add / Undo / More / Preview workflow while incorporating the latest ST/MT PR-preview configuration.

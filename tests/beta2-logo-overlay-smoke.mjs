@@ -12,7 +12,7 @@ assert.ok(source.includes('eof_action=repeat:repeatlast=1'),'Overlay compiler mu
 assert.ok(source.includes('data-param="keepVisible"'),'Overlay Inspector must expose foreground persistence');
 assert.ok(source.includes("image/png,image/jpeg,.png,.jpg,.jpeg"),'Image Input must be limited to runtime-supported PNG/JPEG formats');
 assert.ok(source.includes("recipeLogoNeedsImage"),'Logo recipe must explain a missing image binding');
-assert.equal(runtime.builderVersion,'1.9.9','beta.2 must use the published Builder v1.9.9 runtime');
-assert.equal(runtime.variants['single-thread'].sha256,'c3c42b584f3932dfd69dd185fa879ea8222091817af8a2aa58addac0e69defa0');
-assert.equal(runtime.variants['multi-thread'].sha256,'04f853629c1e2eae5dac60f6a5b92a0f1aea3119566b6e11a5bc2171554ead6e');
+assert.equal(runtime.builderVersion,'1.10.2','beta.2 must use the published Builder v1.10.2 runtime');
+assert.equal(runtime.variants['single-thread'].sha256,'32ae9873bd198a94ac7d4b762d49fae8b971a7eda1e01c0f3b1b6abd3a13bf15');
+assert.equal(runtime.variants['multi-thread'].sha256,'8183cd0e5e07fa5fcaeb93bb3eb3dac758d7a040710b243d97c27c10fd004f81');
 console.log('[OK] beta.2 Image Input / Logo Overlay smoke test passed.');

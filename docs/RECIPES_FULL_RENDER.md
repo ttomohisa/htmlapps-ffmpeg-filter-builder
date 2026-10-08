@@ -1,5 +1,7 @@
 # Recipes / Full Render — v0.8.0
 
+Current app v1.2.1 uses pinned Builder v1.10.2. Verify Full and bounded Preview output with positive terminal video-sample duration, exact frame coverage and correct nonzero-start alignment. Existing graph, audio, ST/MT, WORKERFS, and offline checks remain required. Earlier versioned sections retain their historical context.
+
 ## Goal
 
 Let users who do not know FFmpeg start from a task, while still exposing the resulting graph rather than hiding the operation behind an opaque preset.

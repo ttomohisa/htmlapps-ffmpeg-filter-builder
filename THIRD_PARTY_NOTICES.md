@@ -4,11 +4,11 @@ FFmpeg Filter Builder itself is licensed under the MIT License.
 
 ## FFmpeg WebAssembly runtime
 
-The generated standalone HTML embeds a purpose-built FFmpeg WebAssembly runtime obtained from **ttomohisa/htmlapps-ffmpeg-wasm-builder v1.9.9**, profile `ffmpeg-filter-builder`.
+The generated standalone HTML embeds a purpose-built FFmpeg WebAssembly runtime obtained from **ttomohisa/htmlapps-ffmpeg-wasm-builder v1.10.2**, profile `ffmpeg-filter-builder`.
 
 The runtime contains or links components including FFmpeg, x264, zlib, FreeType, HarfBuzz, and Emscripten runtime support. The exact runtime manifest and `BUILDINFO.txt` produced by FFmpeg WASM Builder are the authoritative records for the embedded runtime and its licenses.
 
-The Filter Builder profile includes libx264 and is therefore built under the binary license terms reported by the runtime manifest. Follow the license, corresponding-source, and relinking information supplied by the FFmpeg WASM Builder v1.9.9 release.
+The Filter Builder profile includes libx264 and is therefore built under the binary license terms reported by the runtime manifest. Follow the license, corresponding-source, and relinking information supplied by the FFmpeg WASM Builder v1.10.2 release.
 
 ## M PLUS 1p Regular
 

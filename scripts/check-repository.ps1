@@ -36,16 +36,16 @@ foreach ($relative in $forbidden) {
 }
 
 $app = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "app.config.json") | ConvertFrom-Json
-if ([string]$app.version -ne "1.2.0") { throw "app.config.json version must be 1.2.0 for this release." }
+if ([string]$app.version -ne "1.2.1") { throw "app.config.json version must be 1.2.1 for this release." }
 if ([string]$app.repository.owner -ne "ttomohisa" -or [string]$app.repository.name -ne "htmlapps-ffmpeg-filter-builder") { throw "Repository metadata is incorrect." }
 
 $lock = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "runtime.lock.json") | ConvertFrom-Json
-if ([string]$lock.builderVersion -ne "1.9.9") { throw "runtime.lock.json must pin FFmpeg WASM Builder v1.9.9." }
+if ([string]$lock.builderVersion -ne "1.10.2") { throw "runtime.lock.json must pin FFmpeg WASM Builder v1.10.2." }
 if ([string]$lock.profile -ne "ffmpeg-filter-builder") { throw "runtime.lock.json must use ffmpeg-filter-builder profile." }
 foreach ($variant in @("single-thread", "multi-thread")) {
   $entry = $lock.variants.PSObject.Properties[$variant].Value
   if ([string]$entry.sha256 -notmatch '^[a-f0-9]{64}$') { throw "runtime.lock.json has an invalid SHA-256 for $variant." }
-  if (-not ([string]$entry.url).Contains("/releases/download/v1.9.9/")) { throw "Runtime URL is not pinned to v1.9.9 for $variant." }
+  if (-not ([string]$entry.url).Contains("/releases/download/v1.10.2/")) { throw "Runtime URL is not pinned to v1.10.2 for $variant." }
 }
 
 $coiLock = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "coi-serviceworker.lock.json") | ConvertFrom-Json
@@ -78,9 +78,9 @@ if ($committedFonts.Count -gt 0) {
 }
 
 $buildStandaloneText = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "build-standalone.ps1")
-if (-not $buildStandaloneText.Contains('$SupportedLocalBuilderVersions = @("1.9.8", "1.9.9")')) { throw "Local Builder v1.9.9 integration allowlist is missing." }
-if (-not $buildStandaloneText.Contains('Builder v1.9.9 runtime must advertise multipleInputs')) { throw "Local Builder v1.9.9 multipleInputs guard is missing." }
-if (-not $buildStandaloneText.Contains('Builder v1.9.9 runtime must advertise complexGraph')) { throw "Local Builder v1.9.9 complexGraph guard is missing." }
+if (-not $buildStandaloneText.Contains('$SupportedLocalBuilderVersions = @("1.9.8", "1.9.9", "1.10.2")')) { throw "Local Builder v1.9.9+ integration allowlist is missing." }
+if (-not $buildStandaloneText.Contains('Builder v1.9.9+ runtime must advertise multipleInputs')) { throw "Local Builder v1.9.9+ multipleInputs guard is missing." }
+if (-not $buildStandaloneText.Contains('Builder v1.9.9+ runtime must advertise complexGraph')) { throw "Local Builder v1.9.9+ complexGraph guard is missing." }
 
 $source = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "src\index.template.html")
 $placeholderCounts = @{
@@ -113,23 +113,23 @@ if ($source -match '<script[^>]+src\s*=\s*["'']https?://') { throw "Runtime exte
 if ($source -match '<link[^>]+href\s*=\s*["'']https?://') { throw "Runtime external stylesheet URL must not be added to source HTML." }
 
 $buildVariant = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "scripts\build-variant.ps1")
-foreach ($token in @("ffmpeg.js.gz", "ffmpeg.wasm.gz", "__RUNTIME_VARIANT__", "runtime-manifest", "github-release", "htmlapps-ffmpeg-filter-builder/1.2.0", "text-font", "font/ttf", "text/plain; charset=utf-8", "FontPath", "FontLicensePath", "licenseFile", "font.lock.json")) {
+foreach ($token in @("ffmpeg.js.gz", "ffmpeg.wasm.gz", "__RUNTIME_VARIANT__", "runtime-manifest", "github-release", "htmlapps-ffmpeg-filter-builder/1.2.1", "text-font", "font/ttf", "text/plain; charset=utf-8", "FontPath", "FontLicensePath", "licenseFile", "font.lock.json")) {
   if (-not $buildVariant.Contains($token)) { throw "scripts\build-variant.ps1 is missing required runtime embedding marker: $token" }
 }
 $prepare = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "scripts\prepare-ffmpeg-runtime.ps1")
-foreach ($token in @("runtime.lock.json", "SHA-256 mismatch", "manifest.files.'ffmpeg.wasm'.sha256", "Expand-Archive", "GetTempPath", "runtime.zip", "CreateDirectory", "Get-MissingRuntimeFiles", "Cached extraction is incomplete", "Expand-VerifiedRuntimeArchive", "ffmpegFilterBuilderArgs", "startTimeSeconds", "durationSeconds", "timeRangeRender", "trim", "setpts", "split", "overlay", "atrim", "asetpts", "volume", "afade", "atempo", "highpass", "lowpass", "loudnorm", "amix", "asplit", "aresample", "drawtext", "drawText", "htmlapps-ffmpeg-filter-builder/1.2.0")) {
+foreach ($token in @("runtime.lock.json", "SHA-256 mismatch", "manifest.files.'ffmpeg.wasm'.sha256", "Expand-Archive", "GetTempPath", "runtime.zip", "CreateDirectory", "Get-MissingRuntimeFiles", "Cached extraction is incomplete", "Expand-VerifiedRuntimeArchive", "ffmpegFilterBuilderArgs", "startTimeSeconds", "durationSeconds", "timeRangeRender", "trim", "setpts", "split", "overlay", "atrim", "asetpts", "volume", "afade", "atempo", "highpass", "lowpass", "loudnorm", "amix", "asplit", "aresample", "drawtext", "drawText", "htmlapps-ffmpeg-filter-builder/1.2.1")) {
   if (-not $prepare.Contains($token)) { throw "scripts\prepare-ffmpeg-runtime.ps1 is missing required lock/verification marker: $token" }
 }
 $prepareFont = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "scripts\prepare-text-font.ps1")
-foreach ($token in @("font.lock.json", "Get-GitBlobSha1", "gitBlobSha1", "MPLUS1p-Regular.ttf", "htmlapps-ffmpeg-filter-builder/1.2.0", "GetTempPath")) {
+foreach ($token in @("font.lock.json", "Get-GitBlobSha1", "gitBlobSha1", "MPLUS1p-Regular.ttf", "htmlapps-ffmpeg-filter-builder/1.2.1", "GetTempPath")) {
   if (-not $prepareFont.Contains($token)) { throw "scripts\prepare-text-font.ps1 is missing required pinned-font marker: $token" }
 }
 $buildStandalone = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "build-standalone.ps1")
-foreach ($token in @("SingleThreadRuntimeRoot", "MultiThreadRuntimeRoot", "Assert-RuntimeRoot", "Local ffmpeg.wasm does not match", "Source: GitHub Release v1.9.9", "runtime\browser-ffmpeg.js", "ffb-local-runtime", "ffmpegFilterBuilderArgs", "startTimeSeconds", "durationSeconds", "timeRangeRender", "trim", "setpts", "split", "overlay", "atrim", "asetpts", "volume", "afade", "atempo", "highpass", "lowpass", "loudnorm", "amix", "asplit", "aresample", "drawtext", "drawText", "PrepareFontPath", "-FontPath", "v1.2.0")) {
+foreach ($token in @("SingleThreadRuntimeRoot", "MultiThreadRuntimeRoot", "Assert-RuntimeRoot", "Local ffmpeg.wasm does not match", "Source: GitHub Release v1.10.2", "runtime\browser-ffmpeg.js", "ffb-local-runtime", "ffmpegFilterBuilderArgs", "startTimeSeconds", "durationSeconds", "timeRangeRender", "trim", "setpts", "split", "overlay", "atrim", "asetpts", "volume", "afade", "atempo", "highpass", "lowpass", "loudnorm", "amix", "asplit", "aresample", "drawtext", "drawText", "PrepareFontPath", "-FontPath", "v1.2.1")) {
   if (-not $buildStandalone.Contains($token)) { throw "build-standalone.ps1 is missing required runtime resolution marker: $token" }
 }
 $defaultBuildBat = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "build-standalone.bat")
-if (-not $defaultBuildBat.Contains("Runtime source: GitHub Release v1.9.9")) { throw "build-standalone.bat must advertise GitHub Release v1.9.9 as the default runtime source." }
+if (-not $defaultBuildBat.Contains("Runtime source: GitHub Release v1.10.2")) { throw "build-standalone.bat must advertise GitHub Release v1.10.2 as the default runtime source." }
 $mtServer = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "scripts\serve-mt.ps1")
 foreach ($token in @("System.Net.Sockets.TcpListener", "Cross-Origin-Opener-Policy", "Cross-Origin-Embedder-Policy", "Cross-Origin-Resource-Policy")) {
   if (-not $mtServer.Contains($token)) { throw "scripts\serve-mt.ps1 is missing required cross-origin-isolation marker: $token" }
@@ -161,5 +161,6 @@ if (Test-Path $mtPath) {
   $rootMtPath = Join-Path $Root "ffmpeg-filter-builder.mt.html"
   if ((Get-Sha256FileHex $rootMtPath) -ne (Get-Sha256FileHex $mtPath)) { throw "ffmpeg-filter-builder.mt.html must match dist\index.mt.html after build." }
 }
+
 
 Write-Host "[OK] Repository check passed." -ForegroundColor Green

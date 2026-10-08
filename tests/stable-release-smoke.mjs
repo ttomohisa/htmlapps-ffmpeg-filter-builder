@@ -17,17 +17,17 @@ const workflows = [
   read('../.github/workflows/deploy-pages.yml')
 ];
 
-assert.equal(app.version, '1.2.0', 'Stable app version mismatch.');
+assert.equal(app.version, '1.2.1', 'Stable app version mismatch.');
 assert.equal(app.build.blockRuntimeNetwork, true, 'Stable must keep runtime network blocking enabled.');
-assert.equal(runtime.builderVersion, '1.9.9', 'Stable must keep Builder v1.9.9 pinned.');
+assert.equal(runtime.builderVersion, '1.10.2', 'Stable must keep Builder v1.10.2 pinned.');
 assert.equal(runtime.profile, 'ffmpeg-filter-builder', 'Stable runtime profile changed unexpectedly.');
 for (const variant of ['single-thread', 'multi-thread']) {
   assert.match(runtime.variants[variant].sha256, /^[a-f0-9]{64}$/, `${variant} runtime SHA-256 is invalid.`);
-  assert.ok(runtime.variants[variant].url.includes('/releases/download/v1.9.9/'), `${variant} runtime is not pinned to v1.9.9 release assets.`);
+  assert.ok(runtime.variants[variant].url.includes('/releases/download/v1.10.2/'), `${variant} runtime is not pinned to v1.10.2 release assets.`);
 }
 
 for (const marker of [
-  '<span class="version-badge" id="versionBadge">v1.2.0</span>',
+  '<span class="version-badge" id="versionBadge">v1.2.1</span>',
   "connect-src 'none'",
   'GRAPH_SCHEMA_VERSION=4',
   'function inspectMp4Tracks',
@@ -79,8 +79,8 @@ for (const workflow of workflows) {
 }
 
 assert.ok(repositoryCheck.includes('tests\\stable-release-smoke.mjs'), 'Repository check must require the Stable gate.');
-assert.ok(readme.includes('Current release: **v1.2.0**'), 'English README Stable status missing.');
-assert.ok(readmeJa.includes('現在の正式版: **v1.2.0**'), 'Japanese README Stable status missing.');
+assert.ok(readme.includes('Current release: **v1.2.1**'), 'English README Stable status missing.');
+assert.ok(readmeJa.includes('現在の正式版: **v1.2.1**'), 'Japanese README Stable status missing.');
 assert.ok(changelog.includes('## 1.2.0 - 2026-09-21'), 'Stable changelog entry missing.');
 assert.ok(changelog.includes('## 1.2.0-rc.1 - 2026-09-21'), 'RC changelog history must be preserved.');
 assert.ok(spec.includes('## v1.2.0 Stable（2026-09-21）'), 'Stable spec gate missing.');
