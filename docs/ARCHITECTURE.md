@@ -1,5 +1,9 @@
 # Architecture
 
+## Current runtime contract (app v1.2.1)
+
+The default ST/MT build uses the reviewed Builder v1.10.2 release. Runtime schema 8, runner API 1, catalogs/capabilities, WORKERFS and threading requirements are unchanged. It repairs final video-frame duration and bounded preview timing; graph/compiler semantics and media privacy remain unchanged. Earlier milestone sections below are historical.
+
 ## v1.2.0-alpha.5 Multiple Input compiler foundation
 
 Graph schema v4 separates serializable project structure from browser runtime file bindings. A Graph may contain several typed Input nodes, an explicit `mainInputId`, and safe source metadata while browser `File` objects remain in the runtime-only `inputBindings` map. Local paths and media bytes are never serialized.
@@ -88,7 +92,7 @@ For Speed nodes whose `syncAudio` setting is enabled, the compiler infers the cu
 
 ## Runtime source of truth
 
-`runtime.lock.json` pins Builder v1.9.9 ST and MT assets. Build-time checks require the Video / Audio filter catalog used by the app, including `drawtext`, `amix`, `aresample`, and `asetpts`, and require the advertised runtime capabilities used by Preview / Full Render.
+`runtime.lock.json` pins Builder v1.10.2 ST and MT assets. Build-time checks require the Video / Audio filter catalog used by the app, including `drawtext`, `amix`, `aresample`, and `asetpts`, and require the advertised runtime capabilities used by Preview / Full Render.
 
 ## Boundary
 

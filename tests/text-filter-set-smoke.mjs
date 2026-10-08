@@ -92,7 +92,7 @@ core.state.graph.nodes[1] = invalid;
 assert.equal(core.validateGraph().valid, false, 'v0.7.0 Draw Text must reject line breaks/control characters.');
 
 assert.match(source, /manifest\.capabilities\?\.drawText!==true/);
-assert.match(source, /\['1\.9\.8','1\.9\.9'\]\.includes\(manifest\.builderVersion\)/);
+assert.match(source, /\['1\.9\.8','1\.9\.9','1\.10\.2'\]\.includes\(manifest\.builderVersion\)/);
 assert.match(source, /StandaloneAssets\.bytesAsync\(TEXT_FONT_ASSET_ID,'regular'\)/);
 assert.match(source, /font\/ttf/);
 assert.match(source, /TEXT_FONT_LICENSE_ASSET_KEY = 'license'/);

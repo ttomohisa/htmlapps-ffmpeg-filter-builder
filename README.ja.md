@@ -10,7 +10,7 @@ MP4動画のFFmpeg Filter Graphをブラウザー上で組み立てるツール�
 
 ![FFmpeg Filter Builder スクリーンショット](assets/screenshot.png)
 
-> 現在の正式版: **v1.2.0**。Multiple Input、PiP、Logo Overlay、BGM / Audio Mix、Graph Restore / Auto Relink、PC / スマートフォン向けGraph Workspace、ST / MT単一HTMLを含むStable版です。
+> 現在の正式版: **v1.2.1**。Multiple Input、PiP、Logo Overlay、BGM / Audio Mix、Graph Restore / Auto Relink、PC / スマートフォン向けGraph Workspace、ST / MT単一HTMLを含むStable版です。
 
 ## 🚀 Live demo
 
@@ -31,7 +31,7 @@ GitHub Pagesから最初のHTMLを読み込んだ後、選択したMP4、Graph�
 - **日本語・英語の文字を重ねる** — Draw Textは内蔵M PLUS 1p Regularを使い、位置、色、背景、余白、表示時間を設定できます。
 - **PreviewとFull Renderで同じGraphを使用** — Previewだけ処理範囲を限定し、Full Renderでは同じGraphを入力動画全体へ適用します。
 - **Graphプロジェクトを保存・復元** — Graph JSONの保存 / 読み込みと端末内Autosaveに対応します。素材本体や絶対パスは保存せず、復元後は元ファイルをまとめて選ぶと一致するInputへ自動再関連付けします。
-- **複数素材Inputを編集** — MP4動画・音声・PNG / JPEG画像を個別のInput Nodeとして追加し、ファイル変更・解除やCanvasへのDropができます。複数InputのPreview / Full RenderはBuilder v1.9.9で実行します。
+- **複数素材Inputを編集** — MP4動画・音声・PNG / JPEG画像を個別のInput Nodeとして追加し、ファイル変更・解除やCanvasへのDropができます。複数InputのPreview / Full RenderはBuilder v1.10.2で実行します。
 - **Desktop FFmpeg commandを生成** — 現在のGraphをコピー可能なFFmpegコマンドへコンパイルできます。
 - **Single-thread / Multi-thread版** — 標準版は`file://`から直接利用でき、高速版はHTTP(S) + cross-origin isolationを前提とします。
 - **完全ローカル処理** — 生成HTMLにはFFmpeg WASMと標準フォントを埋め込み、runtime CSPは`connect-src 'none'`です。
@@ -95,6 +95,10 @@ Undo / RedoはGraph Toolbarから直接操作できます。旧バージョン�
 **Graph JSONを保存**で編集可能なGraphプロジェクトを書き出し、**Graph JSONを読み込む**で復元できます。
 
 Autosaveが保存するのはGraph、Inputの素材メタデータ、出力ファイル名だけです。素材ファイル本体や絶対パス、生成動画は保存しません。復元後に**素材をまとめて再選択**すると、ファイル名とサイズが一致するMissing Inputへ自動で再関連付けします。Canvasへ複数ファイルをドロップした場合も、まず一致するMissing Inputへ再関連付けし、残りだけを新しいInputとして追加します。
+
+## 現在のruntime（v1.2.1）
+
+標準ビルドは公開済みBuilder v1.10.2のST/MT資産へ固定し、動画の最終フレームの長さと範囲指定Previewのタイミングを修正します。対応codec・Graph schema・GPL runtimeライセンス・ローカル処理の境界は変更しません。以下のバージョン別セクションは過去のリリース記録です。[runtime検証記録](docs/BUILDER_V1_10_2_RELEASE.md)を参照してください。
 
 ## v1.2.0 Stable
 
@@ -190,7 +194,7 @@ build-standalone.bat
 .\build-standalone.ps1 -ForceDownload
 ```
 
-FFmpeg WASM Builder開発時だけ、ローカルruntimeを指定できます。ローカル統合はBuilder v1.9.8 / v1.9.9を受け付け、v1.9.9では`multipleInputs` + `complexGraph`と`null` / `anull`を確認してから埋め込みます。
+FFmpeg WASM Builder開発時だけ、ローカルruntimeを指定できます。ローカル統合はBuilder v1.9.8 / v1.9.9 / v1.10.2を受け付け、v1.9.9 / v1.10.2では`multipleInputs` + `complexGraph`と`null` / `anull`を確認してから埋め込みます。
 
 ```bat
 build-with-local-ffmpeg.bat C:\path\to\htmlapps-ffmpeg-wasm-builder
@@ -213,7 +217,7 @@ GitHub Pages版そのものを最初に開く通信と、ソースから初回bu
 
 ## Limitations
 
-- デフォルトruntimeはBuilder v1.9.9 GitHub Releaseへ固定済みです。複数のVideo / Audio / Image InputをPreview / Full Renderで実行できます。
+- デフォルトruntimeはBuilder v1.10.2 GitHub Releaseへ固定済みです。複数のVideo / Audio / Image InputをPreview / Full Renderで実行できます。
 - 出力形式はH.264 video + AAC audioのMP4です。
 - Multiple Input実行には`multipleInputs`と`complexGraph`を広告するruntimeが必要です。復元したprojectではローカル素材の再選択も必要です。
 - ブラウザー内で動画全体を再エンコードするため、長時間・高解像度動画ではCPU負荷とメモリ使用量が大きくなります。
@@ -224,7 +228,7 @@ GitHub Pages版そのものを最初に開く通信と、ソースから初回bu
 
 | Component | Version / snapshot | License | 用途 |
 | --- | --- | --- | --- |
-| FFmpeg WASM Builder | v1.9.9 / `ffmpeg-filter-builder` profile | 生成runtime manifest / Third-party notices参照 | FFmpeg WebAssembly runtime、H.264/AAC処理、Filter |
+| FFmpeg WASM Builder | v1.10.2 / `ffmpeg-filter-builder` profile | 生成runtime manifest / Third-party notices参照 | FFmpeg WebAssembly runtime、H.264/AAC処理、Filter |
 | M PLUS 1p Regular | 固定Google Fonts snapshot | OFL-1.1 | Draw Text用の日本語 / 英語font |
 
 ソースパッケージにはfont binaryをcommitしません。build時だけ`font.lock.json`に固定したsnapshotを取得・検証し、生成standalone HTMLへ埋め込みます。詳細は[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)を参照してください。

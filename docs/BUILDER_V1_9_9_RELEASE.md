@@ -1,5 +1,7 @@
 # FFmpeg WASM Builder v1.9.9 release handoff
 
+Historical release record. Do not run the one-way v1.9.9 promotion script for the current v1.10.2 runtime; it would overwrite the current lock. See BUILDER_V1_10_2_RELEASE.md for the active pin.
+
 FFmpeg Filter Builder v1.2 beta requires the published Builder v1.9.9 release before the normal standalone build can stop depending on a local Builder checkout.
 
 ## 1. Final Builder verification

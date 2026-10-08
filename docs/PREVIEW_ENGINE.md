@@ -1,5 +1,7 @@
 # Preview Engine — v0.7.0
 
+Current app v1.2.1 uses pinned Builder v1.10.2. Verify Full and bounded Preview output with positive terminal video-sample duration, exact frame coverage and correct nonzero-start alignment. Existing graph, audio, ST/MT, WORKERFS, and offline checks remain required. Earlier versioned sections retain their historical context.
+
 The Preview Engine keeps the cache / stale / cancel model and now treats Draw Text as a timeline-sensitive Video filter.
 
 ## Range

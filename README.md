@@ -10,7 +10,7 @@ A browser-based FFmpeg filter graph editor for MP4 video. Build Video / Audio / 
 
 ![FFmpeg Filter Builder screenshot](assets/screenshot-en.png)
 
-> Current release: **v1.2.0**. This stable release includes Multiple Input, PiP, Logo Overlay, BGM / Audio Mix, Graph Restore / Auto Relink, the desktop/mobile Graph Workspace, and ST / MT standalone builds.
+> Current release: **v1.2.1**. This stable release includes Multiple Input, PiP, Logo Overlay, BGM / Audio Mix, Graph Restore / Auto Relink, the desktop/mobile Graph Workspace, and ST / MT standalone builds.
 
 ## 🚀 Live demo
 
@@ -28,7 +28,7 @@ GitHub Pages delivers the initial HTML. After the page loads, the selected MP4, 
 - **Add Japanese or English text** — Draw Text uses the embedded M PLUS 1p Regular font and supports position, color, background, padding, and display timing.
 - **Preview and render with the same Graph** — Preview uses a bounded range; Full Render removes the preview range and processes the complete input.
 - **Save and restore Graph projects** — Export/import Graph JSON and optionally restore the last Graph from browser-local autosave. Media bytes and absolute paths are not stored; after restore, bulk-select the original files and matching Missing Inputs are re-linked automatically.
-- **Manage multiple media Inputs** — Add MP4 video, audio, and PNG / JPEG image files as separate Input nodes, replace or detach their files, and drop media directly onto the Canvas. Multiple Input Preview / Full Render runs with Builder v1.9.9.
+- **Manage multiple media Inputs** — Add MP4 video, audio, and PNG / JPEG image files as separate Input nodes, replace or detach their files, and drop media directly onto the Canvas. Multiple Input Preview / Full Render runs with Builder v1.10.2.
 - **Generate a desktop FFmpeg command** — The current Graph can also be compiled into a copyable desktop command.
 - **Single-thread and multi-thread builds** — The standard build supports direct `file://` use. The multi-thread build requires cross-origin isolation over HTTP(S).
 - **Fully local runtime processing** — FFmpeg WASM and the standard font are embedded into the generated HTML. Runtime CSP uses `connect-src 'none'`.
@@ -92,6 +92,10 @@ On smartphones, the Graph Canvas uses the available width and the main controls 
 **Save Graph JSON** exports the editable Graph project. **Load Graph JSON** restores it later.
 
 Autosave stores the Graph, Input media metadata, and output filename in this browser's local storage. It does not store media bytes, absolute local paths, or rendered output. After restore, use **Re-select media in bulk** to choose the original files; matching filename and size are used to re-link Missing Inputs automatically. Dropping several files on the Canvas performs the same matching first, then adds only unmatched supported files as new Inputs.
+
+## Current runtime (v1.2.1)
+
+The default build pins the published Builder v1.10.2 ST/MT assets, correcting terminal video-frame duration and bounded-preview timing. Codec/catalog, graph schema, GPL runtime licensing, and offline boundaries are unchanged. The versioned sections below preserve earlier release history. See [runtime release verification](docs/BUILDER_V1_10_2_RELEASE.md).
 
 ## v1.2.0 Stable
 
@@ -187,20 +191,13 @@ Force the pinned build inputs to be downloaded again:
 .\build-standalone.ps1 -ForceDownload
 ```
 
-For FFmpeg WASM Builder development only, the local integration accepts Builder v1.9.8 and v1.9.9. v1.9.9 is additionally required to advertise `multipleInputs` + `complexGraph` and include `null` / `anull` before it is embedded:
+For FFmpeg WASM Builder development only, the local integration accepts Builder v1.9.8, v1.9.9 and v1.10.2. The v1.9.9 and v1.10.2 runtimes are additionally required to advertise `multipleInputs` + `complexGraph` and include `null` / `anull` before it is embedded:
 
 ```bat
 build-with-local-ffmpeg.bat C:\path\to\htmlapps-ffmpeg-wasm-builder
 ```
 
-After Builder v1.9.9 is tagged and its GitHub Release workflow publishes the ST/MT assets, promote this app to the published runtime:
-
-```powershell
-.\scripts\promote-builder-v1.9.9.ps1
-.\build-standalone.bat
-```
-
-See `docs/BUILDER_V1_9_9_RELEASE.md` for the release/tag checklist. The build produces both readable and self-extracting ST / MT standalone HTML variants together with runtime and size manifests, then refreshes the root-level ST / MT standalone copies and verifies them by SHA-256.
+The normal build consumes the reviewed v1.10.2 lock directly. See `docs/BUILDER_V1_10_2_RELEASE.md` for exact release provenance and hashes. The older v1.9.9 promotion script is historical and must not be run for this release. The build produces both readable and self-extracting ST / MT standalone HTML variants together with runtime and size manifests, then refreshes the root-level ST / MT standalone copies and verifies them by SHA-256.
 
 ## Privacy and runtime network protection
 
@@ -217,7 +214,7 @@ Network access is required when using the hosted GitHub Pages page itself and wh
 
 ## Limitations
 
-- The checked-in runtime lock pins Builder v1.9.9 from GitHub Release. Local Builder integration remains available only for runtime development and verification.
+- The checked-in runtime lock pins Builder v1.10.2 from GitHub Release. Local Builder integration remains available only for runtime development and verification.
 - Output is H.264 video + AAC audio in MP4.
 - Multi-input execution requires a runtime that advertises `multipleInputs` and `complexGraph`; restored projects still require local source files to be re-selected.
 - Full browser-side transcoding can use substantial CPU time and memory, especially for long or high-resolution videos.
@@ -228,7 +225,7 @@ Network access is required when using the hosted GitHub Pages page itself and wh
 
 | Component | Version / snapshot | License | Purpose |
 | --- | --- | --- | --- |
-| FFmpeg WASM Builder | v1.9.9 / `ffmpeg-filter-builder` profile | See generated runtime manifest and third-party notices | FFmpeg WebAssembly runtime, H.264/AAC processing, filters |
+| FFmpeg WASM Builder | v1.10.2 / `ffmpeg-filter-builder` profile | See generated runtime manifest and third-party notices | FFmpeg WebAssembly runtime, H.264/AAC processing, filters |
 | M PLUS 1p Regular | pinned Google Fonts snapshot | OFL-1.1 | Draw Text font for Japanese / English text |
 
 The source package does not commit the font binary. It is fetched only during the build, verified against `font.lock.json`, and embedded into generated standalone HTML. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for details.

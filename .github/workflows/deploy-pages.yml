@@ -134,6 +134,14 @@ jobs:
         shell: pwsh
         run: ./build-standalone.ps1
 
+      - name: Test generated header localization
+        shell: pwsh
+        run: node ./tests/header-normalization.test.mjs src/index.template.html dist/index.html dist/index.mt.html
+
+      - name: Test reviewed runtime pins and loader guards
+        shell: pwsh
+        run: node ./tests/runtime-1.10.2.test.mjs
+
       - name: Prepare GitHub Pages site
         shell: pwsh
         run: ./scripts/prepare-pages.ps1

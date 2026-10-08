@@ -103,7 +103,7 @@ $assetBundle = [ordered]@{
 }
 $manifest = [ordered]@{
   schemaVersion = 2
-  builder = "htmlapps-ffmpeg-filter-builder/1.2.0"
+  builder = "htmlapps-ffmpeg-filter-builder/1.2.1"
   generatedAtUtc = [DateTime]::UtcNow.ToString("o")
   app = [ordered]@{ name = [string]$appConfig.name; slug = [string]$appConfig.slug; version = [string]$appConfig.version }
   runtime = [ordered]@{

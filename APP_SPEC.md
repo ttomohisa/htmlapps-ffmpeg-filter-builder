@@ -3163,3 +3163,13 @@ v1.2.0 Stableはv1.2.0-rc.1の機能・runtime contract・privacy境界を変更
 7. PC / Mobile、JA / EN、README、favicon、release screenshotをStable状態へ同期する。
 8. rc.1からStableへの変更はrelease metadata / docs / gate更新に限定し、ユーザー向け機能挙動を変更しない。
 
+## Header normalization (1.2.1)
+
+- The language button shows EN in Japanese and JA in English. Its title and accessible name describe the destination in the current UI language.
+- Help retains its localized title and accessible name; the header version is v1.2.1.
+
+## Runtime repair in app v1.2.1
+
+- The normal build pins published Builder v1.10.2 ST/MT archives and exact SHA-256 values. It repairs terminal video-frame duration and bounded-preview timing without altering the graph schema or compiler requests.
+- Manifest schema 8, runner API 1, capabilities/catalog, GPL runtime licensing, WORKERFS, ST file support, MT isolation/thread budgets, font and COI-worker pins remain unchanged.
+- Legacy local Builder v1.9.8/v1.9.9 support is retained for development; only the pinned v1.10.2 release provides this timing repair. No encoded-container postprocessing or weakened output oracle is used.

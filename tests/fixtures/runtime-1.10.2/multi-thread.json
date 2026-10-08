@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 8,
+  "builderVersion": "1.10.2",
+  "profile": "ffmpeg-filter-builder",
+  "displayName": "FFmpeg Filter Builder",
+  "binaryLicense": "GPL-2.0-or-later",
+  "versions": {
+    "emscripten": "6.0.6",
+    "emscriptenCommit": "ce75e06884093bcefb86a6b8fd56a5d62a4cc245",
+    "ffmpegRef": "n9.0.1",
+    "ffmpegCommit": "bf1b838f2ab88b4f8fd83443325c782ea0e0f7fa",
+    "x264Ref": "stable",
+    "x264Commit": "31e19f92f00c7003fa115047ce50978bc98c3a0d",
+    "x264Linked": true,
+    "zlibLinked": true,
+    "freetypePortLinked": true,
+    "harfbuzzPortLinked": true,
+    "libwebpRef": "v1.6.0",
+    "libwebpCommit": "4fa21912338357f89e4fd51cf2368325b59e9bd9",
+    "libwebpLinked": false,
+    "libvpxRef": "v1.16.0",
+    "libvpxCommit": "1024874c5919305883187e2953de8fcb4c3d7fa6",
+    "libvpxLinked": false,
+    "libopusRef": "v1.5.2",
+    "libopusCommit": "ddbe48383984d56acd9e1ab6a090c54ca6b735a6",
+    "libopusLinked": false,
+    "lameVersion": "4.0",
+    "lameSourceSha256": "3df5124d5ad3a98312ffd7ba6a9b36230e4f8a3e66d3ce0f425e336c32d216eb",
+    "libmp3lameLinked": false
+  },
+  "runtime": {
+    "frontend": "public-libav-runner",
+    "runnerApiVersion": 1,
+    "threading": "multi-thread",
+    "factory": "createFFmpegCore",
+    "pthreadPoolSize": 8,
+    "decoderThreadCount": 2,
+    "encoderThreadCount": 4,
+    "x264LookaheadThreadCount": 1,
+    "requiresSharedArrayBuffer": true,
+    "requiresCrossOriginIsolation": true,
+    "fileProtocolSingleHtml": false,
+    "workerFsInput": true,
+    "pthreadWorkerStrategy": "main-script-url-or-blob"
+  },
+  "capabilities": {"operation":"filter-builder","graphCompiler":true,"customVideoFilter":true,"customAudioFilter":true,"complexGraph":true,"multipleInputs":true,"outputs":["H.264 + AAC MP4"],"workerFsInput":true,"threadingVariants":["single-thread","multi-thread"],"arbitraryFfmpegArgs":false,"drawText":true,"timeRangeRender":true},
+  "catalog": {
+    "filters": ["scale","crop","pad","fps","transpose","hflip","vflip","setdar","setsar","trim","setpts","eq","hue","boxblur","gblur","unsharp","fade","drawtext","split","overlay","format","colorchannelmixer","atrim","asetpts","volume","afade","atempo","highpass","lowpass","loudnorm","amix","asplit","aresample","null","anull"],
+    "encoders": ["libx264","aac"],
+    "decoders": ["h264","hevc","vp8","vp9","av1","mpeg4","mjpeg","png","aac","mp3","opus","flac"],
+    "muxers": ["mp4"],
+    "demuxers": ["mov","matroska","image2","ogg","mp3","wav","flac"]
+  },
+  "files": {
+    "ffmpeg.js": { "bytes": 87211, "sha256": "6d17a10bc9151bd7fb9c20d75838d93fd8ef7d9ba81dea1947887d1fc9c5bfbe" },
+    "ffmpeg.wasm": { "bytes": 7037059, "sha256": "454806c39e072c5eeea1a04e0d1927346a7e6834322199eac4e12f736bd03003" },
+    "ffmpeg.js.gz": { "bytes": 23141 },
+    "ffmpeg.wasm.gz": { "bytes": 2426615 }
+  }
+}
