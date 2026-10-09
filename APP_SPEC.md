@@ -1,5 +1,10 @@
 # FFmpeg Filter Builder
 
+## v1.2.2 — Icon normalization
+
+- Use #16624f with exact quarter-width/quarter-height background corner arcs; retain all compound-path cutouts and supplied artwork.
+- Keep header, favicon, and generated variants consistent; runtime dependencies and behavior stay unchanged.
+
 ## ノードをつないでFFmpegフィルターを組み立てる
 
 ### 正式仕様書 / v1.0.0

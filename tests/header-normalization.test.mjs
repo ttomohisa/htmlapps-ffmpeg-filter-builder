@@ -87,3 +87,9 @@ for (const file of files) {
     }
   });
 }
+
+// Run generated icon/loader parity in CI's post-build header check.
+// Source-only checks need no artifacts; the ordinary PowerShell build stays Node-free.
+if (files.includes('dist/index.html') && files.includes('dist/index.mt.html')) {
+  await import('../scripts/test-icon-normalization.cjs');
+}

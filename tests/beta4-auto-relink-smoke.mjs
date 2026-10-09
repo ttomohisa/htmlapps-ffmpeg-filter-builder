@@ -3,7 +3,7 @@ import fs from 'node:fs';
 
 const source = fs.readFileSync(new URL('../src/index.template.html', import.meta.url), 'utf8');
 const app = JSON.parse(fs.readFileSync(new URL('../app.config.json', import.meta.url), 'utf8'));
-assert.equal(app.version, '1.2.1', 'Auto Relink milestone version mismatch.');
+assert.equal(app.version, '1.2.2', 'Auto Relink milestone version mismatch.');
 
 const start = source.indexOf('      function sanitizeInputSourceMetadata(source)');
 const end = source.indexOf('      function migrateGraphToV4(graph)', start);

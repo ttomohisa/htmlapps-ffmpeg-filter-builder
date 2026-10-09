@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 
 const source = fs.readFileSync(new URL('../src/index.template.html', import.meta.url), 'utf8');
 const app = JSON.parse(fs.readFileSync(new URL('../app.config.json', import.meta.url), 'utf8'));
-assert.equal(app.version, '1.2.1', 'Multi-input compiler milestone version mismatch.');
+assert.equal(app.version, '1.2.2', 'Multi-input compiler milestone version mismatch.');
 
 const start = source.indexOf('      const GRAPH_SCHEMA_VERSION=4;');
 const end = source.indexOf('      function nodeSummary', start);

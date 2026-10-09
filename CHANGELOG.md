@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.2 - 2026-10-09
+
+- Normalize icon background green and exact 25% corner geometry, retaining all foreground and cutout paths.
+- Rebuild matching header/favicon and standalone aliases without changing runtime assets.
+
 All notable changes to FFmpeg Filter Builder are documented here.
 
 ## 1.2.1 - 2026-10-08

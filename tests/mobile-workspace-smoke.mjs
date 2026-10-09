@@ -5,7 +5,7 @@ import fs from 'node:fs';
 const source = fs.readFileSync(new URL('../src/index.template.html', import.meta.url), 'utf8');
 const app = JSON.parse(fs.readFileSync(new URL('../app.config.json', import.meta.url), 'utf8'));
 
-assert.equal(app.version, '1.2.1', 'Mobile build must report v1.2.1.');
+assert.equal(app.version, '1.2.2', 'Mobile build must report v1.2.2.');
 assert.ok(source.includes('id="mobileSheetBackdrop"'), 'Mobile sheet backdrop is missing.');
 assert.ok(source.includes("const MOBILE_GRAPH_MEDIA='(max-width:700px)'"), 'Mobile Graph breakpoint contract is missing.');
 assert.ok(source.includes("position:fixed;\n        z-index:135"), 'Palette / Inspector are not mobile fixed bottom sheets.');
