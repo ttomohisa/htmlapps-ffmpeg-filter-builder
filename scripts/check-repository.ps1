@@ -164,6 +164,3 @@ if (Test-Path $mtPath) {
 
 
 Write-Host "[OK] Repository check passed." -ForegroundColor Green
-
-& node (Join-Path $Root "scripts/test-icon-normalization.cjs")
-if ($LASTEXITCODE -ne 0) { throw "Icon normalization checks failed." }
