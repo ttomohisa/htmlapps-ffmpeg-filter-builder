@@ -5,7 +5,7 @@ const source = fs.readFileSync(new URL('../src/index.template.html', import.meta
 const app = JSON.parse(fs.readFileSync(new URL('../app.config.json', import.meta.url), 'utf8'));
 const repositoryCheck = fs.readFileSync(new URL('../scripts/check-repository.ps1', import.meta.url), 'utf8');
 
-assert.equal(app.version, '1.2.1', 'Palette / Inspector build must report v1.2.1.');
+assert.equal(app.version, '1.2.2', 'Palette / Inspector build must report v1.2.2.');
 assert.ok(source.includes('id="recipeToolbarButton"'), 'Recipe toolbar button missing.');
 assert.ok(source.includes('id="recipePopover"'), 'Recipe toolbar popover missing.');
 assert.ok(!source.includes('<section class="recipe-panel"'), 'Standalone Recipe page panel must be removed.');

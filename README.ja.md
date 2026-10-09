@@ -10,7 +10,7 @@ MP4動画のFFmpeg Filter Graphをブラウザー上で組み立てるツール�
 
 ![FFmpeg Filter Builder スクリーンショット](assets/screenshot.png)
 
-> 現在の正式版: **v1.2.1**。Multiple Input、PiP、Logo Overlay、BGM / Audio Mix、Graph Restore / Auto Relink、PC / スマートフォン向けGraph Workspace、ST / MT単一HTMLを含むStable版です。
+> 現在の正式版: **v1.2.2**。Multiple Input、PiP、Logo Overlay、BGM / Audio Mix、Graph Restore / Auto Relink、PC / スマートフォン向けGraph Workspace、ST / MT単一HTMLを含むStable版です。
 
 ## 🚀 Live demo
 
@@ -96,7 +96,7 @@ Undo / RedoはGraph Toolbarから直接操作できます。旧バージョン�
 
 Autosaveが保存するのはGraph、Inputの素材メタデータ、出力ファイル名だけです。素材ファイル本体や絶対パス、生成動画は保存しません。復元後に**素材をまとめて再選択**すると、ファイル名とサイズが一致するMissing Inputへ自動で再関連付けします。Canvasへ複数ファイルをドロップした場合も、まず一致するMissing Inputへ再関連付けし、残りだけを新しいInputとして追加します。
 
-## 現在のruntime（v1.2.1）
+## 現在のruntime（v1.2.2）
 
 標準ビルドは公開済みBuilder v1.10.2のST/MT資産へ固定し、動画の最終フレームの長さと範囲指定Previewのタイミングを修正します。対応codec・Graph schema・GPL runtimeライセンス・ローカル処理の境界は変更しません。以下のバージョン別セクションは過去のリリース記録です。[runtime検証記録](docs/BUILDER_V1_10_2_RELEASE.md)を参照してください。
 

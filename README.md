@@ -10,7 +10,7 @@ A browser-based FFmpeg filter graph editor for MP4 video. Build Video / Audio / 
 
 ![FFmpeg Filter Builder screenshot](assets/screenshot-en.png)
 
-> Current release: **v1.2.1**. This stable release includes Multiple Input, PiP, Logo Overlay, BGM / Audio Mix, Graph Restore / Auto Relink, the desktop/mobile Graph Workspace, and ST / MT standalone builds.
+> Current release: **v1.2.2**. This stable release includes Multiple Input, PiP, Logo Overlay, BGM / Audio Mix, Graph Restore / Auto Relink, the desktop/mobile Graph Workspace, and ST / MT standalone builds.
 
 ## 🚀 Live demo
 
@@ -93,7 +93,7 @@ On smartphones, the Graph Canvas uses the available width and the main controls 
 
 Autosave stores the Graph, Input media metadata, and output filename in this browser's local storage. It does not store media bytes, absolute local paths, or rendered output. After restore, use **Re-select media in bulk** to choose the original files; matching filename and size are used to re-link Missing Inputs automatically. Dropping several files on the Canvas performs the same matching first, then adds only unmatched supported files as new Inputs.
 
-## Current runtime (v1.2.1)
+## Current runtime (v1.2.2)
 
 The default build pins the published Builder v1.10.2 ST/MT assets, correcting terminal video-frame duration and bounded-preview timing. Codec/catalog, graph schema, GPL runtime licensing, and offline boundaries are unchanged. The versioned sections below preserve earlier release history. See [runtime release verification](docs/BUILDER_V1_10_2_RELEASE.md).
 
