@@ -4,7 +4,7 @@ import fs from 'node:fs';
 const source = fs.readFileSync(new URL('../src/index.template.html', import.meta.url), 'utf8');
 const app = JSON.parse(fs.readFileSync(new URL('../app.config.json', import.meta.url), 'utf8'));
 const repositoryCheck = fs.readFileSync(new URL('../scripts/check-repository.ps1', import.meta.url), 'utf8');
-assert.equal(app.version, '1.2.2', 'Multiple Input UI milestone version mismatch.');
+assert.equal(app.version, '1.2.3', 'Multiple Input UI milestone version mismatch.');
 assert.ok(repositoryCheck.includes("'function addInputWithFile(kind,file,'"), 'Repository preflight must track the current addInputWithFile signature prefix.');
 assert.ok(!repositoryCheck.includes("'function addInputWithFile(kind,file)'"), 'Repository preflight must not require the obsolete addInputWithFile signature.');
 

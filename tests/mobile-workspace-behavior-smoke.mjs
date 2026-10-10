@@ -66,7 +66,7 @@ function harness({mobile = true} = {}) {
   let historyPushes = 0;
   const context = vm.createContext({
     state, $: selector => elements.get(selector), performance:{now:()=>100},
-    document:{body:new Element(), querySelectorAll:()=>[card], createElement:()=>new Element()},
+    document:{body:new Element(), querySelector:()=>null, querySelectorAll:()=>[card], createElement:()=>new Element()},
     matchMedia:()=>({matches:mobile}), requestAnimationFrame:callback=>callback(),
     applyGraphViewport() {}, ensureSelectedNodeVisible() {}, renderMiniMap() {},
     renderInspector() {}, redrawGraphEdges() {}, refreshGraph() {}, renderGraph() {},

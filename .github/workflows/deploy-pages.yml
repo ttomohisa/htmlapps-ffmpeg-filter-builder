@@ -130,6 +130,10 @@ jobs:
       - name: Runtime cache repair smoke test
         run: node ./tests/runtime-cache-repair-smoke.mjs
 
+      - name: Test dialog layout, dismissal focus, and app metadata
+        shell: pwsh
+        run: node --test ./tests/dialog-layout-focus.test.mjs ./tests/release-metadata.test.mjs
+
       - name: Build ST and MT standalone HTML
         shell: pwsh
         run: ./build-standalone.ps1
