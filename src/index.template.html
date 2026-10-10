@@ -109,7 +109,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .header-actions { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+    .header-actions { margin-left: auto; flex-shrink: 0; display: flex; align-items: center; gap: 12px; }
     .button {
       border: 1px solid var(--line);
       background: var(--surface);
@@ -271,6 +271,7 @@
     .app-toast-action { flex: 0 0 auto; min-height: 34px; padding: 5px 8px; border: 0; border-radius: 8px; background: transparent; color: var(--accent); font: inherit; font-size: 12px; font-weight: 800; cursor: pointer; }
     .app-toast-action:hover { background: var(--surface-hover); }
     .app-toast-action[hidden] { display: none; }
+    html:has(dialog:modal), body:has(dialog:modal) { overflow: hidden; }
     dialog {
       width: min(640px, calc(100% - 28px));
       max-height: min(760px, calc(100dvh - 28px));
@@ -328,9 +329,11 @@
 
     /* Reusable confirmation component. Canonical source: components/confirm-dialog.html */
     .app-confirm-dialog { width: min(420px, calc(100% - 24px)); max-width: 100%; }
+    .app-confirm-dialog[open] { display: flex; flex-direction: column; max-height: calc(100dvh - 28px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); }
     .app-confirm-dialog::backdrop { background: rgba(15, 17, 14, .48); backdrop-filter: blur(3px); }
     .app-confirm-header {
       display: flex;
+      flex: 0 0 auto;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
@@ -352,7 +355,7 @@
     }
     .app-confirm-close:hover { background: var(--surface-hover); }
     .app-confirm-close svg { width: 19px; height: 19px; }
-    .app-confirm-body { padding: 18px; }
+    .app-confirm-body { min-height: 0; flex: 1 1 auto; overflow: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 18px; }
     .app-confirm-message {
       margin: 0;
       color: var(--muted);
@@ -400,6 +403,8 @@
       .build-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 520px) {
+      .brand-name { display: flex; flex-wrap: wrap; gap: 4px 7px; white-space: normal; overflow: visible; }
+      .version-badge { flex: 0 0 auto; margin-left: 0; white-space: nowrap; }
       :root { --header-height: 58px; }
       .header-inner { padding-block: 8px; }
       .brand-mark { width: 34px; height: 34px; border-radius: 10px; }
@@ -455,7 +460,7 @@
     .panel-body { padding:14px; }
     .editor-grid { display:grid; grid-template-columns:230px minmax(0,1fr) 300px; gap:0; align-items:stretch; height:640px; min-height:0; overflow:hidden; border:1px solid var(--line); border-radius:16px; background:var(--surface); box-shadow:var(--shadow-sm); }
     .editor-grid > .panel { min-height:0; height:100%; margin:0; border:0; border-radius:0; background:var(--surface); box-shadow:none; }
-    .graph-panel { grid-column:2; grid-row:1; min-width:0; height:100%; position:relative; border-left:1px solid var(--line) !important; border-right:1px solid var(--line) !important; }
+    .graph-panel { display:flex; flex-direction:column; grid-column:2; grid-row:1; min-width:0; height:100%; position:relative; border-left:1px solid var(--line) !important; border-right:1px solid var(--line) !important; }
     .palette-panel { grid-column:1; grid-row:1; min-width:0; height:100%; }
     .inspector-panel { grid-column:3; grid-row:1; min-width:0; height:100%; }
     .editor-grid.palette-collapsed { grid-template-columns:0 minmax(0,1fr) 300px; }
@@ -506,7 +511,7 @@
     .compact-button:hover { background:var(--surface-hover); border-color:var(--line-strong); }
     .compact-button:disabled { opacity:.45; cursor:not-allowed; }
     .compact-button.danger { color:var(--danger); }
-    .graph-toolbar { position:relative; display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px; align-items:center; min-height:57px; padding:10px 12px; border-bottom:1px solid var(--line); background:#fbfbf9; }
+    .graph-toolbar { position:relative; display:flex; flex:0 0 auto; flex-wrap:wrap; justify-content:space-between; gap:10px; align-items:center; min-height:57px; padding:10px 12px; border-bottom:1px solid var(--line); background:#fbfbf9; }
     .graph-toolbar-title { margin-right:2px; font-size:12px; font-weight:850; letter-spacing:-.01em; white-space:nowrap; }
     .graph-toolbar-left,.graph-toolbar-right,.graph-toolbar-group { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
     .graph-toolbar-right { margin-left:auto; justify-content:flex-end; }
@@ -561,7 +566,7 @@
     .graph-status.invalid::before { background:var(--danger); }
     .connect-hint { color:var(--muted); font-size:9.5px; }
     .connect-hint.active { color:var(--accent); font-weight:750; }
-    .graph-scroll { position:relative; height:calc(100% - 57px); min-height:0; overflow:hidden; overscroll-behavior:contain; touch-action:none; cursor:grab; outline:none; background-image:radial-gradient(circle at 1px 1px, #dfe1dc 1px, transparent 0); background-size:20px 20px; background-position:0 0; background-color:#fafaf8; transition:height .18s ease; }
+    .graph-scroll { position:relative; flex:1 1 auto; height:auto; min-height:0; overflow:hidden; overscroll-behavior:contain; touch-action:none; cursor:grab; outline:none; background-image:radial-gradient(circle at 1px 1px, #dfe1dc 1px, transparent 0); background-size:20px 20px; background-position:0 0; background-color:#fafaf8; transition:height .18s ease; }
     .graph-scroll.palette-dragover::after { content:""; position:absolute; z-index:38; inset:8px; border:2px dashed var(--accent); border-radius:13px; background:color-mix(in srgb,var(--accent) 5%,transparent); pointer-events:none; }
     body.graph-workspace-floating { overflow:hidden; }
     .graph-workspace-backdrop { display:none; position:fixed; inset:0; z-index:90; background:rgba(18,24,21,.42); backdrop-filter:blur(2px); cursor:zoom-out; }
@@ -572,7 +577,8 @@
     .mobile-recipe-grid,.recipe-selection-title { display:none; }
     .editor-grid.graph-expanded { position:fixed; z-index:100; inset:clamp(24px,4vh,48px) clamp(24px,4vw,64px); width:auto; height:auto; max-height:none; border-radius:18px; box-shadow:0 22px 70px rgba(13,31,24,.28); }
     .editor-grid.graph-expanded .graph-panel,.editor-grid.graph-expanded .palette-panel,.editor-grid.graph-expanded .inspector-panel { min-height:0; }
-    .editor-grid.graph-expanded .graph-scroll { height:calc(100dvh - clamp(24px,4vh,48px)*2 - 58px); min-height:0; }
+    .editor-grid.graph-expanded .graph-panel { display:flex; }
+    .editor-grid.graph-expanded .graph-scroll { height:auto; min-height:0; }
     .graph-scroll:focus-visible { box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--focus) 65%,transparent); }
     .graph-scroll.panning { cursor:grabbing; }
     .graph-canvas { position:absolute; left:0; top:0; min-width:0; min-height:0; transform-origin:0 0; }
@@ -796,7 +802,7 @@
     @media (max-width:1040px) {
       .editor-grid,.editor-grid.palette-collapsed,.editor-grid.inspector-collapsed,.editor-grid.palette-collapsed.inspector-collapsed { grid-template-columns:minmax(0,1fr); height:auto; }
       .graph-panel,.palette-panel,.inspector-panel { grid-column:1; height:auto; }
-      .graph-panel { grid-row:1; }
+      .graph-panel { display:block; grid-row:1; }
       .palette-panel { grid-row:2; }
       .inspector-panel { grid-row:3; min-height:0 !important; }
       .editor-grid.palette-collapsed .palette-panel,.editor-grid.inspector-collapsed .inspector-panel { display:none; }
@@ -961,7 +967,7 @@
           <img id="appBrandIcon" src="__APP_ICON_DATA_URI__" alt="">
         </div>
         <div class="brand-copy">
-          <p class="brand-name"><span id="brandName">FFmpeg Filter Builder</span><span class="version-badge" id="versionBadge">v1.2.2</span></p>
+          <p class="brand-name"><span id="brandName">FFmpeg Filter Builder</span><span class="version-badge" id="versionBadge">v1.2.3</span></p>
           <p class="brand-meta" data-i18n="brandMeta">レシピ対応・ノード編集・Previewから書き出し</p>
         </div>
       </div>
@@ -1430,13 +1436,14 @@
     <div class="dialog-body">
       <!-- APP:HELP:BEGIN -->
       <h3 data-i18n="helpBasicsTitle">基本操作</h3>
+      <p data-i18n="helpDialogs">ヘルプと初期化確認では背景を固定します。画面が低いときはダイアログ内をスクロールしてください。初期化をキャンセルすると「Graph操作」（スマートフォンでは「その他」）へフォーカスが戻ります。</p>
       <ol>
         <li data-i18n="helpStep1">Inputノードを選び、MP4動画を読み込みます。読み込んだファイルは外部へ送信されません。</li>
         <li data-i18n="helpStep2">「かんたんレシピ」からやりたい処理を選び、「Graphへ展開」を押します。</li>
         <li data-i18n="helpStep3">必要なら展開されたノードを編集し、「プレビューを更新」で結果を確認します。</li>
         <li data-i18n="helpStep4">問題なければ「動画を書き出す」で動画全体へ同じGraphを適用し、完了後に保存します。</li>
       </ol>
-      <p data-i18n="helpMobileWorkspace">スマートフォンでは下部のRecipeからレシピを選べます。ノードをタップするかEnter / Spaceで設定を開き、「完了」で閉じます。選択ノードの入力接続は「その他」→「入力を切断」で外せます（元に戻す対応）。</p>
+      <p data-i18n="helpMobileWorkspace">スマートフォンでは下部のRecipeからレシピを選べます。ノードをタップするかEnter / Spaceで設定を開き、「完了」で閉じ、表示中の選択ノードへフォーカスを戻します。一覧を閉じると「追加」へ戻ります。選択ノードの入力接続は「その他」→「入力を切断」で外せます（元に戻す対応）。</p>
       <h3 data-i18n="helpGraphTitle">Graphの制約</h3>
       <ul>
         <li data-i18n="helpGraph1">v0.8.0はVideo / Audio / Textの型付きGraphをRecipeから生成し、同じGraphをPreviewとFull Renderに使います。</li>
@@ -1473,9 +1480,23 @@
     (() => {
       'use strict';
       const dialog=document.getElementById('appConfirmDialog'),title=document.getElementById('appConfirmTitle'),message=document.getElementById('appConfirmMessage'),closeButton=document.getElementById('appConfirmClose'),cancelButton=document.getElementById('appConfirmCancel'),okButton=document.getElementById('appConfirmOk');
-      let resolver=null,restoreFocus=null;
-      function finish(result){if(!dialog.open)return;const current=resolver;resolver=null;dialog.close();if(restoreFocus instanceof HTMLElement&&restoreFocus.isConnected)restoreFocus.focus({preventScroll:true});restoreFocus=null;if(current)current(result);}
-      function ask(options={}){if(dialog.open)finish(false);title.textContent=options.title||'Confirm';message.textContent=options.message||'';cancelButton.textContent=options.cancelLabel||'Cancel';okButton.textContent=options.confirmLabel||'Continue';okButton.classList.toggle('danger',options.tone==='danger');okButton.classList.toggle('primary',options.tone!=='danger');restoreFocus=document.activeElement;return new Promise(resolve=>{resolver=resolve;dialog.showModal();requestAnimationFrame(()=>cancelButton.focus({preventScroll:true}));});}
+      let resolver=null,restoreFocus=null,requestId=0;
+      function availableFocusTarget(target){return target instanceof HTMLElement&&target.isConnected&&!target.matches(':disabled')&&!target.closest('[hidden],[inert]')&&target.getClientRects().length>0&&!['hidden','collapse'].includes(getComputedStyle(target).visibility);}
+      function finish(result){
+        if(!dialog.open)return;
+        const current=resolver,previous=restoreFocus,active=document.activeElement,owned=dialog.contains(active)||active===document.body;
+        resolver=null;restoreFocus=null;++requestId;dialog.close();
+        // Native close may already restore focus. Do not replace a newer editor/modal owner.
+        const after=document.activeElement,unclaimed=after===document.body||after===previous||dialog.contains(after);
+        if(unclaimed){const target=owned?(document.querySelector('dialog[open]')?null:typeof previous==='function'?previous():previous):active;if(availableFocusTarget(target))target.focus({preventScroll:true});}
+        if(current)current(result);
+      }
+      function ask(options={}){
+        if(dialog.open)finish(false);
+        title.textContent=options.title||'Confirm';message.textContent=options.message||'';cancelButton.textContent=options.cancelLabel||'Cancel';okButton.textContent=options.confirmLabel||'Continue';okButton.classList.toggle('danger',options.tone==='danger');okButton.classList.toggle('primary',options.tone!=='danger');restoreFocus=options.returnFocus||document.activeElement;
+        const currentRequest=++requestId;
+        return new Promise(resolve=>{resolver=resolve;dialog.showModal();requestAnimationFrame(()=>{if(dialog.open&&currentRequest===requestId&&dialog.contains(document.activeElement))cancelButton.focus({preventScroll:true});});});
+      }
       closeButton.addEventListener('click',()=>finish(false));cancelButton.addEventListener('click',()=>finish(false));okButton.addEventListener('click',()=>finish(true));dialog.addEventListener('cancel',event=>{event.preventDefault();finish(false);});dialog.addEventListener('click',event=>{const rect=dialog.getBoundingClientRect(),outside=event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom;if(outside)finish(false);});
       window.AppConfirm=Object.freeze({ask});
     })();
@@ -1616,7 +1637,7 @@
           fullRenderTitle:'動画を書き出す', fullRenderBody:'Previewで確認した同じGraphを、入力動画の最後までFFmpeg WASMで処理します。', outputSettings:'出力設定', outputFilename:'ファイル名', outputSize:'出力サイズ', fullRenderWaiting:'動画と有効なGraphを用意してください。', fullRenderReady:'動画全体を書き出せます。', fullRenderRendering:'動画全体を書き出しています…', fullRenderDone:'書き出しが完了しました。保存できます。', fullRenderCancelled:'書き出しを中止しました。GraphとInputは保持されています。', fullRenderFailed:'書き出しに失敗しました。FFmpegログを確認してください。', fullRenderButton:'動画を書き出す', saveOutputButton:'保存', outputSaved:'動画を保存しました。', fullRenderNote:'標準版はfile://でも利用できます。高速版はSharedArrayBufferを使うため、COOP / COEPを設定したHTTP(S)配信が必要です。長い動画では端末メモリを多く使います。', renderResult:'書き出し結果', fullRenderEmpty:'書き出しが完了すると、ここで結果を確認して保存できます。',
 
           metricInput:'入力', metricOutput:'出力', metricRuntimeLoad:'Runtime読込', metricRender:'Render', logTitle:'FFmpegログ', logEmpty:'まだログはありません。', runtimeDetails:'Runtime / Build情報', appVersion:'App version', threadMode:'Thread mode', isolation:'crossOriginIsolated', filters:'Filters', codecs:'Encoders', workerCount:'pthread pool', builtAt:'Built at', thirdPartyLicenses:'サードパーティライセンス', fontLicenseNote:'Draw Textで使う標準フォントのライセンス本文です。フォントと一緒に単一HTMLへ含まれています。', footer:'FFmpeg runtimeを含む完全な単一HTML',
-          helpMobileWorkspace:'スマートフォンでは下部のRecipeからレシピを選べます。ノードをタップするかEnter / Spaceで設定を開き、「完了」で閉じます。選択ノードの入力接続は「その他」→「入力を切断」で外せます（元に戻す対応）。', helpBasicsTitle:'基本操作', helpStep1:'Inputノードを選び、MP4動画を読み込みます。読み込んだファイルは外部へ送信されません。', helpStep2:'「Recipe」からやりたい処理を選び、「Graphへ展開」を押します。', helpStep3:'必要なら展開されたノードを編集し、「プレビューを更新」で結果を確認します。', helpStep4:'問題なければ「動画を書き出す」で動画全体へ同じGraphを適用し、完了後に保存します。', helpGraphTitle:'Graphの制約', helpGraph1:'Video / Audio / Textの型付きGraphをRecipeまたはNodeから作り、同じGraphをPreviewとFull Renderに使います。', helpGraph2:'Cycle、未接続branch、1つのportへの複数接続は拒否します。', helpGraph3:'SplitのA/BとOverlayのMAIN/OVERを使ってbranchを明示的に接続します。', helpKeyboardTitle:'キーボード操作', helpKeyboard1:'Delete / Backspaceで選択したノードまたは接続を削除します。', helpKeyboard2:'Ctrl / Cmd + Zで元に戻し、Ctrl / Cmd + Shift + Z または Ctrl / Cmd + Yでやり直します。', helpKeyboard3:'矢印キーで選択ノードを1px移動し、Shift + 矢印キーで10px移動します。', helpKeyboard4:'Graph上でCtrl / Cmd + Aですべてのノードを選択し、Escで選択や接続操作を解除します。', helpKeyboard5:'Graph上でFを押すと全体表示、Spaceを押しながらドラッグするとCanvasを移動できます。', helpRuntimeTitle:'標準版と高速版', helpRuntimeSt:'index.html はsingle-thread版です。保存したHTMLを file:// から直接開く用途を正式サポートします。', helpRuntimeMt:'index.mt.html はmulti-thread版です。SharedArrayBufferを使うため、COOP / COEPを付けたHTTP(S)配信が必要です。', helpPrivacyTitle:'プライバシー', helpPrivacyBody:'素材ファイル・Graph・テキスト・設定・生成結果はブラウザー内だけで処理します。FFmpeg runtimeと標準フォントもHTMLへ埋め込まれ、実行時にGitHub・Google Fonts・CDNへアクセスしません。', helpNotesTitle:'現在の範囲', helpNote1:'Recipeは実際のノードへ展開します。Graph JSONには素材のファイル名・サイズなどの情報だけを保存し、ファイル本体やローカルパスは保存しません。再読込後は「素材をまとめて再選択」から元ファイルを選ぶと一致するInputへ自動で戻せます。', helpNote2:'Full RenderはPreviewと同じGraphを動画全体へ適用し、H.264 / AAC MP4としてブラウザー内で生成します。生成結果は明示的に保存できます。', helpNote3:'大きな動画はブラウザーのメモリ制限や端末性能により処理できない場合があります。', helpOffline:'標準版はネットワークを切った状態でも、Graph編集・コンパイル・Preview・Full Render・保存まで利用できます。',
+          helpDialogs:'ヘルプと初期化確認では背景を固定します。画面が低いときはダイアログ内をスクロールしてください。初期化をキャンセルすると「Graph操作」（スマートフォンでは「その他」）へフォーカスが戻ります。', helpMobileWorkspace:'スマートフォンでは下部のRecipeからレシピを選べます。ノードをタップするかEnter / Spaceで設定を開き、「完了」で閉じ、表示中の選択ノードへフォーカスを戻します。一覧を閉じると「追加」へ戻ります。選択ノードの入力接続は「その他」→「入力を切断」で外せます（元に戻す対応）。', helpBasicsTitle:'基本操作', helpStep1:'Inputノードを選び、MP4動画を読み込みます。読み込んだファイルは外部へ送信されません。', helpStep2:'「Recipe」からやりたい処理を選び、「Graphへ展開」を押します。', helpStep3:'必要なら展開されたノードを編集し、「プレビューを更新」で結果を確認します。', helpStep4:'問題なければ「動画を書き出す」で動画全体へ同じGraphを適用し、完了後に保存します。', helpGraphTitle:'Graphの制約', helpGraph1:'Video / Audio / Textの型付きGraphをRecipeまたはNodeから作り、同じGraphをPreviewとFull Renderに使います。', helpGraph2:'Cycle、未接続branch、1つのportへの複数接続は拒否します。', helpGraph3:'SplitのA/BとOverlayのMAIN/OVERを使ってbranchを明示的に接続します。', helpKeyboardTitle:'キーボード操作', helpKeyboard1:'Delete / Backspaceで選択したノードまたは接続を削除します。', helpKeyboard2:'Ctrl / Cmd + Zで元に戻し、Ctrl / Cmd + Shift + Z または Ctrl / Cmd + Yでやり直します。', helpKeyboard3:'矢印キーで選択ノードを1px移動し、Shift + 矢印キーで10px移動します。', helpKeyboard4:'Graph上でCtrl / Cmd + Aですべてのノードを選択し、Escで選択や接続操作を解除します。', helpKeyboard5:'Graph上でFを押すと全体表示、Spaceを押しながらドラッグするとCanvasを移動できます。', helpRuntimeTitle:'標準版と高速版', helpRuntimeSt:'index.html はsingle-thread版です。保存したHTMLを file:// から直接開く用途を正式サポートします。', helpRuntimeMt:'index.mt.html はmulti-thread版です。SharedArrayBufferを使うため、COOP / COEPを付けたHTTP(S)配信が必要です。', helpPrivacyTitle:'プライバシー', helpPrivacyBody:'素材ファイル・Graph・テキスト・設定・生成結果はブラウザー内だけで処理します。FFmpeg runtimeと標準フォントもHTMLへ埋め込まれ、実行時にGitHub・Google Fonts・CDNへアクセスしません。', helpNotesTitle:'現在の範囲', helpNote1:'Recipeは実際のノードへ展開します。Graph JSONには素材のファイル名・サイズなどの情報だけを保存し、ファイル本体やローカルパスは保存しません。再読込後は「素材をまとめて再選択」から元ファイルを選ぶと一致するInputへ自動で戻せます。', helpNote2:'Full RenderはPreviewと同じGraphを動画全体へ適用し、H.264 / AAC MP4としてブラウザー内で生成します。生成結果は明示的に保存できます。', helpNote3:'大きな動画はブラウザーのメモリ制限や端末性能により処理できない場合があります。', helpOffline:'標準版はネットワークを切った状態でも、Graph編集・コンパイル・Preview・Full Render・保存まで利用できます。',
           fileReady:'動画を読み込みました。Graphを編集してプレビューできます。', runtimePreparing:'内蔵FFmpegを準備しています…', rendering:'GraphをFFmpegでプレビューしています…', done:'プレビューを生成しました。', cacheHit:'同じGraphのキャッシュを再利用しました。', cacheReady:'キャッシュあり', cacheMiss:'未作成', cacheReused:'再利用', cacheStored:'保存済み', staleState:'要更新', cancelled:'処理を中止しました。GraphとInputは保持されています。', failed:'処理できませんでした。FFmpegログを確認してください。', copied:'コピーしました。', errorMemoryFriendly:'端末のメモリが不足した可能性があります。短い動画や小さい解像度で試してください。', errorCodecFriendly:'この動画のコーデックを現在のFFmpeg runtimeで読み込めません。', errorFilterFriendly:'GraphのフィルターをFFmpegで初期化できませんでした。設定値を確認してください。', errorEncoderFriendly:'H.264エンコーダーを開始できませんでした。FFmpegログを確認してください。', errorRuntimeFriendly:'FFmpeg runtimeを開始できませんでした。標準版 / 高速版の実行条件を確認してください。', errorGenericFriendly:'FFmpeg処理に失敗しました。詳細はFFmpegログを確認してください。', unsupportedFile:'MP4動画を選択してください。', changed:'Graphが変わりました。プレビューを更新してください。', invalidScale:'Scale幅は160〜3840の偶数で指定してください。', invalidCrop:'Cropの幅・高さは2以上の偶数、X/Yは0以上の整数で指定してください。', cycleRejected:'Cycleになる接続は作成できません。', selfConnection:'同じノードには接続できません。', connectionReplaced:'接続を変更しました。', nodeAdded:'ノードを追加しました。', nodeDeleted:'ノードを削除しました。', nodesDeleted:'{count}個のノードを削除しました。', edgeDeleted:'接続を削除しました。', disconnected:'入力を切断しました。', undoDone:'元に戻しました。', redoDone:'やり直しました。', resetDone:'Graphを初期化しました。', sampleDone:'Input → Crop → Scale → Output を作成しました。', sampleComplexDone:'Split → Blur / Scale → Overlay のサンプルGraphを作成しました。', sampleAudioDone:'Audio Split → Volume / High-pass → Audio Mix のサンプルGraphを作成しました。', portTypeMismatch:'VideoとAudioのportは接続できません。', graphCompileFailed:'Graphを修正してください。', inputRequired:'Inputに動画を読み込んでください。', unknownNode:'未対応のノードです。',
           errorCycle:'Cycleがあります。', errorMissingInput:'必須inputが未接続です。', errorMissingOutput:'必須outputが未接続です。', errorMultipleInput:'1つのinput portへ複数接続されています。', errorMultipleGraphInputs:'現在の内蔵FFmpegは複数Input実行に対応していません。Builder v1.9.9以降のMultiple Input runtimeでビルドしてください。', errorMissingGraphInputFiles:'すべてのInput素材を選び直してから実行してください。', errorMainInputMissing:'メイン素材を特定できません。', errorMultipleOutput:'1つのoutput portから複数接続されています。', errorInvalidPort:'存在しないportへ接続されています。', errorPortTypeMismatch:'Video / Audioの型が一致しない接続があります。', errorDisconnected:'すべてのbranchがInputからOutputまで接続されていません。', errorInvalidParam:'ノード設定が不正です。', errorRuntimeFilterMissing:'このGraphには現在の内蔵FFmpegでPreviewできないフィルターがあります。Desktop commandは生成できます。'
         },
@@ -1639,7 +1660,7 @@
           fullRenderTitle:'Full Render', fullRenderBody:'Render the entire input with the same graph you verified in Preview.', outputSettings:'Output settings', outputFilename:'Filename', outputSize:'Output size', fullRenderWaiting:'Load a video and prepare a valid graph.', fullRenderReady:'The full video is ready to render.', fullRenderRendering:'Rendering the full video…', fullRenderDone:'Full render complete. You can save the result.', fullRenderCancelled:'Full render cancelled. Graph and input were kept.', fullRenderFailed:'Full render failed. Check the FFmpeg log.', fullRenderButton:'Render full video', saveOutputButton:'Save', outputSaved:'Video saved.', fullRenderNote:'The standard build also works from file://. The high-speed build requires HTTP(S) with COOP / COEP for SharedArrayBuffer. Long videos can use substantial device memory.', renderResult:'Render result', fullRenderEmpty:'After rendering, review the result here and save it.',
 
           metricInput:'Input', metricOutput:'Output', metricRuntimeLoad:'Runtime load', metricRender:'Render', logTitle:'FFmpeg log', logEmpty:'No log yet.', runtimeDetails:'Runtime / Build information', appVersion:'App version', threadMode:'Thread mode', isolation:'crossOriginIsolated', filters:'Filters', codecs:'Encoders', workerCount:'pthread pool', builtAt:'Built at', thirdPartyLicenses:'Third-party licenses', fontLicenseNote:'This is the license text for the standard font used by Draw Text. It is embedded in the single HTML together with the font.', footer:'One self-contained HTML including the FFmpeg runtime',
-          helpMobileWorkspace:'On smartphones, use Recipe in the bottom bar. Tap a node or press Enter / Space to open its settings, then Done to close. More → Disconnect input removes incoming connections from the selected node and can be undone.', helpBasicsTitle:'Basics', helpStep1:'Select the Input node and load an MP4. The file is never uploaded.', helpStep2:'Choose a task from “Recipe” and press “Build graph”.', helpStep3:'Optionally edit the generated nodes, then use “Update preview” to verify the result.', helpStep4:'When it looks right, use “Render full video” to apply the same graph to the complete input, then save the result.', helpGraphTitle:'Graph constraints', helpGraph1:'Build typed Video / Audio / Text graphs from Recipes or nodes and use the same graph for Preview and Full Render.', helpGraph2:'Cycles, disconnected branches, and multiple edges on one port are rejected.', helpGraph3:'Use Split A/B and Overlay MAIN/OVER to wire branches explicitly.', helpKeyboardTitle:'Keyboard shortcuts', helpKeyboard1:'Delete / Backspace removes the selected node or connection.', helpKeyboard2:'Ctrl / Cmd + Z undoes; Ctrl / Cmd + Shift + Z or Ctrl / Cmd + Y redoes.', helpKeyboard3:'Arrow keys move selected nodes by 1 px; Shift + Arrow moves them by 10 px.', helpKeyboard4:'On the graph, Ctrl / Cmd + A selects all nodes and Esc clears the selection or cancels a connection action.', helpKeyboard5:'On the graph, F fits the graph and holding Space while dragging pans the canvas.', helpRuntimeTitle:'Standard and high-speed builds', helpRuntimeSt:'index.html is the single-thread build and formally supports direct file:// use.', helpRuntimeMt:'index.mt.html is the multi-thread build. SharedArrayBuffer requires HTTP(S) with COOP / COEP headers.', helpPrivacyTitle:'Privacy', helpPrivacyBody:'Media files, graphs, text, settings, and outputs stay inside the browser. The FFmpeg runtime and standard font are embedded, so the app does not fetch GitHub, Google Fonts, or CDN resources at runtime.', helpNotesTitle:'Current scope', helpNote1:'Recipes expand into real nodes. Graph JSON stores only media metadata such as filename and size, never file bytes or local paths. After reopening, use “Re-select media in bulk” and matching files are restored to their Inputs automatically.', helpNote2:'Full Render applies the same graph used by Preview to the entire video, creates an H.264 / AAC MP4 locally, and saves it only after an explicit action.', helpNote3:'Large videos may fail because of browser memory or device limits.', helpOffline:'The standard build can edit, compile, preview, fully render, and save with the network disconnected.',
+          helpDialogs:'Help and Reset keep the background still. On short screens, scroll inside the dialog. Cancelling Reset returns focus to Graph tools (More on mobile).', helpMobileWorkspace:'On smartphones, use Recipe in the bottom bar. Tap a node or press Enter / Space to open its settings, then Done to close and return focus to the visible selected node. Closing the Palette returns focus to Add. More → Disconnect input removes incoming connections from the selected node and can be undone.', helpBasicsTitle:'Basics', helpStep1:'Select the Input node and load an MP4. The file is never uploaded.', helpStep2:'Choose a task from “Recipe” and press “Build graph”.', helpStep3:'Optionally edit the generated nodes, then use “Update preview” to verify the result.', helpStep4:'When it looks right, use “Render full video” to apply the same graph to the complete input, then save the result.', helpGraphTitle:'Graph constraints', helpGraph1:'Build typed Video / Audio / Text graphs from Recipes or nodes and use the same graph for Preview and Full Render.', helpGraph2:'Cycles, disconnected branches, and multiple edges on one port are rejected.', helpGraph3:'Use Split A/B and Overlay MAIN/OVER to wire branches explicitly.', helpKeyboardTitle:'Keyboard shortcuts', helpKeyboard1:'Delete / Backspace removes the selected node or connection.', helpKeyboard2:'Ctrl / Cmd + Z undoes; Ctrl / Cmd + Shift + Z or Ctrl / Cmd + Y redoes.', helpKeyboard3:'Arrow keys move selected nodes by 1 px; Shift + Arrow moves them by 10 px.', helpKeyboard4:'On the graph, Ctrl / Cmd + A selects all nodes and Esc clears the selection or cancels a connection action.', helpKeyboard5:'On the graph, F fits the graph and holding Space while dragging pans the canvas.', helpRuntimeTitle:'Standard and high-speed builds', helpRuntimeSt:'index.html is the single-thread build and formally supports direct file:// use.', helpRuntimeMt:'index.mt.html is the multi-thread build. SharedArrayBuffer requires HTTP(S) with COOP / COEP headers.', helpPrivacyTitle:'Privacy', helpPrivacyBody:'Media files, graphs, text, settings, and outputs stay inside the browser. The FFmpeg runtime and standard font are embedded, so the app does not fetch GitHub, Google Fonts, or CDN resources at runtime.', helpNotesTitle:'Current scope', helpNote1:'Recipes expand into real nodes. Graph JSON stores only media metadata such as filename and size, never file bytes or local paths. After reopening, use “Re-select media in bulk” and matching files are restored to their Inputs automatically.', helpNote2:'Full Render applies the same graph used by Preview to the entire video, creates an H.264 / AAC MP4 locally, and saves it only after an explicit action.', helpNote3:'Large videos may fail because of browser memory or device limits.', helpOffline:'The standard build can edit, compile, preview, fully render, and save with the network disconnected.',
           fileReady:'Video loaded. Edit the graph and update the preview.', runtimePreparing:'Preparing embedded FFmpeg…', rendering:'Rendering the graph with FFmpeg…', done:'Preview generated.', cacheHit:'Reused the cached preview for this graph.', cacheReady:'Available', cacheMiss:'Not rendered', cacheReused:'Reused', cacheStored:'Stored', staleState:'Update needed', cancelled:'Processing cancelled. Graph and input were kept.', failed:'Processing failed. Check the FFmpeg log.', copied:'Copied.', errorMemoryFriendly:'The device may be out of memory. Try a shorter video or a smaller output size.', errorCodecFriendly:'The current FFmpeg runtime cannot decode this video codec.', errorFilterFriendly:'FFmpeg could not initialize one of the graph filters. Check the node settings.', errorEncoderFriendly:'The H.264 encoder could not start. Check the FFmpeg log.', errorRuntimeFriendly:'The FFmpeg runtime could not start. Check the standard/high-speed runtime requirements.', errorGenericFriendly:'FFmpeg processing failed. See the full FFmpeg log for details.', unsupportedFile:'Choose an MP4 video.', changed:'Graph changed. Update the preview.', invalidScale:'Scale width must be an even number from 160 to 3840.', invalidCrop:'Crop width/height must be even numbers >= 2, with non-negative integer X/Y.', cycleRejected:'That connection would create a cycle.', selfConnection:'A node cannot connect to itself.', connectionReplaced:'Connection updated.', nodeAdded:'Node added.', nodeDeleted:'Node deleted.', nodesDeleted:'Deleted {count} nodes.', edgeDeleted:'Connection deleted.', disconnected:'Input disconnected.', undoDone:'Undone.', redoDone:'Redone.', resetDone:'Graph reset.', sampleDone:'Created Input → Crop → Scale → Output.', sampleComplexDone:'Created the Split → Blur / Scale → Overlay sample graph.', sampleAudioDone:'Created the Audio Split → Volume / High-pass → Audio Mix sample graph.', portTypeMismatch:'Video and Audio ports cannot be connected.', graphCompileFailed:'Fix the graph before previewing.', inputRequired:'Load a video into Input.', unknownNode:'Unsupported node.',
           errorCycle:'The graph contains a cycle.', errorMissingInput:'A required input is disconnected.', errorMissingOutput:'A required output is disconnected.', errorMultipleInput:'Multiple edges target one input port.', errorMultipleGraphInputs:'The embedded FFmpeg runtime does not support multiple inputs. Build with the Builder v1.9.9+ Multiple Input runtime.', errorMissingGraphInputFiles:'Select every Input file before running the graph.', errorMainInputMissing:'The main media input could not be resolved.', errorMultipleOutput:'Multiple edges leave one output port.', errorInvalidPort:'An edge targets an unknown port.', errorPortTypeMismatch:'A connection crosses incompatible Video / Audio port types.', errorDisconnected:'Every branch must be connected from Input through Output.', errorInvalidParam:'A node has invalid settings.', errorRuntimeFilterMissing:'This graph contains a filter that the bundled FFmpeg cannot preview yet. The desktop command is still available.'
         }
@@ -2676,6 +2697,22 @@
         editor.classList.toggle(collapsedClass,!open); syncWorkspaceSidebarToggleVisibility(); syncMobileSheetState();
         requestAnimationFrame(()=>{applyGraphViewport();if(side==='inspector'&&open&&!mobile)ensureSelectedNodeVisible();});
       }
+      function workspaceFocusTargetAvailable(target){
+        if(!(target instanceof HTMLElement)||!target.isConnected||target.matches(':disabled')||target.closest('[hidden],[inert]')||!target.getClientRects().length||['hidden','collapse'].includes(getComputedStyle(target).visibility))return false;
+        if(target.matches('.node-card')){const rect=target.getBoundingClientRect(),canvas=$('#graphScroll').getBoundingClientRect();return Math.max(rect.left,canvas.left,0)<Math.min(rect.right,canvas.right,innerWidth)&&Math.max(rect.top,canvas.top,0)<Math.min(rect.bottom,canvas.bottom,innerHeight);}
+        return true;
+      }
+      function workspaceReturnTarget(side){
+        const mobile=isMobileGraphWorkspace(),node=side==='inspector'&&state.selectedNodeId?$('#nodeLayer .node-card[data-node-id="'+CSS.escape(state.selectedNodeId)+'"]'):null;
+        const candidates=side==='palette'?[mobile?$('#mobileAddButton'):$('#togglePaletteButton')]:side==='inspector'?[node,$('#toggleInspectorButton')]:[mobile?$('#mobileMoreButton'):$('#graphActionsButton')];
+        return [...candidates,$('#graphScroll')].find(workspaceFocusTargetAvailable)||null;
+      }
+      function dismissWorkspaceSidebar(side){
+        const editor=$('.editor-grid'),panel=$('.'+side+'-panel'),active=document.activeElement,wasOpen=editor&&!editor.classList.contains(side+'-collapsed');
+        setWorkspaceSidebar(side,false);
+        // Only explicit dismissal returns focus; switching sheets never steals it.
+        if(wasOpen&&!document.querySelector('dialog[open]')&&(panel?.contains(active)||active===document.body))workspaceReturnTarget(side)?.focus({preventScroll:true});
+      }
       function toggleWorkspaceSidebar(side){ const editor=$('.editor-grid'); if(!editor)return; const cls=side==='palette'?'palette-collapsed':'inspector-collapsed'; setWorkspaceSidebar(side,editor.classList.contains(cls)); }
       let mobileWorkspaceMode=isMobileGraphWorkspace();
       let lastPlainNodeClickId='',lastPlainNodeClickAt=0;
@@ -2707,17 +2744,17 @@
       document.querySelectorAll('[data-add-input]').forEach(button=>button.addEventListener('click',()=>{if(Date.now()-paletteDragEndedAt<180)return;openInputPicker(button.dataset.addInput);}));
       $('#inputAssetPicker').addEventListener('change',async event=>{const file=event.target.files?.[0],pending=state.pendingInputPick;event.target.value='';state.pendingInputPick=null;if(!file||!pending)return;if(pending.mode==='recipe'){if(!inputKindMatches(file,'video')){showToast(t('inputFileTypeMismatch'));return;}const meta=await readInputMeta(file,'video');applyRecipe(pending.recipeId,{mainFile:file,mainMeta:meta,mainSource:sourceMetadataFromFile(file,meta)});return;}const added=await addInputWithFile(pending.kind,file);if(added&&isMobileGraphWorkspace()){setWorkspaceSidebar('palette',false);setWorkspaceSidebar('inspector',true);}});
       $('#recipeSelect').addEventListener('change',syncRecipeUi); $('#mobileRecipeGrid').addEventListener('click',event=>{const button=event.target.closest('[data-recipe-id]');if(!button||state.rendering)return;$('#recipeSelect').value=button.dataset.recipeId;syncRecipeUi();}); $('#applyRecipeButton').addEventListener('click',()=>requestRecipeApply()); $('#saveGraphButton').addEventListener('click',()=>{exportGraphProject();setToolbarPopover('graphActionsPopover',false);}); $('#loadGraphButton').addEventListener('click',()=>{setToolbarPopover('graphActionsPopover',false);$('#graphFileInput').click();}); $('#graphFileInput').addEventListener('change',event=>{const file=event.target.files?.[0];event.target.value='';importGraphProject(file);}); $('#relinkInputsButton').addEventListener('click',()=>$('#relinkFilesInput').click()); $('#relinkFilesInput').addEventListener('change',event=>{const files=[...(event.target.files||[])];event.target.value='';relinkFilesFromPicker(files);}); $('#restoreRecoveryButton').addEventListener('click',restoreRecovery); $('#discardRecoveryButton').addEventListener('click',discardRecovery);
-      $('#undoButton').addEventListener('click',undo); $('#redoButton').addEventListener('click',redo); $('#resetGraphButton').addEventListener('click',async()=>{setToolbarPopover('graphActionsPopover',false);const confirmed=await AppConfirm.ask({title:t('resetConfirmTitle'),message:t('resetConfirmMessage'),confirmLabel:t('resetConfirmAction'),cancelLabel:t('cancel'),tone:'danger'});if(confirmed)resetGraph();}); $('#disconnectButton').addEventListener('click',disconnectSelected);
+      $('#undoButton').addEventListener('click',undo); $('#redoButton').addEventListener('click',redo); $('#resetGraphButton').addEventListener('click',async()=>{setToolbarPopover('graphActionsPopover',false);const confirmed=await AppConfirm.ask({title:t('resetConfirmTitle'),message:t('resetConfirmMessage'),confirmLabel:t('resetConfirmAction'),cancelLabel:t('cancel'),tone:'danger',returnFocus:()=>workspaceReturnTarget('actions')});if(confirmed)resetGraph();}); $('#disconnectButton').addEventListener('click',disconnectSelected);
       $('#recipeToolbarButton').addEventListener('click',event=>{event.stopPropagation();toggleToolbarPopover('recipePopover');}); $('#graphActionsButton').addEventListener('click',event=>{event.stopPropagation();toggleToolbarPopover('graphActionsPopover');});
       document.querySelectorAll('[data-close-popover]').forEach(button=>button.addEventListener('click',()=>setToolbarPopover(button.dataset.closePopover,false)));
       document.addEventListener('pointerdown',event=>{ if(event.target.closest('.graph-popover')||event.target.closest('#recipeToolbarButton,#graphActionsButton,#mobileRecipeButton,#mobileMoreButton'))return; closeToolbarPopovers(); });
       $('#paletteSearchInput').addEventListener('input',applyPaletteSearch); $('#clearPaletteSearchButton').addEventListener('click',()=>{const input=$('#paletteSearchInput');input.value='';applyPaletteSearch();input.focus();});
       $('#togglePaletteButton').addEventListener('click',()=>toggleWorkspaceSidebar('palette'));
-      $('#closePaletteButton').addEventListener('click',()=>setWorkspaceSidebar('palette',false));
-      $('#mobilePaletteDoneButton').addEventListener('click',()=>setWorkspaceSidebar('palette',false));
+      $('#closePaletteButton').addEventListener('click',()=>dismissWorkspaceSidebar('palette'));
+      $('#mobilePaletteDoneButton').addEventListener('click',()=>dismissWorkspaceSidebar('palette'));
       $('#toggleInspectorButton').addEventListener('click',()=>toggleWorkspaceSidebar('inspector'));
-      $('#closeInspectorButton').addEventListener('click',()=>setWorkspaceSidebar('inspector',false));
-      $('#mobileInspectorDoneButton').addEventListener('click',()=>setWorkspaceSidebar('inspector',false));
+      $('#closeInspectorButton').addEventListener('click',()=>dismissWorkspaceSidebar('inspector'));
+      $('#mobileInspectorDoneButton').addEventListener('click',()=>dismissWorkspaceSidebar('inspector'));
       $('#mobileRecipeButton').addEventListener('click',()=>{setWorkspaceSidebar('palette',false);setWorkspaceSidebar('inspector',false);toggleToolbarPopover('recipePopover');});
       $('#mobileAddButton').addEventListener('click',()=>{closeToolbarPopovers();setWorkspaceSidebar('palette',true);});
       $('#mobileUndoButton').addEventListener('click',()=>undo());
@@ -2727,7 +2764,7 @@
       $('#mobileDisconnectAction').addEventListener('click',()=>{setToolbarPopover('graphActionsPopover',false);disconnectSelected();});
       $('#mobileRedoAction').addEventListener('click',()=>{setToolbarPopover('graphActionsPopover',false);redo();});
       $('#mobilePopoverBackdrop').addEventListener('pointerdown',event=>{event.preventDefault();closeToolbarPopovers();});
-      $('#mobileSheetBackdrop').addEventListener('pointerdown',event=>{event.preventDefault();setWorkspaceSidebar('palette',false);setWorkspaceSidebar('inspector',false);});
+      $('#mobileSheetBackdrop').addEventListener('pointerdown',event=>{event.preventDefault();dismissWorkspaceSidebar('palette');dismissWorkspaceSidebar('inspector');});
       $('#fitGraphButton').addEventListener('click',()=>fitGraph());
       $('#toggleGraphSizeButton').addEventListener('click',toggleGraphSize);
       $('#graphWorkspaceBackdrop').addEventListener('pointerdown',event=>{event.preventDefault();event.stopPropagation();setGraphFloating(false);});
@@ -2770,7 +2807,7 @@
         if((event.key==='f'||event.key==='F')&&!editable&&!primary&&!event.altKey&&graphFocused){event.preventDefault();fitGraph();return;}
         if(!editable&&!primary&&!event.altKey&&graphFocused&&state.selectedNodeIds.size&&['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key)){event.preventDefault();const step=event.shiftKey?10:1,dx=event.key==='ArrowLeft'?-step:event.key==='ArrowRight'?step:0,dy=event.key==='ArrowUp'?-step:event.key==='ArrowDown'?step:0;nudgeSelectedNodes(dx,dy);return;}
         if((event.key==='Delete'||event.key==='Backspace')&&!editable&&(state.selectedEdgeId||state.selectedNodeIds.size)){event.preventDefault();deleteSelectedNodes();return;}
-        if(event.key==='Escape'){const popoverOpen=Object.keys(TOOLBAR_POPOVERS).some(id=>!$(`#${id}`)?.hidden),editor=$('.editor-grid'),mobileSheetOpen=isMobileGraphWorkspace()&&editor&&(!editor.classList.contains('palette-collapsed')||!editor.classList.contains('inspector-collapsed'));if(popoverOpen){event.preventDefault();closeToolbarPopovers();}else if(mobileSheetOpen){event.preventDefault();setWorkspaceSidebar('palette',false);setWorkspaceSidebar('inspector',false);}else if(editor?.classList.contains('graph-expanded')){event.preventDefault();setGraphFloating(false);}else if(state.pendingConnection||state.selectedEdgeId||state.selectedNodeIds.size){event.preventDefault();clearGraphSelection();}}
+        if(event.key==='Escape'){const popoverOpen=Object.keys(TOOLBAR_POPOVERS).some(id=>!$(`#${id}`)?.hidden),editor=$('.editor-grid'),mobileSheetOpen=isMobileGraphWorkspace()&&editor&&(!editor.classList.contains('palette-collapsed')||!editor.classList.contains('inspector-collapsed'));if(popoverOpen){event.preventDefault();closeToolbarPopovers();}else if(mobileSheetOpen){event.preventDefault();dismissWorkspaceSidebar('palette');dismissWorkspaceSidebar('inspector');}else if(editor?.classList.contains('graph-expanded')){event.preventDefault();setGraphFloating(false);}else if(state.pendingConnection||state.selectedEdgeId||state.selectedNodeIds.size){event.preventDefault();clearGraphSelection();}}
       });
       window.addEventListener('keyup',event=>{if(event.code==='Space')graphSpaceHeld=false;});
       window.addEventListener('resize',()=>{syncMobileWorkspaceMode();applyGraphViewport();renderMiniMap();});

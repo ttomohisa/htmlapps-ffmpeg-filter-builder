@@ -15,7 +15,7 @@ const expected = {
 };
 
 test('default runtime pins the verified public 1.10.2 ST and MT archives', () => {
-  assert.equal(JSON.parse(read('../app.config.json')).version, '1.2.2');
+  assert.equal(JSON.parse(read('../app.config.json')).version, '1.2.3');
   assert.equal(lock.builderVersion, '1.10.2');
   assert.equal(lock.builderRepository, 'ttomohisa/htmlapps-ffmpeg-wasm-builder');
   assert.equal(lock.profile, 'ffmpeg-filter-builder');

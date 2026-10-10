@@ -36,7 +36,7 @@ foreach ($relative in $forbidden) {
 }
 
 $app = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "app.config.json") | ConvertFrom-Json
-if ([string]$app.version -ne "1.2.2") { throw "app.config.json version must be 1.2.2 for this release." }
+if ([string]$app.version -ne "1.2.3") { throw "app.config.json version must be 1.2.3 for this release." }
 if ([string]$app.repository.owner -ne "ttomohisa" -or [string]$app.repository.name -ne "htmlapps-ffmpeg-filter-builder") { throw "Repository metadata is incorrect." }
 
 $lock = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "runtime.lock.json") | ConvertFrom-Json
@@ -113,19 +113,19 @@ if ($source -match '<script[^>]+src\s*=\s*["'']https?://') { throw "Runtime exte
 if ($source -match '<link[^>]+href\s*=\s*["'']https?://') { throw "Runtime external stylesheet URL must not be added to source HTML." }
 
 $buildVariant = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "scripts\build-variant.ps1")
-foreach ($token in @("ffmpeg.js.gz", "ffmpeg.wasm.gz", "__RUNTIME_VARIANT__", "runtime-manifest", "github-release", "htmlapps-ffmpeg-filter-builder/1.2.2", "text-font", "font/ttf", "text/plain; charset=utf-8", "FontPath", "FontLicensePath", "licenseFile", "font.lock.json")) {
+foreach ($token in @("ffmpeg.js.gz", "ffmpeg.wasm.gz", "__RUNTIME_VARIANT__", "runtime-manifest", "github-release", "htmlapps-ffmpeg-filter-builder/1.2.3", "text-font", "font/ttf", "text/plain; charset=utf-8", "FontPath", "FontLicensePath", "licenseFile", "font.lock.json")) {
   if (-not $buildVariant.Contains($token)) { throw "scripts\build-variant.ps1 is missing required runtime embedding marker: $token" }
 }
 $prepare = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "scripts\prepare-ffmpeg-runtime.ps1")
-foreach ($token in @("runtime.lock.json", "SHA-256 mismatch", "manifest.files.'ffmpeg.wasm'.sha256", "Expand-Archive", "GetTempPath", "runtime.zip", "CreateDirectory", "Get-MissingRuntimeFiles", "Cached extraction is incomplete", "Expand-VerifiedRuntimeArchive", "ffmpegFilterBuilderArgs", "startTimeSeconds", "durationSeconds", "timeRangeRender", "trim", "setpts", "split", "overlay", "atrim", "asetpts", "volume", "afade", "atempo", "highpass", "lowpass", "loudnorm", "amix", "asplit", "aresample", "drawtext", "drawText", "htmlapps-ffmpeg-filter-builder/1.2.2")) {
+foreach ($token in @("runtime.lock.json", "SHA-256 mismatch", "manifest.files.'ffmpeg.wasm'.sha256", "Expand-Archive", "GetTempPath", "runtime.zip", "CreateDirectory", "Get-MissingRuntimeFiles", "Cached extraction is incomplete", "Expand-VerifiedRuntimeArchive", "ffmpegFilterBuilderArgs", "startTimeSeconds", "durationSeconds", "timeRangeRender", "trim", "setpts", "split", "overlay", "atrim", "asetpts", "volume", "afade", "atempo", "highpass", "lowpass", "loudnorm", "amix", "asplit", "aresample", "drawtext", "drawText", "htmlapps-ffmpeg-filter-builder/1.2.3")) {
   if (-not $prepare.Contains($token)) { throw "scripts\prepare-ffmpeg-runtime.ps1 is missing required lock/verification marker: $token" }
 }
 $prepareFont = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "scripts\prepare-text-font.ps1")
-foreach ($token in @("font.lock.json", "Get-GitBlobSha1", "gitBlobSha1", "MPLUS1p-Regular.ttf", "htmlapps-ffmpeg-filter-builder/1.2.2", "GetTempPath")) {
+foreach ($token in @("font.lock.json", "Get-GitBlobSha1", "gitBlobSha1", "MPLUS1p-Regular.ttf", "htmlapps-ffmpeg-filter-builder/1.2.3", "GetTempPath")) {
   if (-not $prepareFont.Contains($token)) { throw "scripts\prepare-text-font.ps1 is missing required pinned-font marker: $token" }
 }
 $buildStandalone = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "build-standalone.ps1")
-foreach ($token in @("SingleThreadRuntimeRoot", "MultiThreadRuntimeRoot", "Assert-RuntimeRoot", "Local ffmpeg.wasm does not match", "Source: GitHub Release v1.10.2", "runtime\browser-ffmpeg.js", "ffb-local-runtime", "ffmpegFilterBuilderArgs", "startTimeSeconds", "durationSeconds", "timeRangeRender", "trim", "setpts", "split", "overlay", "atrim", "asetpts", "volume", "afade", "atempo", "highpass", "lowpass", "loudnorm", "amix", "asplit", "aresample", "drawtext", "drawText", "PrepareFontPath", "-FontPath", "v1.2.2")) {
+foreach ($token in @("SingleThreadRuntimeRoot", "MultiThreadRuntimeRoot", "Assert-RuntimeRoot", "Local ffmpeg.wasm does not match", "Source: GitHub Release v1.10.2", "runtime\browser-ffmpeg.js", "ffb-local-runtime", "ffmpegFilterBuilderArgs", "startTimeSeconds", "durationSeconds", "timeRangeRender", "trim", "setpts", "split", "overlay", "atrim", "asetpts", "volume", "afade", "atempo", "highpass", "lowpass", "loudnorm", "amix", "asplit", "aresample", "drawtext", "drawText", "PrepareFontPath", "-FontPath", "v1.2.3")) {
   if (-not $buildStandalone.Contains($token)) { throw "build-standalone.ps1 is missing required runtime resolution marker: $token" }
 }
 $defaultBuildBat = Get-Content -Raw -Encoding UTF8 (Join-Path $Root "build-standalone.bat")

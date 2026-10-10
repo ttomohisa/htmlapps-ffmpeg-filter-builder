@@ -10,7 +10,7 @@ MP4動画のFFmpeg Filter Graphをブラウザー上で組み立てるツール�
 
 ![FFmpeg Filter Builder スクリーンショット](assets/screenshot.png)
 
-> 現在の正式版: **v1.2.2**。Multiple Input、PiP、Logo Overlay、BGM / Audio Mix、Graph Restore / Auto Relink、PC / スマートフォン向けGraph Workspace、ST / MT単一HTMLを含むStable版です。
+> 現在の正式版: **v1.2.3**。Multiple Input、PiP、Logo Overlay、BGM / Audio Mix、Graph Restore / Auto Relink、PC / スマートフォン向けGraph Workspace、ST / MT単一HTMLを含むStable版です。
 
 ## 🚀 Live demo
 
@@ -54,6 +54,8 @@ GitHub Pagesから最初のHTMLを読み込んだ後、選択したMP4、Graph�
 
 ## Usage
 
+ヘルプと初期化確認の表示中は背景ページをスクロールしません。高さが足りない画面ではダイアログ内をスクロールして最後の項目や初期化ボタンへ進めます。スマートフォンで一覧を閉じると「追加」へ、設定の「完了」では表示中の選択ノードへキーボードフォーカスが戻ります。初期化のキャンセル後は「Graph操作」（スマートフォンでは「その他」）へ戻ります。
+
 1. **Recipe**からやりたい処理を選ぶか、Input NodeからMP4を読み込みます。サイズや長さが必要なRecipeは、**動画を選んでGraphへ展開**からそのままMP4を選べます。
 2. RecipeをGraphへ展開するか、Filter Nodeを直接追加します。
 3. Nodeを選択して設定を変更します。Video / Audioの対応するportを接続して処理順を組み替えられます。
@@ -96,7 +98,7 @@ Undo / RedoはGraph Toolbarから直接操作できます。旧バージョン�
 
 Autosaveが保存するのはGraph、Inputの素材メタデータ、出力ファイル名だけです。素材ファイル本体や絶対パス、生成動画は保存しません。復元後に**素材をまとめて再選択**すると、ファイル名とサイズが一致するMissing Inputへ自動で再関連付けします。Canvasへ複数ファイルをドロップした場合も、まず一致するMissing Inputへ再関連付けし、残りだけを新しいInputとして追加します。
 
-## 現在のruntime（v1.2.2）
+## 現在のruntime（v1.2.3）
 
 標準ビルドは公開済みBuilder v1.10.2のST/MT資産へ固定し、動画の最終フレームの長さと範囲指定Previewのタイミングを修正します。対応codec・Graph schema・GPL runtimeライセンス・ローカル処理の境界は変更しません。以下のバージョン別セクションは過去のリリース記録です。[runtime検証記録](docs/BUILDER_V1_10_2_RELEASE.md)を参照してください。
 

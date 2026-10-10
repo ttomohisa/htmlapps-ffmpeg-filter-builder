@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.3 - 2026-10-10
+
+- Lock background scrolling only while a native modal is open, retain the existing Help shell, and make short Reset confirmations scroll internally below a fixed header.
+- Wrap the narrow-screen title/version while keeping Help and language controls available.
+- Restore visible logical focus after Reset cancellation and Palette/Inspector dismissal without changing graph selection or navigation.
+- Allocate graph canvas height from the actual wrapped toolbar in normal and floating desktop workspaces. Runtime pins, graph/compiler semantics, media/file handling, and artwork are unchanged.
+
 ## 1.2.2 - 2026-10-09
 
 - Normalize icon background green and exact 25% corner geometry, retaining all foreground and cutout paths.

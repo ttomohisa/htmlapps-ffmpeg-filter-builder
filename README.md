@@ -10,7 +10,7 @@ A browser-based FFmpeg filter graph editor for MP4 video. Build Video / Audio / 
 
 ![FFmpeg Filter Builder screenshot](assets/screenshot-en.png)
 
-> Current release: **v1.2.2**. This stable release includes Multiple Input, PiP, Logo Overlay, BGM / Audio Mix, Graph Restore / Auto Relink, the desktop/mobile Graph Workspace, and ST / MT standalone builds.
+> Current release: **v1.2.3**. This stable release includes Multiple Input, PiP, Logo Overlay, BGM / Audio Mix, Graph Restore / Auto Relink, the desktop/mobile Graph Workspace, and ST / MT standalone builds.
 
 ## 🚀 Live demo
 
@@ -50,6 +50,8 @@ Open the [GitHub Pages demo](https://ttomohisa.github.io/htmlapps-ffmpeg-filter-
 The normal build uses Windows PowerShell and does not require Node.js for the application build itself.
 
 ## Usage
+
+Help and Reset keep the page behind them still. On short screens, scroll inside the dialog to reach the last item or Reset action. Closing the mobile Palette returns keyboard focus to Add; Inspector Done returns it to the selected visible node. Reset cancellation returns it to Graph tools (More on mobile).
 
 1. Choose a task from **Recipes** or load an MP4 from the Input node. Recipes that need source dimensions or duration offer **Choose video & build graph**, so you can select the MP4 in the same step.
 2. Build the recipe graph or add filter nodes manually.
@@ -93,7 +95,7 @@ On smartphones, the Graph Canvas uses the available width and the main controls 
 
 Autosave stores the Graph, Input media metadata, and output filename in this browser's local storage. It does not store media bytes, absolute local paths, or rendered output. After restore, use **Re-select media in bulk** to choose the original files; matching filename and size are used to re-link Missing Inputs automatically. Dropping several files on the Canvas performs the same matching first, then adds only unmatched supported files as new Inputs.
 
-## Current runtime (v1.2.2)
+## Current runtime (v1.2.3)
 
 The default build pins the published Builder v1.10.2 ST/MT assets, correcting terminal video-frame duration and bounded-preview timing. Codec/catalog, graph schema, GPL runtime licensing, and offline boundaries are unchanged. The versioned sections below preserve earlier release history. See [runtime release verification](docs/BUILDER_V1_10_2_RELEASE.md).
 

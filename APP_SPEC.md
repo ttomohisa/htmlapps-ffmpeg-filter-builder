@@ -1,5 +1,14 @@
 # FFmpeg Filter Builder
 
+## v1.2.3 — Dialog and workspace display repairs
+
+- Only native modal dialogs lock root/body background scrolling; preserve native Help focus and its existing fixed-header, scrolling-body shell.
+- At narrow widths, wrap the title/version and keep header actions nonshrinking.
+- Reset retains its header and scrolls its message/actions internally with safe-area padding in short viewports.
+- Reset cancellation returns focus to visible Graph tools / mobile More. Palette dismissal returns to Add / its visible desktop opener; Inspector dismissal returns to the current visible selected node or a visible opener/canvas fallback. Preserve newer modal/editor ownership, disabled states, current selection, graph position, and native confirmation behavior.
+- Normal/floating desktop canvas height uses remaining space after the actual toolbar height, including wrapping at 1041px. Preserve sidebars, tablet/mobile normal sizing, graph coordinates, schema 4, Builder 1.10.2 ST/MT pins, artwork, CSP/COI, and file/export behavior.
+- Acceptance requires native short/narrow, keyboard dismissal, repeated open/close, breakpoint, and wrapped-toolbar checks in JA/EN. Source CSS and DOM-double tests do not establish native rendering or processing success. Media upload, Preview/Full Render/save, physical mobile, file://, and isolated MT execution remain separate verification gates.
+
 ## v1.2.2 — Icon normalization
 
 - Use #16624f with exact quarter-width/quarter-height background corner arcs; retain all compound-path cutouts and supplied artwork.
