@@ -17,6 +17,6 @@ assert.ok(source.includes('.check-row strong { display:block;'), 'Overlay checkb
 assert.ok(source.includes('.check-row small { display:block;'), 'Overlay checkbox help text must wrap below its title.');
 assert.ok(source.includes('.editor-grid { display:grid; grid-template-columns:230px minmax(0,1fr) 300px; gap:0; align-items:stretch; height:640px;'), 'Desktop workspace must keep a fixed 640px editor height.');
 assert.ok(source.includes('.palette-panel .panel-body, .inspector-panel .panel-body { height:calc(100% - 57px); overflow:auto; overscroll-behavior:contain; scrollbar-gutter:stable; }'), 'Palette and Inspector must scroll inside the fixed desktop workspace.');
-assert.ok(source.includes('.graph-scroll { position:relative; height:calc(100% - 57px); min-height:0;'), 'Graph Canvas must fill the fixed desktop workspace below its toolbar.');
+assert.ok(source.includes('.graph-scroll { position:relative; flex:1 1 auto; height:auto; min-height:0;'), 'Graph Canvas must fill the fixed desktop workspace below its toolbar.');
 assert.ok(source.includes('grid-template-columns:minmax(0,1fr); height:auto;'), 'Stacked workspace must release the fixed height below the desktop breakpoint.');
 console.log('[OK] v1.2.0 floating workspace smoke tests passed.');

@@ -121,7 +121,7 @@ function Resolve-RuntimeRoot([string]$Variant, [string]$ExplicitRoot) {
   return [string]$lines[-1]
 }
 
-Write-Host "FFmpeg Filter Builder v1.2.2" -ForegroundColor Cyan
+Write-Host "FFmpeg Filter Builder v1.2.3" -ForegroundColor Cyan
 Write-Host "ST + MT standalone build / Builder v1.10.2 GitHub Release / embedded M PLUS 1p"
 Write-Host ""
 
@@ -187,7 +187,7 @@ Write-Host "[OK] Root standalone aliases refreshed and verified." -ForegroundCol
 
 & $RepositoryCheckPath
 Write-Host ""
-Write-Host "[OK] FFmpeg Filter Builder v1.2.2 dual-runtime build completed." -ForegroundColor Green
+Write-Host "[OK] FFmpeg Filter Builder v1.2.3 dual-runtime build completed." -ForegroundColor Green
 Write-Host "  ffmpeg-filter-builder.html      single-thread / file:// supported"
 Write-Host "  ffmpeg-filter-builder.mt.html   multi-thread / COOP+COEP required"
 Write-Host "  dist\index.html                 identical ST build artifact"

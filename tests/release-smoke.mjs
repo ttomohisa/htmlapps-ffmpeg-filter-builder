@@ -13,7 +13,7 @@ const deployWorkflow = read('../.github/workflows/deploy-pages.yml');
 const buildBat = read('../build-standalone.bat');
 const buildPs1 = read('../build-standalone.ps1');
 
-assert.equal(app.version, '1.2.2', 'Release version mismatch.');
+assert.equal(app.version, '1.2.3', 'Release version mismatch.');
 assert.equal(app.build.blockRuntimeNetwork, true, 'Runtime network blocking must remain enabled.');
 assert.equal(app.build.output, 'dist/index.html', 'ST output path changed unexpectedly.');
 assert.equal(app.build.multiThreadOutput, 'dist/index.mt.html', 'MT output path changed unexpectedly.');
@@ -23,7 +23,7 @@ for (const variant of ['single-thread', 'multi-thread']) {
   assert.match(runtime.variants[variant].sha256, /^[a-f0-9]{64}$/, `${variant} runtime SHA-256 is invalid.`);
 }
 
-assert.ok(source.includes('<span class="version-badge" id="versionBadge">v1.2.2</span>'), 'Release version badge missing.');
+assert.ok(source.includes('<span class="version-badge" id="versionBadge">v1.2.3</span>'), 'Release version badge missing.');
 assert.ok(source.includes("connect-src 'none'"), 'CSP runtime network block missing.');
 assert.ok(!/<script[^>]+src\s*=\s*["']https?:\/\//i.test(source), 'External runtime script URL detected.');
 assert.ok(!/<link[^>]+href\s*=\s*["']https?:\/\//i.test(source), 'External runtime stylesheet URL detected.');
@@ -70,19 +70,19 @@ for (const marker of [
   'id="fullRenderButton"'
 ]) assert.ok(source.includes(marker), `Release feature marker missing: ${marker}`);
 
-assert.ok(readme.includes('v1.2.2'), 'English README is not synchronized to v1.2.2.');
-assert.ok(readmeJa.includes('v1.2.2'), 'Japanese README is not synchronized to v1.2.2.');
-assert.ok(readme.includes('Current release: **v1.2.2**'), 'English README must advertise the Stable status.');
-assert.ok(readmeJa.includes('現在の正式版: **v1.2.2**'), 'Japanese README must advertise the Stable status.');
+assert.ok(readme.includes('v1.2.3'), 'English README is not synchronized to v1.2.3.');
+assert.ok(readmeJa.includes('v1.2.3'), 'Japanese README is not synchronized to v1.2.3.');
+assert.ok(readme.includes('Current release: **v1.2.3**'), 'English README must advertise the Stable status.');
+assert.ok(readmeJa.includes('現在の正式版: **v1.2.3**'), 'Japanese README must advertise the Stable status.');
 assert.ok(!readme.includes('v1.1.0-beta.3'), 'English README still advertises beta.3.');
 assert.ok(!readmeJa.includes('v1.1.0-beta.3'), 'Japanese README still advertises beta.3.');
 
-assert.ok(repositoryCheck.includes('1.2.2'), 'Repository checker version is not synchronized.');
+assert.ok(repositoryCheck.includes('1.2.3'), 'Repository checker version is not synchronized.');
 assert.ok(repositoryCheck.includes('tests\\release-smoke.mjs'), 'Repository checker must require the baseline regression test.');
 assert.ok(repositoryCheck.includes('tests\\stable-release-smoke.mjs'), 'Repository checker must require the Stable gate.');
 assert.ok(repositoryCheck.includes('tests\\template-script-syntax-smoke.mjs'), 'Repository checker must require the inline script syntax test.');
-assert.ok(buildBat.includes('v1.2.2'), 'Windows build entry point version is not synchronized.');
-assert.ok(buildPs1.includes('v1.2.2'), 'PowerShell build version is not synchronized.');
+assert.ok(buildBat.includes('v1.2.3'), 'Windows build entry point version is not synchronized.');
+assert.ok(buildPs1.includes('v1.2.3'), 'PowerShell build version is not synchronized.');
 assert.ok(buildPs1.includes('ffmpeg-filter-builder.html'), 'PowerShell build must refresh the root ST standalone alias.');
 assert.ok(buildPs1.includes('ffmpeg-filter-builder.mt.html'), 'PowerShell build must refresh the root MT standalone alias.');
 assert.ok(buildPs1.includes('Root standalone aliases refreshed and verified.'), 'Root standalone alias verification is missing.');

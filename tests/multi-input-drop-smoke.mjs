@@ -5,7 +5,7 @@ const read = (path) => fs.readFileSync(new URL(path, import.meta.url), 'utf8');
 const source = read('../src/index.template.html');
 const app = JSON.parse(read('../app.config.json'));
 
-assert.equal(app.version, '1.2.2', 'Canvas Drop milestone version mismatch.');
+assert.equal(app.version, '1.2.3', 'Canvas Drop milestone version mismatch.');
 
 for (const marker of [
   'id="graphDropOverlay"',

@@ -1,9 +1,10 @@
 <!--
   Reusable confirmation dialog for htmlapps-template.
   Copy this block into src/index.template.html and adapt tokens/labels as needed.
-  API: await AppConfirm.ask({ title, message, confirmLabel, cancelLabel, tone })
+  API: await AppConfirm.ask({ title, message, confirmLabel, cancelLabel, tone, returnFocus })
 -->
 <style>
+  html:has(dialog:modal), body:has(dialog:modal) { overflow: hidden; }
   .app-confirm-dialog {
     width: min(420px, calc(100% - 24px));
     max-width: 100%;
@@ -15,12 +16,18 @@
     color: var(--text, #20211f);
     box-shadow: var(--shadow-md, 0 12px 34px rgba(25, 28, 24, .10));
   }
+  .app-confirm-dialog[open] {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100dvh - 28px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  }
   .app-confirm-dialog::backdrop {
     background: rgba(15, 17, 14, .48);
     backdrop-filter: blur(3px);
   }
   .app-confirm-header {
     display: flex;
+    flex: 0 0 auto;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
@@ -42,7 +49,7 @@
   }
   .app-confirm-close:hover { background: var(--surface-hover, #e9e9e5); }
   .app-confirm-close svg { width: 19px; height: 19px; }
-  .app-confirm-body { padding: 18px; }
+  .app-confirm-body { min-height: 0; flex: 1 1 auto; overflow: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 18px; }
   .app-confirm-message {
     margin: 0;
     color: var(--muted, #666963);
@@ -149,39 +156,56 @@
     const okButton = document.getElementById('appConfirmOk');
     let resolver = null;
     let restoreFocus = null;
+    let requestId = 0;
 
-    function defaults() {
-      const ja = (document.documentElement.lang || navigator.language || '').toLowerCase().startsWith('ja');
-      return ja
-        ? { title: '確認', confirmLabel: '実行する', cancelLabel: 'キャンセル' }
-        : { title: 'Confirm', confirmLabel: 'Continue', cancelLabel: 'Cancel' };
+    function availableFocusTarget(target) {
+      return target instanceof HTMLElement && target.isConnected &&
+        !target.matches(':disabled') && !target.closest('[hidden],[inert]') &&
+        target.getClientRects().length > 0 &&
+        !['hidden', 'collapse'].includes(getComputedStyle(target).visibility);
     }
 
     function finish(result) {
       if (!dialog.open) return;
-      const currentResolver = resolver;
+      const current = resolver;
+      const previous = restoreFocus;
+      const active = document.activeElement;
+      const owned = dialog.contains(active) || active === document.body;
       resolver = null;
-      dialog.close();
-      if (restoreFocus instanceof HTMLElement && restoreFocus.isConnected) restoreFocus.focus({ preventScroll: true });
       restoreFocus = null;
-      if (currentResolver) currentResolver(result);
+      ++requestId;
+      dialog.close();
+      // Native close may already restore focus. Do not replace a newer editor/modal owner.
+      const after = document.activeElement;
+      const unclaimed = after === document.body || after === previous || dialog.contains(after);
+      if (unclaimed) {
+        const target = owned
+          ? (document.querySelector('dialog[open]') ? null : typeof previous === 'function' ? previous() : previous)
+          : active;
+        if (availableFocusTarget(target)) target.focus({ preventScroll: true });
+      }
+      if (current) current(result);
     }
 
     function ask(options = {}) {
       if (dialog.open) finish(false);
-      const fallback = defaults();
-      title.textContent = options.title || fallback.title;
+      const ja = (document.documentElement.lang || navigator.language || '').toLowerCase().startsWith('ja');
+      title.textContent = options.title || (ja ? '確認' : 'Confirm');
       message.textContent = options.message || '';
-      cancelButton.textContent = options.cancelLabel || fallback.cancelLabel;
-      okButton.textContent = options.confirmLabel || fallback.confirmLabel;
+      cancelButton.textContent = options.cancelLabel || (ja ? 'キャンセル' : 'Cancel');
+      okButton.textContent = options.confirmLabel || (ja ? '実行する' : 'Continue');
       okButton.classList.toggle('danger', options.tone === 'danger');
       okButton.classList.toggle('primary', options.tone !== 'danger');
-      restoreFocus = document.activeElement;
-
+      restoreFocus = options.returnFocus || document.activeElement;
+      const currentRequest = ++requestId;
       return new Promise(resolve => {
         resolver = resolve;
         dialog.showModal();
-        requestAnimationFrame(() => cancelButton.focus({ preventScroll: true }));
+        requestAnimationFrame(() => {
+          if (dialog.open && currentRequest === requestId && dialog.contains(document.activeElement)) {
+            cancelButton.focus({ preventScroll: true });
+          }
+        });
       });
     }
 
