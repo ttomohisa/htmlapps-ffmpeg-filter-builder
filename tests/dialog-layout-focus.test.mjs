@@ -69,7 +69,10 @@ function harness({mobile = true, reference = false} = {}) {
       const classes = new Set();
       this.classList = {add:(...v)=>v.forEach(x=>classes.add(x)),remove:(...v)=>v.forEach(x=>classes.delete(x)),contains:x=>classes.has(x),toggle:(x,on=!classes.has(x))=>on?classes.add(x):classes.delete(x)};
     }
+    set hidden(value) { this._hidden=value;if(value&&doc&&this.contains(doc.activeElement))doc.activeElement=doc.body; }
+    get hidden() { return this._hidden; }
     addEventListener(type, handler) { (this.handlers[type] ||= []).push(handler); }
+    click() { if(this.disabled)return;this.clickFocus=doc.activeElement;this.clickCount=(this.clickCount||0)+1;return this.dispatch('click'); }
     dispatch(type, extra = {}) { return Promise.all((this.handlers[type] || []).map(fn => fn({target:this,preventDefault(){},stopPropagation(){},clientX:50,clientY:20,...extra}))); }
     setAttribute(k,v) { this.attributes[k] = v; }
     contains(el) { return el === this || Boolean(el?.parentElement && this.contains(el.parentElement)); }
@@ -92,7 +95,7 @@ function harness({mobile = true, reference = false} = {}) {
   doc = {body, documentElement:{lang:'en'}, activeElement:body, getElementById:id=>elements.get(id), querySelector:selector=>selector==='dialog[open]'?[...elements.values()].find(el=>el.open):query(selector),querySelectorAll:selector=>selector==='dialog[open]'?[...elements.values()].filter(el=>el.open):[]};
   const dialog=elements.get('appConfirmDialog');dialog.tagName='DIALOG';
   for (const id of ['appConfirmCancel','appConfirmClose','appConfirmOk']) elements.get(id).parentElement=dialog;
-  elements.get('resetGraphButton').parentElement=elements.get('graphActionsPopover');
+  for (const id of ['resetGraphButton','saveGraphButton','loadGraphButton','graphFileInput']) elements.get(id).parentElement=elements.get('graphActionsPopover');
   for (const id of ['mobilePaletteDoneButton','closePaletteButton','paletteSearchInput']) elements.get(id).parentElement=palette;
   for (const id of ['mobileInspectorDoneButton','closeInspectorButton','inspectorBody']) elements.get(id).parentElement=inspector;
   const card=new Element('scale-card','DIV',elements.get('nodeLayer'));card.dataset.nodeId='scale-2';
@@ -106,16 +109,20 @@ function harness({mobile = true, reference = false} = {}) {
     return elements.get(selector.replace(/^#/,''));
   }
   const frames=[], state={rendering:false,selectedNodeId:'scale-2',selectedNodeIds:new Set(['scale-2']),workspace:{viewport:{x:1,y:2,zoom:1},positions:{'scale-2':{x:1,y:2}}}};
-  let resets=0;
+  let resets=0,downloadHook=null;
+  // Keep the graph model boundary stubbed; execute real export/import and UI handlers.
+  const downloads=[],imports=[],project={format:'ffmpeg-filter-builder-graph',formatVersion:1,graph:{schemaVersion:4},outputFilename:'result.mp4'};
   const window=new Element('window');
-  const ctx=vm.createContext({window,document:doc,HTMLElement:Element,navigator:{language:'en'},getComputedStyle:el=>({visibility:el.visibility}),innerWidth:800,innerHeight:600,requestAnimationFrame:fn=>frames.push(fn),$:query,state,matchMedia:()=>({matches:mobile}),CSS:{escape:x=>x},applyGraphViewport(){},ensureSelectedNodeVisible(){},syncMobileActionBar(){},setGraphFloating(){},resetGraph(){resets++;},t:x=>x,undo(){},redo(){},disconnectSelected(){}});
+  const ctx=vm.createContext({window,document:doc,Blob,projectEnvelope:()=>project,saveBlobDownload:(blob,filename)=>{downloads.push({blob,filename});downloadHook?.();},showToast(){},applyProjectEnvelope:(parsed,options)=>{imports.push({parsed,options});return 1;},missingInputNodes:()=>[],appendLog(){},HTMLElement:Element,navigator:{language:'en'},getComputedStyle:el=>({visibility:el.visibility}),innerWidth:800,innerHeight:600,requestAnimationFrame:fn=>frames.push(fn),$:query,state,matchMedia:()=>({matches:mobile}),CSS:{escape:x=>x},applyGraphViewport(){},ensureSelectedNodeVisible(){},syncMobileActionBar(){},setGraphFloating(){},resetGraph(){resets++;},t:x=>x,undo(){},redo(){},disconnectSelected(){}});
   const confirmCode=reference?fs.readFileSync(process.argv[3] || new URL('../components/confirm-dialog.html',import.meta.url),'utf8').match(/<script>([\s\S]*?)<\/script>/)[1]:block("const dialog=document.getElementById('appConfirmDialog')", 'window.AppConfirm=Object.freeze({ask});')+'window.AppConfirm=Object.freeze({ask});';
   vm.runInContext(confirmCode,ctx);
   ctx.AppConfirm=window.AppConfirm;
   vm.runInContext(block("const MOBILE_GRAPH_MEDIA=", 'function startTouchPinch()')+block('const TOOLBAR_POPOVERS=', "$('#versionBadge').textContent="),ctx);
   for (const id of ['closePaletteButton','mobilePaletteDoneButton','closeInspectorButton','mobileInspectorDoneButton','mobileAddButton','mobileMoreButton','mobileSheetBackdrop']) vm.runInContext(statement(`$('#${id}').addEventListener`),ctx);
   vm.runInContext(statement("$('#undoButton').addEventListener"),ctx);
+  vm.runInContext(block('function exportGraphProject()', 'async function importGraphProject(')+statement('async function importGraphProject(')+block("$('#saveGraphButton').addEventListener", "$('#relinkInputsButton').addEventListener")+statement('function updateHistoryButtons()'),ctx);
   vm.runInContext("const graphScroll=$('#graphScroll');let graphSpaceHeld=false;"+block("window.addEventListener('keydown'", "$('#nodeLayer').addEventListener('click'"),ctx);
+  elements.get('graphFileInput').hidden=true;
   elements.get('recipePopover').hidden=elements.get('graphActionsPopover').hidden=true;
   function reflectVisibility() {
     palette.hidden=editor.classList.contains('palette-collapsed');inspector.hidden=editor.classList.contains('inspector-collapsed');
@@ -125,9 +132,9 @@ function harness({mobile = true, reference = false} = {}) {
   }
   reflectVisibility();
   function run(code) { const result=vm.runInContext(code,ctx);reflectVisibility();return result; }
-  async function click(id) { const promise=elements.get(id).dispatch('click');reflectVisibility();return promise; }
+  async function click(id) { if(elements.get(id).disabled)return;const promise=elements.get(id).dispatch('click');reflectVisibility();return promise; }
   function flush() { while(frames.length) frames.shift()();reflectVisibility(); }
-  return {get:id=>elements.get(id),doc,state,card,editor,palette,inspector,run,click,flush,frames,window,setMobile:v=>{mobile=v;reflectVisibility();},resets:()=>resets,Element};
+  return {get:id=>elements.get(id),doc,state,card,editor,palette,inspector,run,click,flush,frames,window,setMobile:v=>{mobile=v;reflectVisibility();},resets:()=>resets,Element,downloads,imports,project,setDownloadHook:fn=>{downloadHook=fn;}};
 }
 
 for (const mobile of [false,true]) {
@@ -221,4 +228,110 @@ test('Inspector return skips a node outside the visible viewport even inside the
 test('confirmation maintenance reference honors responsive return focus and stale-frame guards',async()=>{
   const h=harness({reference:true});h.run("setToolbarPopover('graphActionsPopover',true)");h.get('resetGraphButton').focus();const pending=h.click('resetGraphButton');h.flush();await h.click('appConfirmCancel');await pending;assert.equal(h.doc.activeElement,h.get('mobileMoreButton'));
   const next=h.window.AppConfirm.ask();await h.click('appConfirmCancel');h.flush();await next;assert.equal(h.doc.activeElement,h.get('mobileMoreButton'));
+});
+
+
+for (const mobile of [false,true]) test(`Graph JSON Save returns to visible ${mobile?'More':'Graph tools'} after each export`,async()=>{
+  const h=harness({mobile});h.state.file={name:'sample.video.mp4'};
+  const before=JSON.stringify(h.state);
+  for(let attempt=1;attempt<=2;attempt++){
+    h.run("setToolbarPopover('graphActionsPopover',true)");h.get('saveGraphButton').focus();
+    await h.click('saveGraphButton');
+    assert.equal(h.doc.activeElement,h.get(mobile?'mobileMoreButton':'graphActionsButton'));
+    assert.equal(h.doc.activeElement.focusOptions.preventScroll,true);
+    assert.equal(h.get('graphActionsPopover').hidden,true);
+    assert.equal(h.get('graphActionsButton').attributes['aria-expanded'],'false');
+    assert.equal(h.get('mobileMoreButton').attributes['aria-expanded'],'false');
+    assert.equal(h.doc.body.classList.contains('mobile-toolbar-popover-open'),false);
+    assert.equal(h.downloads.length,attempt);
+    assert.equal(h.downloads.at(-1).filename,'sample.video-graph.json');
+    assert.equal(h.downloads.at(-1).blob.type,'application/json;charset=utf-8');
+    assert.deepEqual(JSON.parse(await h.downloads.at(-1).blob.text()),h.project);
+    assert.equal(JSON.stringify(h.state),before);
+  }
+});
+
+test('Graph JSON Save chooses the current breakpoint and keeps its empty-project filename',async()=>{
+  const h=harness({mobile:false});h.run("setToolbarPopover('graphActionsPopover',true)");h.get('saveGraphButton').focus();
+  h.setDownloadHook(()=>h.setMobile(true));await h.click('saveGraphButton');
+  assert.equal(h.doc.activeElement,h.get('mobileMoreButton'));
+  assert.equal(h.downloads[0].filename,'ffmpeg-filter-builder-graph.json');
+});
+
+test('Graph JSON Save skips unavailable openers and does not change their disabled state',async()=>{
+  for(const mobile of [false,true])for(const unavailable of ['disabled','hidden','visibility','detached']){
+    const h=harness({mobile}),opener=h.get(mobile?'mobileMoreButton':'graphActionsButton');
+    h.run("setToolbarPopover('graphActionsPopover',true)");h.get('saveGraphButton').focus();
+    if(unavailable==='visibility')opener.visibility='hidden';else if(unavailable==='detached')opener.isConnected=false;else opener[unavailable]=true;
+    await h.click('saveGraphButton');assert.equal(h.doc.activeElement,h.get('graphScroll'));
+    assert.equal(opener.disabled,unavailable==='disabled');
+  }
+});
+
+test('Graph JSON Save preserves an editor or modal that gains focus during export',async()=>{
+  for(const modal of [false,true]){
+    const h=harness(),active=modal?h.get('closeHelpButton'):new h.Element('new-editor','INPUT');
+    h.run("setToolbarPopover('graphActionsPopover',true)");h.get('saveGraphButton').focus();
+    h.setDownloadHook(()=>{if(modal){h.get('helpDialog').open=true;active.parentElement=h.get('helpDialog');}active.focus();});
+    await h.click('saveGraphButton');h.flush();assert.equal(h.doc.activeElement,active);
+    assert.equal(h.get('graphActionsPopover').hidden,true);
+  }
+});
+
+test('Graph JSON Save does not focus behind an open modal when body owns focus',async()=>{
+  const h=harness();h.run("setToolbarPopover('graphActionsPopover',true)");h.get('saveGraphButton').focus();
+  h.setDownloadHook(()=>{h.get('helpDialog').open=true;h.doc.activeElement=h.doc.body;});
+  await h.click('saveGraphButton');assert.equal(h.doc.activeElement,h.doc.body);
+});
+
+test('Graph JSON Save leaves no deferred focus to steal a newly opened editor',async()=>{
+  const h=harness();h.run("setToolbarPopover('graphActionsPopover',true)");h.get('saveGraphButton').focus();await h.click('saveGraphButton');
+  h.run("setWorkspaceSidebar('inspector',true)");h.get('mobileInspectorDoneButton').focus();h.flush();
+  assert.equal(h.doc.activeElement,h.get('mobileInspectorDoneButton'));
+});
+
+test('Graph JSON Save retains the rendering-disabled button guard',async()=>{
+  const h=harness();h.state.rendering=true;h.run("updateHistoryButtons();setToolbarPopover('graphActionsPopover',true)");
+  const before=JSON.stringify(h.state);await h.click('saveGraphButton');
+  assert.equal(h.get('saveGraphButton').disabled,true);assert.equal(h.downloads.length,0);
+  assert.equal(h.get('graphActionsPopover').hidden,false);assert.equal(JSON.stringify(h.state),before);
+});
+
+
+for(const mobile of [false,true])test(`Graph JSON Load keeps ${mobile?'More':'Graph tools'} through picker cancellation and completion`,async()=>{
+  const h=harness({mobile}),opener=h.get(mobile?'mobileMoreButton':'graphActionsButton'),picker=h.get('graphFileInput');
+  h.run("setToolbarPopover('graphActionsPopover',true)");h.get('loadGraphButton').focus();await h.click('loadGraphButton');
+  assert.equal(picker.clickFocus,opener);assert.equal(h.doc.activeElement,opener);
+  assert.equal(h.get('graphActionsPopover').hidden,true);
+  // Cancelling a native picker may emit no change at all, so restore before opening it.
+  assert.equal(h.imports.length,0);
+  for(let attempt=1;attempt<=2;attempt++){
+    h.run("setToolbarPopover('graphActionsPopover',true)");h.get('loadGraphButton').focus();await h.click('loadGraphButton');
+    picker.files=[{text:async()=>JSON.stringify(h.project)}];picker.value='selected.json';await picker.dispatch('change');await new Promise(resolve=>setImmediate(resolve));
+    assert.equal(h.doc.activeElement,opener);assert.equal(picker.value,'');assert.equal(h.imports.length,attempt);
+    assert.equal(JSON.stringify(h.imports.at(-1).parsed),JSON.stringify(h.project));assert.equal(h.imports.at(-1).options.history,true);
+  }
+});
+
+test('Graph JSON Load selects the current breakpoint before opening the picker',async()=>{
+  const h=harness({mobile:false});h.run("setToolbarPopover('graphActionsPopover',true)");h.get('loadGraphButton').focus();h.setMobile(true);
+  await h.click('loadGraphButton');assert.equal(h.get('graphFileInput').clickFocus,h.get('mobileMoreButton'));
+});
+
+test('Graph JSON Load never takes focus back after a pending file read',async()=>{
+  for(const modal of [false,true]){
+    const h=harness(),picker=h.get('graphFileInput'),active=modal?h.get('closeHelpButton'):new h.Element('new-editor','INPUT');
+    h.run("setToolbarPopover('graphActionsPopover',true)");h.get('loadGraphButton').focus();await h.click('loadGraphButton');
+    let finishRead;picker.files=[{text:()=>new Promise(resolve=>{finishRead=resolve;})}];await picker.dispatch('change');
+    if(modal){h.get('helpDialog').open=true;active.parentElement=h.get('helpDialog');}active.focus();
+    finishRead(JSON.stringify(h.project));await new Promise(resolve=>setImmediate(resolve));h.flush();
+    assert.equal(h.imports.length,1);assert.equal(h.doc.activeElement,active);
+  }
+});
+
+test('Graph JSON Load retains the rendering-disabled picker guard',async()=>{
+  const h=harness();h.state.rendering=true;h.run("updateHistoryButtons();setToolbarPopover('graphActionsPopover',true)");
+  await h.click('loadGraphButton');assert.equal(h.get('loadGraphButton').disabled,true);
+  assert.equal(h.get('graphFileInput').clickCount,undefined);assert.equal(h.imports.length,0);
+  assert.equal(h.get('graphActionsPopover').hidden,false);
 });

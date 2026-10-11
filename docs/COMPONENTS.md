@@ -10,6 +10,8 @@ The confirmation header never shrinks; the body owns short-viewport scrolling an
 
 Explicit Palette/Inspector dismissal uses a synchronous visible return target. General sheet switching does not restore focus. Inspector node lookup uses the current rendered selected node, skips nodes clipped outside the canvas, and never changes graph selection or pan/zoom.
 
+Graph JSON Save/Load uses the same visible Graph tools / mobile More continuation when dismissing its popover. Load returns focus before the native file picker opens, so cancellation and asynchronous reads need no later focus restoration. Newer editor/modal ownership and unavailable opener guards remain intact.
+
 ## Toast
 
 `components/toast.html` is the reference for short status notifications and reversible actions. Prefer an Undo action for operations that can be safely reversed.

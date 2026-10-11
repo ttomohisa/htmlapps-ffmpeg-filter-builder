@@ -51,7 +51,7 @@ The normal build uses Windows PowerShell and does not require Node.js for the ap
 
 ## Usage
 
-Help and Reset keep the page behind them still. On short screens, scroll inside the dialog to reach the last item or Reset action. Closing the mobile Palette returns keyboard focus to Add; Inspector Done returns it to the selected visible node. Reset cancellation returns it to Graph tools (More on mobile).
+Help and Reset keep the page behind them still. On short screens, scroll inside the dialog to reach the last item or Reset action. Closing the mobile Palette returns keyboard focus to Add; Inspector Done returns it to the selected visible node. Reset cancellation and Graph JSON Save/Load return it to Graph tools (More on mobile), including when the file picker is cancelled.
 
 1. Choose a task from **Recipes** or load an MP4 from the Input node. Recipes that need source dimensions or duration offer **Choose video & build graph**, so you can select the MP4 in the same step.
 2. Build the recipe graph or add filter nodes manually.
