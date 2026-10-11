@@ -92,4 +92,5 @@ for (const file of files) {
 // Source-only checks need no artifacts; the ordinary PowerShell build stays Node-free.
 if (files.includes('dist/index.html') && files.includes('dist/index.mt.html')) {
   await import('../scripts/test-icon-normalization.cjs');
+  await import('../scripts/test-help-copy.cjs');
 }
