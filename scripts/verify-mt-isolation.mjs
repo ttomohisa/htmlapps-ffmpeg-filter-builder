@@ -5,7 +5,10 @@ if (!mtUrl || !['http:', 'https:'].includes(new URL(mtUrl).protocol)) {
   throw new Error('MT_URL must be the expected HTTP(S) MT preview URL.');
 }
 
-const deadline = Date.now() + 30000;
+// GitHub Pages first loads without COOP/COEP, then a same-origin Service Worker
+// registers and reloads. The normal Cloudflare Preview remains fail-fast.
+const waitForPagesReload = process.env.MT_WAIT_FOR_ISOLATION === 'true';
+const deadline = Date.now() + (waitForPagesReload ? 90000 : 30000);
 let sequence = 0;
 let lastObservation = 'No page target observed.';
 const remaining = () => Math.max(0, deadline - Date.now());
@@ -96,8 +99,15 @@ while (remaining() > 0) {
       lastObservation = JSON.stringify(observed);
       // Target metadata can update before its execution context leaves about:blank.
       if (observed.href === mtUrl) {
-        state = observed;
-        break;
+        if (waitForPagesReload &&
+            (observed.crossOriginIsolated !== true || observed.sharedArrayBuffer !== true)) {
+          // Wait for coi-serviceworker's first navigation/reload. A fail-fast
+          // single observation would incorrectly reject the initial Pages load.
+          lastObservation = 'Awaiting Pages COI Service Worker reload: ' + JSON.stringify(observed);
+        } else {
+          state = observed;
+          break;
+        }
       }
     }
   } catch (error) {

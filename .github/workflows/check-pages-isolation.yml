@@ -1,0 +1,61 @@
+name: Verify live GitHub Pages ST / MT
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "scripts/verify-mt-isolation.mjs"
+      - "tests/preview-isolation.test.mjs"
+      - "docs/MULTI_THREAD_DEPLOYMENT.md"
+      - ".github/workflows/check-pages-isolation.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify-pages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Test isolation polling logic
+        run: node --test ./tests/preview-isolation.test.mjs
+
+      - name: Install Chrome
+        id: chrome
+        uses: browser-actions/setup-chrome@v2.2.0
+
+      - name: Verify both deployed Pages variants and browser MT isolation
+        shell: bash
+        env:
+          CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
+        run: |
+          set -euo pipefail
+          base="https://ttomohisa.github.io/htmlapps-ffmpeg-filter-builder"
+          curl --fail --location --retry 2 --silent --show-error \
+            --output "$RUNNER_TEMP/pages-st.html" "$base/"
+          curl --fail --location --retry 2 --silent --show-error \
+            --output "$RUNNER_TEMP/pages-mt.html" "$base/mt/"
+          curl --fail --location --retry 2 --silent --show-error \
+            --output "$RUNNER_TEMP/coi-serviceworker.js" "$base/mt/coi-serviceworker.js"
+          grep -Fq 'const RUNTIME_VARIANT = "single-thread";' "$RUNNER_TEMP/pages-st.html"
+          grep -Fq 'const RUNTIME_VARIANT = "multi-thread";' "$RUNNER_TEMP/pages-mt.html"
+          grep -Fq 'coiScript.src = "./coi-serviceworker.js"' "$RUNNER_TEMP/pages-mt.html"
+          test -s "$RUNNER_TEMP/coi-serviceworker.js"
+
+          "$CHROME_PATH" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --disable-gpu --remote-allow-origins=* --remote-debugging-port=9222 \
+            --user-data-dir="$RUNNER_TEMP/filter-builder-ghpages-chrome" \
+            "$base/mt/" > "$RUNNER_TEMP/chrome-pages.log" 2>&1 &
+          browser_pid=$!
+          trap 'kill "$browser_pid" 2>/dev/null || true' EXIT
+          MT_URL="$base/mt/" MT_WAIT_FOR_ISOLATION=true \
+            node ./scripts/verify-mt-isolation.mjs
+          echo 'Pages ST and MT published; Pages MT crossOriginIsolated and SharedArrayBuffer verified.'

@@ -18,7 +18,8 @@ const page = (url = mtUrl) => ({
 
 async function runHelper({
   targets = [[page()]], states = [isolated], stalledFetch = false,
-  stalledOpen = false, stalledMethod = '', evaluationError = false
+  stalledOpen = false, stalledMethod = '', evaluationError = false,
+  waitForPagesReload = false
 } = {}) {
   let now = 0, timerId = 0, fetchCount = 0, evaluationCount = 0;
   const timers = new Map(), sockets = [], messages = [], logs = [];
@@ -57,7 +58,8 @@ async function runHelper({
     close() { this.closed = true; }
   }
   const context = {
-    process: { env: { MT_URL: mtUrl } },
+    process: { env: { MT_URL: mtUrl,
+        MT_WAIT_FOR_ISOLATION: waitForPagesReload ? 'true' : '' } },
     console: { log: value => logs.push(value) },
     Date: { now: () => now }, URL, AbortController,
     setTimeout: setTimer, clearTimeout: id => timers.delete(id),
@@ -84,7 +86,7 @@ async function runHelper({
     const [id, timer] = [...timers].sort((a, b) => a[1].time - b[1].time)[0];
     timers.delete(id);
     now = timer.time;
-    assert.ok(now <= 30000, `helper exceeded its 30-second deadline: ${now}ms`);
+    assert.ok(now <= (waitForPagesReload ? 90000 : 30000), `helper exceeded its 30-second deadline: ${now}ms`);
     timer.callback();
   }
   assert.ok(done, 'helper did not settle within its bounded deadline');
@@ -119,6 +121,20 @@ test('waits when target metadata is ready before the page execution context navi
   assertClean(result);
 });
 
+test('GitHub Pages first load waits for Service Worker isolation before accepting MT', async () => {
+  const unisolated = { ...isolated, crossOriginIsolated: false, sharedArrayBuffer: false };
+  const result = await runHelper({states: [unisolated, unisolated, isolated], waitForPagesReload: true});
+  assert.equal(result.error, undefined);
+  assert.ok(result.evaluationCount >= 3);
+  assertClean(result);
+});
+test('GitHub Pages fallback times out when COI never becomes available', async () => {
+  const unisolated = { ...isolated, crossOriginIsolated: false, sharedArrayBuffer: false };
+  const result = await runHelper({states: [unisolated], waitForPagesReload: true});
+  assert.match(result.error?.message ?? '', /Timed out/);
+  assert.equal(result.now, 90000);
+  assertClean(result);
+});
 test('times out with the expected URL and last observed blank page when navigation never finishes', async () => {
   const result = await runHelper({ targets: [[page('about:blank')]], states: [blank] });
   assert.match(result.error?.message ?? '', /Timed out.*https:\/\/preview\.example\.test\/mt\//);

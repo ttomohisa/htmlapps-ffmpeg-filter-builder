@@ -55,41 +55,45 @@ commit 7b1d2a092d0d2dd2b7270b6f12f13605de26f214
 
 Its MIT license is stored at `licenses/coi-serviceworker-MIT.txt`.
 
-## Azure Static Web Apps / Browser Kitty
+## Cloudflare Workers / Browser Kitty (current)
 
-Azure Static Web Apps supports route-specific response headers in `staticwebapp.config.json`.
-
-If Browser Kitty imports or copies the `/mt/` HTML and serves it from an Azure Static Web Apps route, configure that Azure route with the required headers. For example, if the final route is `/apps/ffmpeg-filter-builder/mt/*`:
-
-```json
-{
-  "routes": [
-    {
-      "route": "/apps/ffmpeg-filter-builder/mt/*",
-      "headers": {
-        "Cross-Origin-Opener-Policy": "same-origin",
-        "Cross-Origin-Embedder-Policy": "require-corp",
-        "Cross-Origin-Resource-Policy": "same-origin"
-      }
-    }
-  ]
-}
-```
-
-When Azure supplies those headers, `crossOriginIsolated` is already true. The Pages-specific inline bootstrap therefore does not request `coi-serviceworker.js`. This means Browser Kitty may copy only the MT HTML into the Azure route if desired, provided the Azure response headers are correct.
-
-Important distinction:
-
-- Copy/import the HTML and serve it from the Browser Kitty Azure origin: Azure headers apply and MT works.
-- Merely link to or iframe the original `github.io/mt/` URL: Azure headers do not modify GitHub Pages responses.
-
-Do not apply COOP / COEP globally without reviewing the rest of the Browser Kitty site. Prefer the dedicated MT route.
-
-Microsoft reference:
+Browser Kitty has migrated from Azure Static Web Apps to Cloudflare Workers Static
+Assets. The current private Browser Kitty repository `ttomohisa/browser-kit`
+imports this app's GitHub Pages `/mt/` HTML and serves it as:
 
 ```text
-https://learn.microsoft.com/azure/static-web-apps/configuration
+https://browser-kitty.com/apps/ffmpeg-filter-builder.html
 ```
+
+Only that app's URL receives the necessary COOP / COEP / CORP response headers,
+declared in Browser Kitty's `cloudflare/_headers`:
+
+```text
+/apps/ffmpeg-filter-builder.html
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: require-corp
+  Cross-Origin-Resource-Policy: same-origin
+```
+
+Browser Kitty sets `config/tools.json` to select `dist/index.mt.html`
+and `sourceUrl: https://ttomohisa.github.io/htmlapps-ffmpeg-filter-builder/mt/`.
+This is a build-time import, **not an iframe of GitHub Pages**. On the isolated
+Cloudflare route the conditional GitHub Pages `coi-serviceworker` bootstrap
+is not activated; Browser Kitty does not require the Service Worker asset.
+
+Do **not** apply COOP/COEP globally. Most Browser Kitty tools continue to run
+without cross-origin isolation.
+
+## Live Pages browser verification
+
+`.github/workflows/check-pages-isolation.yml` performs a short, separate
+live smoke test without rebuilding the large FFmpeg bundles: it checks the ST
+and MT GitHub Pages URLs, availability of the same-origin COI Service Worker,
+then uses Chromium DevTools to verify `crossOriginIsolated === true` and
+`SharedArrayBuffer` after the MT page's first-load Service Worker reload.
+The existing Cloudflare Preview workflow continues to verify MT isolation
+with **server** headers and fails immediately when they are absent. Neither
+test asserts universal compatibility across all browser engines or private mode.
 
 ## Standard build
 
