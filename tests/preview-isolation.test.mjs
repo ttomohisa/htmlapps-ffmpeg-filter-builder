@@ -7,6 +7,7 @@ import vm from 'node:vm';
 // these regressions do not replace the workflow's real Chromium isolation check.
 const helperPath = new URL('../scripts/verify-mt-isolation.mjs', import.meta.url);
 const workflow = fs.readFileSync(new URL('../.github/workflows/preview.yml', import.meta.url), 'utf8');
+const publishWorkflow = fs.readFileSync(new URL('../.github/workflows/preview-deploy.yml', import.meta.url), 'utf8');
 const source = fs.readFileSync(helperPath, 'utf8');
 const mtUrl = 'https://preview.example.test/mt/';
 const isolated = { href: mtUrl, crossOriginIsolated: true, sharedArrayBuffer: true };
@@ -173,6 +174,7 @@ test('reports evaluation failures without accepting an unverified page', async (
 
 test('preview CI runs these regressions and the same readable helper', () => {
   assert.match(workflow, /run: node --test \.\/tests\/preview-isolation\.test\.mjs/);
-  assert.match(workflow, /node \.\/scripts\/verify-mt-isolation\.mjs/);
+  assert.match(publishWorkflow, /node \.\/scripts\/verify-mt-isolation\.mjs/);
   assert.doesNotMatch(workflow, /FromBase64String/);
+  assert.doesNotMatch(publishWorkflow, /FromBase64String/);
 });
