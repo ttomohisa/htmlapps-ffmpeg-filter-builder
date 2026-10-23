@@ -1,5 +1,11 @@
 # FFmpeg Filter Builder
 
+## Mobile informational layout
+
+- Hide only the informational page footer at the existing 700px phone-workspace breakpoint; retain Recipe / Add / Undo / More / Preview and their reserved space.
+- Move only App version, FFmpeg WASM Builder version, and Built at into a quiet final Help disclosure, preserving their IDs and population. Keep the five operational runtime diagnostics in their existing main-page disclosure under the bilingual Runtime information title.
+- Preserve header version, canonical local-processing badge, ST/MT behavior, runtime/font pins, separate licenses, and all processing controls. Native Help disclosure keyboard activation must not be treated as a backdrop click.
+
 ## v1.2.3 — Dialog and workspace display repairs
 
 - Only native modal dialogs lock root/body background scrolling; preserve native Help focus and its existing fixed-header, scrolling-body shell.

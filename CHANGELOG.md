@@ -31,6 +31,8 @@ All notable changes to FFmpeg Filter Builder are documented here.
 
 ## Unreleased
 
+- Hide only the informational footer at the existing 700px phone breakpoint. Move app/builder versions and build timestamp to quiet final Help; retain operational runtime diagnostics in place and keep native disclosure keyboard activation inside Help.
+
 ### Mobile workspace UX
 
 - Added a fixed smartphone action bar for Recipe, Add, Undo, More, and Preview so core Graph operations no longer depend on a horizontally scrolling toolbar.
