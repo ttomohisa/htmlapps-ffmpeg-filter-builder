@@ -13,6 +13,8 @@ async function bounds(locator, width, height, label, vertical = true) {
   assert.ok(r && r.x >= -1 && r.x + r.width <= width + 1 && (!vertical || (r.y >= -1 && r.y + r.height <= height + 1)), label + ': bounds ' + JSON.stringify(r));
 }
 async function assertPreviewFits(page, width, label) {
+  // Wait for the viewport and its CSS media queries to settle after resize.
+  await page.waitForFunction(expected => innerWidth === expected, width, {timeout:10000});
   const layout = await page.evaluate(() => {
     const panel = document.querySelector('.preview-panel').getBoundingClientRect();
     const selectors = [
@@ -26,6 +28,7 @@ async function assertPreviewFits(page, width, label) {
     });
     const title = document.querySelector('#heroTitle').getBoundingClientRect();
     return {panel:{left:panel.left,right:panel.right}, titleHeight:title.height,
+      mobileMatch:matchMedia('(max-width:700px)').matches,
       titleFontSize:getComputedStyle(document.querySelector('#heroTitle')).fontSize, elements};
   });
   for (const item of layout.elements) {
@@ -34,8 +37,9 @@ async function assertPreviewFits(page, width, label) {
       assert.ok(item.scrollWidth <= item.clientWidth + 3, label + ': intrinsic content overflow: ' + JSON.stringify(item));
     }
   }
-  if (width <= cfg.bp) {
-    assert.equal(layout.titleFontSize, '20px', label + ': Japanese and English hero headings use the same font size');
+  if (width <= 393) assert.equal(layout.mobileMatch,true,label + ': phone viewport must activate phone CSS');
+  if (layout.mobileMatch) {
+    assert.equal(layout.titleFontSize, '20px', label + ': Japanese and English hero headings use the same phone font size');
     assert.ok(layout.titleHeight <= 30, label + ': short hero title should fit on one phone line');
   }
 }
