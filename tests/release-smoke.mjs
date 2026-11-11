@@ -72,8 +72,8 @@ for (const marker of [
 
 assert.ok(readme.includes('v1.2.4'), 'English README is not synchronized to v1.2.4.');
 assert.ok(readmeJa.includes('v1.2.4'), 'Japanese README is not synchronized to v1.2.4.');
-assert.ok(readme.includes('Current release: **v1.2.4**'), 'English README must advertise the Stable status.');
-assert.ok(readmeJa.includes('現在の正式版: **v1.2.4**'), 'Japanese README must advertise the Stable status.');
+assert.ok(readme.includes('Version in this branch: **v1.2.4**'), 'English README must advertise the Stable status.');
+assert.ok(readmeJa.includes('このブランチのバージョン: **v1.2.4**'), 'Japanese README must advertise the Stable status.');
 assert.ok(!readme.includes('v1.1.0-beta.3'), 'English README still advertises beta.3.');
 assert.ok(!readmeJa.includes('v1.1.0-beta.3'), 'Japanese README still advertises beta.3.');
 
