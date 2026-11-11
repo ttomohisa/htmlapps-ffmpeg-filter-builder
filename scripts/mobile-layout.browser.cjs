@@ -94,9 +94,16 @@ async function main() {
           const caption = await page.locator('.minimap-label').boundingBox();
           assert.ok(map.y >= caption.y + caption.height - 1, label + ': Overview caption must not overlay the map');
         }
+        if (file==='dist/index.html' && width===1360) await page.screenshot({path:path.join(evidence,`${language}-graph-overview.png`)});
         await page.locator('#helpButton').click();
         const body = page.locator(cfg.body), details = page.locator(cfg.details);
         await metadata(page, rendered);
+        await page.locator('#runtimeDetailsSection summary').click();
+        assert.equal(await page.locator('#runtimeDetailsSection').evaluate(e => e.open), true, label + ': runtime diagnostic disclosure opens');
+        await page.locator('#licenseDetails summary').click();
+        assert.equal(await page.locator('#licenseDetails').evaluate(e => e.open), true, label + ': license disclosure opens');
+        assert.equal(await page.locator('#textFontLicense').isVisible(), true, label + ': embedded license text visible in Help');
+        assert.ok(await page.locator('#licenseDetails').evaluate(e => e.scrollWidth <= e.clientWidth+1), label + ': license disclosure does not overflow horizontally');
         assert.ok(await body.evaluate(e => e.lastElementChild.classList.contains('help-build')), label + ': final Help child');
         const hiddenBuild = cfg.hideBuild && width <= cfg.bp;
         assert.equal(await details.isVisible(), !hiddenBuild, label + ': preserve metadata visibility');
