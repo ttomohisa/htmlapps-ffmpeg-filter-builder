@@ -79,8 +79,8 @@ for (const workflow of workflows) {
 }
 
 assert.ok(repositoryCheck.includes('tests\\stable-release-smoke.mjs'), 'Repository check must require the Stable gate.');
-assert.ok(readme.includes('Current release: **v1.2.4**'), 'English README Stable status missing.');
-assert.ok(readmeJa.includes('現在の正式版: **v1.2.4**'), 'Japanese README Stable status missing.');
+assert.ok(readme.includes('Version in this branch: **v1.2.4**'), 'English README Stable status missing.');
+assert.ok(readmeJa.includes('このブランチのバージョン: **v1.2.4**'), 'Japanese README Stable status missing.');
 assert.ok(changelog.includes('## 1.2.0 - 2026-09-21'), 'Stable changelog entry missing.');
 assert.ok(changelog.includes('## 1.2.0-rc.1 - 2026-09-21'), 'RC changelog history must be preserved.');
 assert.ok(spec.includes('## v1.2.0 Stable（2026-09-21）'), 'Stable spec gate missing.');
