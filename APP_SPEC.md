@@ -1,6 +1,6 @@
 # FFmpeg Filter Builder
 
-## Unreleased: source lifecycle and desktop command correctness
+## v1.2.4: source lifecycle and desktop command correctness
 
 - Asynchronous media metadata reads may commit only while the original input node, graph and per-node read request still own that result and no render is underway. Reset, import, undo, and recipe replacement invalidate pending readers.
 - Undo/Redo must invalidate preview cache and both output URLs when any input File binding or the main input identity differs; purely visual/graph edits retain stale-preview behavior.

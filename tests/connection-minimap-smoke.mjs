@@ -3,7 +3,7 @@ import fs from 'node:fs';
 
 const source = fs.readFileSync(new URL('../src/index.template.html', import.meta.url), 'utf8');
 const app = JSON.parse(fs.readFileSync(new URL('../app.config.json', import.meta.url), 'utf8'));
-assert.equal(app.version, '1.2.3', 'Connection UX / MiniMap build must report v1.2.3.');
+assert.equal(app.version, '1.2.4', 'Connection UX / MiniMap build must report v1.2.4.');
 
 assert.ok(source.includes('function normalizeConnectionPair('), 'Bidirectional connection normalization missing.');
 assert.ok(source.includes("startSide==='input'&&targetSide==='output'"), 'Input-to-output reverse wiring missing.');
