@@ -66,6 +66,6 @@ assert.notEqual(api.state.inputBindings.get('input-1').file,api.state.inputBindi
 const unknown=api.sanitizeInputSourceMetadata({kind:'video',name:A.name,size:null,lastModified:null});
 assert.equal(unknown.size,null,'Unknown file size must remain unknown, not 0');
 assert.equal(unknown.lastModified,null,'Unknown file timestamp must remain unknown, not 0');
-assert.equal(api.inputRelinkScore({type:'input',source:unknown},A),16,'Missing optional metadata should not block filename-based relink');
+assert.equal(api.inputRelinkScore({type:'input',source:unknown},A),-1,'Unknown file sizes require manual relink, never a filename-only automatic guess');
 assert.equal(api.inputRelinkScore({type:'input',source:{...savedSource,size:9}},A),-1,'Known incorrect sizes still prevent relink');
 console.log('[OK] Recipe source identity, Graph reset/import identity and nullable relink metadata');
