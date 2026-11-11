@@ -211,7 +211,7 @@ for (const marker of [
 assert.match(source, /recipeLimitNote:'動画サイズや長さが必要なRecipeも、先に読み込む必要はありません/);
 assert.match(source, /applyRecipeWithVideo:'動画を選んでGraphへ展開'/);
 assert.match(source, /function requestRecipeApply/);
-assert.match(source, /pendingInputPick=\{kind:'video',mode:'recipe',recipeId\}/);
+assert.match(source, /pendingInputPick=\{kind:'video',mode:'recipe',recipeId,requestId:/);
 assert.ok(!source.includes("showToast(t('recipeNeedsInput'))"), 'Source-aware recipes must not dead-end on a pre-load toast.');
 assert.match(source, /def\?\.requiresInput&&!recipeCurrentVideoBinding\(\)\?'applyRecipeWithVideo':'applyRecipe'/);
 for (const id of recipeIds) assert.ok(source.includes(`value="${id}"`), `Recipe selector is missing ${id}.`);

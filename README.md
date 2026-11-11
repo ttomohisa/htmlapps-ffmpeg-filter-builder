@@ -51,6 +51,9 @@ The normal build uses Windows PowerShell and does not require Node.js for the ap
 
 ## Usage
 
+When copying a generated **FFmpeg command** to a computer, choose **macOS / Linux** or **PowerShell** in the command panel. Draw Text uses a relative `MPLUS1p-Regular.ttf` path in desktop commands: place that font alongside the working directory before running FFmpeg. The browser preview/render still uses its embedded font. Switching input files, including through Undo/Redo, invalidates previews from the previous media.
+
+
 Help and Reset keep the page behind them still. On short screens, scroll inside the dialog to reach the last item or Reset action. Closing the mobile Palette returns keyboard focus to Add; Inspector Done returns it to the selected visible node. Reset cancellation and Graph JSON Save/Load return it to Graph tools (More on mobile), including when the file picker is cancelled.
 
 1. Choose a task from **Recipes** or load an MP4 from the Input node. Recipes that need source dimensions or duration offer **Choose video & build graph**, so you can select the MP4 in the same step.

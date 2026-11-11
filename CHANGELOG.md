@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased — source lifecycle and desktop command fixes
+
+- Reject late media metadata results after source replacement, graph reset/import, recipe changes, or rendering begins; keep automatic relinking one-to-one for independently selected files.
+- Invalidate output and preview cache when Undo/Redo restores a different bound media file or main input, without discarding preview on unrelated graph edits.
+- Generate desktop Draw Text commands with a relative font path instead of the browser virtual filesystem path. Add PowerShell quoting and a selectable shell in the command panel.
+- Keep the `.mp4` extension when output filenames exceed 120 characters.
+- Keep the pinned v1.10.2 ST/MT runtime, graph schema, and local-processing boundary unchanged. This is an unreleased patch; the published v1.2.3 artifacts are unchanged until rebuilt and released.
+
 ## 1.2.3 - 2026-10-10
 
 - Lock background scrolling only while a native modal is open, retain the existing Help shell, and make short Reset confirmations scroll internally below a fixed header.

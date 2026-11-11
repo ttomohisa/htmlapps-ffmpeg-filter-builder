@@ -1,5 +1,15 @@
 # FFmpeg Filter Builder
 
+## Unreleased: source lifecycle and desktop command correctness
+
+- Asynchronous media metadata reads may commit only while the original input node, graph and per-node read request still own that result and no render is underway. Reset, import, undo, and recipe replacement invalidate pending readers.
+- Undo/Redo must invalidate preview cache and both output URLs when any input File binding or the main input identity differs; purely visual/graph edits retain stale-preview behavior.
+- One selected file may satisfy at most one Missing Input in an automatic batch relink. Manual assignment can intentionally reuse a file.
+- Desktop Draw Text emits a relative `MPLUS1p-Regular.ttf`, never a browser-only `/fonts/` path. Display POSIX or PowerShell shell quoting; provide bilingual font setup guidance.
+- Output filenames must retain `.mp4` and remain at most 120 characters.
+- No change to graph schema, embedded runtime, privacy boundary, ST/MT availability or v1.2.3 release artifacts until a new build/release.
+
+
 ## Mobile informational layout
 
 - Hide only the informational page footer at the existing 700px phone-workspace breakpoint; retain Recipe / Add / Undo / More / Preview and their reserved space.
