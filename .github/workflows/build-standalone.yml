@@ -144,6 +144,8 @@ jobs:
 
       - name: Test media source lifecycle and filename regressions
         run: node ./tests/source-safety-regression.test.mjs
+      - name: Test Graph restore and recipe source identity
+        run: node ./tests/deep-source-restore-regression.test.mjs
       - name: Test dialog layout, dismissal focus, and app metadata
         shell: pwsh
         run: node --test ./tests/dialog-layout-focus.test.mjs ./tests/release-metadata.test.mjs
