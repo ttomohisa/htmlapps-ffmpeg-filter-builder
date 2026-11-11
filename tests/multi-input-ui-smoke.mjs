@@ -23,7 +23,7 @@ for (const marker of [
   'node-main-badge',
   'inputBindings:new Map()',
   'inputBindings:cloneInputBindings()',
-  'state.inputBindings=cloneInputBindings(snap.inputBindings)',
+  'snap.inputBindings?cloneInputBindings(snap.inputBindings):oldBindings',
 ]) {
   assert.ok(source.includes(marker), `Missing Multiple Input UI marker: ${marker}`);
 }
