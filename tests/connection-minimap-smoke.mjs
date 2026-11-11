@@ -14,6 +14,11 @@ assert.ok(source.includes("startConnectionDrag(port,event);return;"), 'Pointer w
 
 assert.ok(source.includes('id="graphMinimap"'), 'MiniMap container missing.');
 assert.ok(source.includes('id="minimapViewport"'), 'MiniMap viewport marker missing.');
+assert.ok(source.includes('id="minimapEdges"'), 'MiniMap edges layer missing.');
+assert.ok(source.includes('class="minimap-edge'), 'MiniMap must draw graph connections.');
+assert.ok(source.includes('class="minimap-label" data-i18n="minimapOverview"'), 'MiniMap caption must localize.');
+assert.ok(source.includes("const rect=$('#graphMinimapSvg')?.getBoundingClientRect()"), 'MiniMap pointer coordinates must be relative to SVG, below its caption.');
+assert.ok(source.includes("event.target.closest?.('.minimap-label')"), 'MiniMap caption must not pan graph.');
 assert.ok(source.includes('function renderMiniMap()'), 'MiniMap rendering missing.');
 assert.ok(source.includes('function centerGraphFromMiniMap('), 'MiniMap navigation missing.');
 assert.ok(source.includes('function miniMapWorldFromClient('), 'MiniMap coordinate conversion missing.');

@@ -2,6 +2,11 @@
 
 ## 1.2.4 - 2026-11-12
 
+- Move all runtime diagnostics and the complete embedded M PLUS 1p license into Help, preserving the existing detailed build information at the end.
+- Hide the local-processing badge on phone layouts; keep all data-local processing guarantees unchanged.
+- Keep consistent spacing between every palette disclosure, including Input and Video filters separated by the hidden media picker.
+- Redesign the Graph Overview (MiniMap) with visible video/audio connections, a distinct viewport, and a separate localized header while retaining node targeting and drag navigation.
+
 - Reject late media metadata results after source replacement, graph reset/import, recipe changes, or rendering begins; keep automatic relinking one-to-one for independently selected files.
 - Invalidate output and preview cache when Undo/Redo restores a different bound media file or main input, without discarding preview on unrelated graph edits.
 - Generate desktop Draw Text commands with a relative font path instead of the browser virtual filesystem path. Add PowerShell quoting and a selectable shell in the command panel.

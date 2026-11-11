@@ -1,5 +1,13 @@
 # FFmpeg Filter Builder
 
+## v1.2.4: palette, Help and Overview refinement
+
+- On phone widths (700 px and narrower), hide only the hero local-processing badge and informational page footer. Keep privacy handling, Help explanations, functional mobile bar and desktop badge intact.
+- Place the five existing runtime diagnostics and the complete OFL-1.1 standard-font license in the Help dialog, in separate collapsed disclosures before the final build-info disclosure. The existing IDs and runtime/license text population must remain unchanged.
+- Maintain a uniform 10 px vertical gap among palette groups even where a hidden file-picker element interrupts the sibling order.
+- The desktop Graph Overview must display graph connections with audio distinction, selected-node colors and a visible viewport. Its header uses JA/EN translations. Use the SVG bounds (not the full container with its caption) when mapping clicks/drags to graph positions.
+- Preserve MiniMap node click and pan interactions, mobile minimap hiding, and all existing canvas features. Verify on desktop and phone widths in the browser.
+
 ## v1.2.4: source lifecycle and desktop command correctness
 
 - Asynchronous media metadata reads may commit only while the original input node, graph and per-node read request still own that result and no render is underway. Reset, import, undo, and recipe replacement invalidate pending readers.

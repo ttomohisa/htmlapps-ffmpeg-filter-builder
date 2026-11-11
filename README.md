@@ -51,6 +51,8 @@ The normal build uses Windows PowerShell and does not require Node.js for the ap
 
 ## Usage
 
+Runtime diagnostics and the full M PLUS 1p font license are in **How to use & notes**. The Graph Overview shows video/audio connections and which part of the graph is visible. On phones, the hero local-processing badge is hidden; processing still remains on the device.
+
 When copying a generated **FFmpeg command** to a computer, choose **macOS / Linux** or **PowerShell** in the command panel. Draw Text uses a relative `MPLUS1p-Regular.ttf` path in desktop commands: place that font alongside the working directory before running FFmpeg. The browser preview/render still uses its embedded font. Switching input files, including through Undo/Redo, invalidates previews from the previous media.
 
 
