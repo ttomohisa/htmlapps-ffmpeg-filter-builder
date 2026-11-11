@@ -2201,7 +2201,7 @@
         if(Math.abs(value-1)>.000001||!parts.length)parts.push(value);
         return parts.map(v=>`atempo=${fmtNum(v)}`).join(',');
       }
-      const drawTextTextFilePath=node=>`/text/${String(node?.id||'drawtext').replace(/[^A-Za-z0-9_-]/g,'_')}.txt`;
+      const drawTextTextFilePath=node=>{ const raw=String(node?.id||'drawtext'); const name=/^[A-Za-z0-9_-]+$/.test(raw)?raw:`~${[...raw].map(char=>char.codePointAt(0).toString(16)).join('-')}`; return `/text/${name}.txt`; };
       const drawTextHex=value=>`0x${String(value||'#ffffff').replace('#','').toUpperCase()}`;
       const escapeDrawTextOptionValue=value=>String(value??'').replace(/([\\':])/g,'\\$1');
       const escapeFilterGraphValue=value=>String(value??'').replace(/([\\'\[\],;])/g,'\\$1');
