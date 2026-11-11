@@ -5,7 +5,7 @@
 - Reject late media metadata results after source replacement, graph reset/import, recipe changes, or rendering begins; keep automatic relinking one-to-one for independently selected files.
 - Invalidate output and preview cache when Undo/Redo restores a different bound media file or main input, without discarding preview on unrelated graph edits.
 - Generate desktop Draw Text commands with a relative font path instead of the browser virtual filesystem path. Add PowerShell quoting and a selectable shell in the command panel.
-- Keep the `.mp4` extension when output filenames exceed 120 characters.
+- Keep the `.mp4` extension when output filenames exceed 120 characters. Keep distinct Draw Text node IDs mapped to distinct virtual textfile paths.
 - Keep the pinned v1.10.2 ST/MT runtime, graph schema, and local-processing boundary unchanged. This is the v1.2.4 patch; runtime assets are unchanged. The published v1.2.3 artifacts remain available until v1.2.4 is released.
 
 ## 1.2.3 - 2026-10-10

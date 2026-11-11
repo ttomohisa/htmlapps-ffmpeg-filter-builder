@@ -110,7 +110,7 @@ The same Draw Text node is serialized differently by target:
 - Browser single-input path: `fontfile=/fonts/MPLUS1p-Regular.ttf:textfile=/text/<node-id>.txt:expansion=none...`
 - Desktop: `fontfile=MPLUS1p-Regular.ttf:text='escaped text':expansion=none...` (place the pinned font in the FFmpeg working directory). The command viewer offers separate POSIX shell and Windows PowerShell quoting.
 
-`compileGraph()` adds Browser text payloads to `request.runtimeFiles`.
+`compileGraph()` adds Browser text payloads to `request.runtimeFiles`. Node IDs containing punctuation are encoded into distinct path-safe textfile names instead of replacing every symbol with the same underscore.
 
 ## Speed synchronization
 

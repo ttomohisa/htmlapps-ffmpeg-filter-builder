@@ -47,6 +47,8 @@ assert.match(browserFilter, /x=\(w-text_w\)\/2:y=h-text_h-20/);
 assert.match(browserFilter, /box=1:boxcolor=0x000000@0\.55:boxborderw=12/);
 assert.match(browserFilter, /enable=between\(t\\,1\.25\\,4\.5\)$/);
 assert.equal(core.drawTextTextFilePath(node), '/text/drawText-3.txt');
+assert.notEqual(core.drawTextTextFilePath({id:'draw/text'}),core.drawTextTextFilePath({id:'draw_text'}),'Distinct imported node IDs must never share a text virtual path.');
+assert.match(core.drawTextTextFilePath({id:'draw/text'}),/^\/text\/~[0-9a-f-]+\.txt$/,'Non-alphanumeric IDs need an injective path-safe encoding.');
 
 const desktopFilter = core.filterForNode(node, 'desktop');
 assert.match(desktopFilter, /text=Browser Kitty 日本語/);

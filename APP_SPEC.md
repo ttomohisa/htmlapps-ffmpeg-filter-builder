@@ -6,7 +6,7 @@
 - Undo/Redo must invalidate preview cache and both output URLs when any input File binding or the main input identity differs; purely visual/graph edits retain stale-preview behavior.
 - One selected file may satisfy at most one Missing Input in an automatic batch relink. Manual assignment can intentionally reuse a file.
 - Desktop Draw Text emits a relative `MPLUS1p-Regular.ttf`, never a browser-only `/fonts/` path. Display POSIX or PowerShell shell quoting; provide bilingual font setup guidance.
-- Output filenames must retain `.mp4` and remain at most 120 characters.
+- Output filenames must retain `.mp4` and remain at most 120 characters. Draw Text virtual paths must be unique even when imported node IDs contain punctuation.
 - No change to graph schema, embedded runtime, privacy boundary, ST/MT availability or v1.2.3 release artifacts until a new build/release.
 
 
