@@ -1,5 +1,12 @@
 # FFmpeg Filter Builder
 
+## v1.2.4: smartphone Preview/Compiler width and copy
+
+- At 320, 342, 393 and 700 CSS pixels, both Preview and Compiler sections must remain within the panel's usable width. Do not rely on hiding page-level overflow to conceal non-shrinking grid children.
+- The single-column stacked grid must use `minmax(0,1fr)`, and its children and command tabs must permit shrinking. Three preview-duration choices must remain visible. Long commands may scroll **inside** their code block, never expand the entire panel.
+- On phones, the Japanese and English hero headings use identical 20px typography and concise copy. The Japanese subtitle and prominent Preview/Compiler labels should be natural Japanese instead of English technical fragments.
+- Regression checks must cover both languages, narrow and widened windows, generated commands, and both Compiler tabs, without breaking ST/MT or desktop layout.
+
 ## v1.2.4: palette, Help and Overview refinement
 
 - On phone widths (700 px and narrower), hide only the hero local-processing badge and informational page footer. Keep privacy handling, Help explanations, functional mobile bar and desktop badge intact.

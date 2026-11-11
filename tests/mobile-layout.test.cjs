@@ -22,6 +22,16 @@ test('the existing Japanese and English privacy badge remains canonical', () => 
   assert.match(html, /localBadge:\s*'完全ローカル処理'/);
   assert.match(html, /localBadge:\s*'Fully local processing'/);
 });
+test('Preview and Compiler grid shrink at narrow widths without hiding contents', () => {
+  assert.match(html, /\.preview-grid \{ grid-template-columns:minmax\(0,1fr\); \}/, 'Use a zero-minimum grid track for stacked panels');
+  assert.match(html, /\.preview-grid > \* \{ min-width:0; max-width:100%; \}/, 'Allow both Preview and Compiler columns to shrink');
+  assert.match(html, /\.preview-duration-row \{ display:grid; grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+  assert.match(html, /\.command-head \{ flex-wrap:wrap; \}/, 'Compiler title and shell controls must wrap on phones');
+  assert.match(html, /\.page-intro h2 \{ font-size:20px; line-height:1\.35; \}/, 'Both hero title locales must use the same phone font size');
+  assert.ok(html.includes("introTitle:'動画フィルターを組み立てる'"));
+  assert.ok(html.includes("introTitle:'Build video filters'"));
+  assert.ok(html.includes("previewTitle:'プレビューとコマンド'"));
+});
 test('runtime diagnostics and complete font license move into Help without losing their IDs', () => {
   const main = html.slice(html.indexOf('<main'), html.indexOf('</main>'));
   for (const id of ['threadMode', 'isolationValue', 'filterCount', 'encoderList', 'workerCount']) {

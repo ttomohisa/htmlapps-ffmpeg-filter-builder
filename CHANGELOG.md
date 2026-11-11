@@ -2,6 +2,9 @@
 
 ## 1.2.4 - 2026-11-12
 
+- Fix narrow viewport clipping in Preview and Compiler caused by a non-shrinking single-column CSS Grid track; allow the command toolbar to wrap, keep duration buttons and metadata within phone width.
+- Use a consistent 20px smartphone heading size across JA/EN, shorter localized hero titles, and clearer Japanese copy for the preview workflow and compiler controls.
+
 - Move all runtime diagnostics and the complete embedded M PLUS 1p license into Help, preserving the existing detailed build information at the end.
 - Hide the local-processing badge on phone layouts; keep all data-local processing guarantees unchanged.
 - Keep consistent spacing between every palette disclosure, including Input and Video filters separated by the hidden media picker.
