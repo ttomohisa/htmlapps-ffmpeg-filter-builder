@@ -7,8 +7,6 @@ assert.ok(helpers.includes('function currentInputRead('),'Missing async ownershi
 const makeHarness=new Function([
 "const state={graph:{schemaVersion:4,mainInputId:'input-1',nodes:[{id:'input-1',type:'input',params:{},source:null}],edges:[]},inputBindings:new Map(),inputMeta:{},rendering:false,file:null,fileToken:0,resetCount:0,selectedNodeId:'input-1',selectedNodeIds:new Set(['input-1']),selectedEdgeId:'',nextNodeSeq:3,workspace:{positions:{}},outputFilenameTouched:true};",
 "const requests=new Map();",
-"const inputNodesForGraph=g=>(g?.nodes||[]).filter(n=>n?.type==='input');",
-"const graphMainInputId=(g=state.graph)=>g.mainInputId;",
 "const nodeById=id=>state.graph.nodes.find(n=>n.id===id);",
 "const t=key=>key;",
 "const clone=value=>JSON.parse(JSON.stringify(value));",
