@@ -23,6 +23,7 @@ GitHub Pagesから最初のHTMLを読み込んだ後、選択したMP4、Graph�
 
 ## Features
 
+- **動画Inputをサムネイルで区別** — ブラウザーで再生できるMP4は、Inputノードと設定欄に先頭付近の小さな画像が表示されます。対応しないコーデックでは従来のアイコンを表示します。画像は端末内で一時的に作成し、保存・送信しません。
 - **Recipeから始めてもGraphを直接作っても使える** — 24種類のRecipeはブラックボックスではなく、通常の編集可能なNode / Edgeへ展開されます。
 - **Graph Canvasを中心に編集** — Pan / Zoom / Fit、Node自由配置、複数選択、双方向drag-to-connect、MiniMapを備えたNode EditorとしてGraphを操作できます。
 - **よく使うVideo filterをGUIで編集** — Trim、Speed、FPS、Scale、Crop、Pad、Rotate、Flip、Aspect Ratio、Color Adjust、Hue、Blur、Sharpen、Fadeに対応します。
@@ -251,3 +252,8 @@ GitHub Pages版そのものを最初に開く通信と、ソースから初回bu
 Copyright © 2026 ttomohisa
 
 [MIT License](LICENSE)で公開しています。
+
+
+### リリース自動化
+
+PRを所有者が`main`へマージした後、GitHub Pagesのワークフローで標準版・高速版のビルドと検査を行います。成功すると、未公開のバージョンに限りSemVerタグとGitHub Releaseを自動作成し、4種類の単一HTML、ZIP、SHA-256チェックサムを添付します。PR段階ではタグやReleaseは作成しません。マージは所有者が実行します。

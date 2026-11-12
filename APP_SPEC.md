@@ -1,5 +1,13 @@
 # FFmpeg Filter Builder
 
+## v1.2.4: local Video Input thumbnails and merge release
+
+- When a video file is bound to an Input, show a small frame thumbnail in the Graph node and the Inspector file card if the browser can decode the source. Use local video/canvas APIs; never upload, persist, or export the image as part of project JSON. Keep the generic video icon if decoding fails or times out.
+- A single low-resolution frame (160 × 90 output canvas) is sufficient. Preserve portrait aspect ratio within the preview, limit work to one attempt per file, and free temporary object URLs after success/error/timeout. Do not decode new thumbnails while FFmpeg is actively rendering.
+- Guard against stale completions by comparing actual File object identity before changing any UI. Undo, Redo, input remove/replacement, Graph JSON import/relink and Recipe changes must never display a previous file's thumbnail on a different Input.
+- Do not change existing node dimensions, connection port geometry, MiniMap controls, keyboard access, or mobile bottom sheet behavior.
+- After the owner merges the PR to main, the main-branch Pages workflow must first pass production build validation and (when enabled) deployment, then create an immutable-version SemVer tag and GitHub Release from that same tested commit. Attach standard and self-extracting ST/MT one-file HTML, a ZIP, and SHA-256 checksums. Skip an existing release without overwriting it; reject a conflicting preexisting tag. Never create a tag or release on a PR build or preview run.
+
 ## v1.2.4: smartphone Preview/Compiler width and copy
 
 - At 320, 342, 393 and 700 CSS pixels, both Preview and Compiler sections must remain within the panel's usable width. Do not rely on hiding page-level overflow to conceal non-shrinking grid children.

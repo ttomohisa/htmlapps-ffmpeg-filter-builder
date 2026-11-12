@@ -21,6 +21,7 @@ GitHub Pages delivers the initial HTML. After the page loads, the selected MP4, 
 ## Features
 
 - **Start from a recipe or build the Graph yourself** — Twenty-four recipes expand into normal editable nodes and edges instead of hiding the processing behind a preset.
+- **Identify Video Inputs by thumbnail** — A small local frame appears on the Input node and in its settings when your browser can decode the video. Unsupported codecs fall back to the file icon; no thumbnail is uploaded or persisted.
 - **Edit around the Graph Canvas** — Pan / zoom / fit, manual node layout, multi-selection, bidirectional drag-to-connect, and a MiniMap make the Graph behave like a dedicated node editor.
 - **Edit common video filters visually** — Trim, Speed, FPS, Scale, Crop, Pad, Rotate, Flip, Aspect Ratio, Color Adjust, Hue, Blur, Sharpen, and Fade.
 - **Build branching video graphs** — Split and Overlay support branch / merge layouts such as Picture in Picture and blurred-background video.
@@ -246,3 +247,8 @@ Bug reports and feature proposals are welcome through GitHub Issues. See [CONTRI
 Copyright © 2026 ttomohisa
 
 Licensed under the [MIT License](LICENSE).
+
+
+### Release automation
+
+After a PR is merged into `main`, the GitHub Pages workflow validates/builds the pinned ST and MT standalone variants and deploys the site where Pages is enabled. On success, it creates the version tag and GitHub Release only when that version does not already have a release; it attaches both one-file variants, self-extract versions, ZIP, and SHA-256 sums. PR checks and previews never publish a release. Merges remain owner-controlled.

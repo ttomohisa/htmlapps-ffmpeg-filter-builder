@@ -2,6 +2,9 @@
 
 ## 1.2.4 - 2026-11-12
 
+- Generate a small local Video Input thumbnail in both the Graph node and Inspector when browser decoding succeeds; keep the original icon when decoding is unavailable. Thumbnails stay in memory and cannot outlive the bound file identity.
+- Publish the tested v1.2.4 ST/MT standalone files, SHA256SUMS and release ZIP as a GitHub Release with SemVer tag automatically after a successful main-branch deployment; never publish from a PR or retag an existing release.
+
 - Fix narrow viewport clipping in Preview and Compiler caused by a non-shrinking single-column CSS Grid track; allow the command toolbar to wrap, keep duration buttons and metadata within phone width.
 - Use a consistent 20px smartphone heading size across JA/EN, shorter localized hero titles, and clearer Japanese copy for the preview workflow and compiler controls.
 

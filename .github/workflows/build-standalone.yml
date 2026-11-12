@@ -146,6 +146,10 @@ jobs:
         run: node ./tests/source-safety-regression.test.mjs
       - name: Test Graph restore and recipe source identity
         run: node ./tests/deep-source-restore-regression.test.mjs
+      - name: Test local Video Input thumbnails
+        run: node ./tests/video-input-thumbnail.test.mjs
+      - name: Validate post-merge Release workflow
+        run: node ./tests/release-publication.test.mjs
       - name: Test dialog layout, dismissal focus, and app metadata
         shell: pwsh
         run: node --test ./tests/dialog-layout-focus.test.mjs ./tests/release-metadata.test.mjs
