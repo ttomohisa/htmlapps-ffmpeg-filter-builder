@@ -20,9 +20,9 @@ assert.match(release,/gh api "repos\/\$GITHUB_REPOSITORY\/git\/ref\/tags\/\$tag"
 assert.match(release,/tag_sha.*GITHUB_SHA/,'Do not move an existing tag');
 // gh api may emit an HTTP 404 JSON body even when the requested tag is missing.
 // Filter it to an empty SHA instead of treating the error JSON as an existing tag.
-assert.match(release,/--jq '\\.object\\.sha \\/\\/ empty'/,
+assert.ok(release.includes("--jq '.object.sha // empty'"),
   'Missing ref response must not be mistaken for a conflicting tag');
-assert.doesNotMatch(release,/--jq '\\.object\\.sha'(?! \\/\\/ empty)/,
+assert.ok(!release.includes("--jq '.object.sha'"),
   'Do not use an unfiltered sha lookup for optional tag references');
 assert.match(release,/if: steps\.version\.outputs\.publish == 'true'/);
 assert.match(release,/actions\/download-artifact@v7/);
