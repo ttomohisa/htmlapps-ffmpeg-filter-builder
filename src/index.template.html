@@ -641,6 +641,11 @@
     .node-missing-badge { position:absolute; left:14px; bottom:13px; display:inline-flex; align-items:center; gap:4px; max-width:150px; color:#98681f; font-size:8px; line-height:1.2; font-weight:850; }
     .node-missing-badge::before { content:""; width:6px; height:6px; flex:0 0 auto; border-radius:50%; background:#c6923d; }
     .node-body { height:100px; box-sizing:border-box; padding:10px 14px 44px; }
+    .node-body.has-video-thumbnail { display:flex; align-items:flex-start; gap:9px; }
+    .node-video-thumbnail { display:grid; place-items:center; width:60px; height:38px; flex:0 0 60px; overflow:hidden; border-radius:6px; background:#202823; color:#abbab0; }
+    .node-video-thumbnail img,.file-thumb.video-thumbnail img { display:block; width:100%; height:100%; object-fit:contain; }
+    .node-video-thumbnail svg { width:20px; height:20px; }
+    .node-body.has-video-thumbnail .node-summary { flex:1; min-width:0; height:38px; -webkit-line-clamp:2; }
     .node-summary { display:-webkit-box; height:32px; overflow:hidden; color:#4f524d; font-size:10.5px; line-height:1.5; font-weight:650; overflow-wrap:anywhere; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
     .node-port { position:absolute; top:50%; display:grid; place-items:center; width:36px; height:36px; padding:0; border:0; border-radius:50%; background:transparent; transform:translateY(-50%); cursor:pointer; z-index:3; }
     .node-port::after { content:""; width:11px; height:11px; border:2px solid var(--surface); border-radius:50%; background:var(--accent); box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 88%,#0000); transition:width .12s ease,height .12s ease,box-shadow .12s ease; }
@@ -700,6 +705,8 @@
     .main-input-note::before { content:"MAIN"; padding:3px 5px; border-radius:999px; background:var(--accent); color:white; font-size:7px; letter-spacing:.06em; }
     .file-thumb { display:grid; place-items:center; width:36px; height:36px; border-radius:9px; background:var(--surface); color:var(--accent); }
     .file-thumb svg { width:32px; height:32px; }
+    .file-thumb.video-thumbnail { width:80px; height:48px; overflow:hidden; background:#202823; color:#abbab0; }
+    .file-thumb.video-thumbnail svg { width:25px; height:25px; }
     .file-copy { min-width:0; }
     .file-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:10.5px; font-weight:800; }
     .file-meta { margin-top:2px; color:var(--muted); font-size:9px; line-height:1.35; }
@@ -1714,6 +1721,7 @@
         previewDuration:5, previewStart:0, previewGraphHash:'', currentGraphHash:'', previewStale:false,
         renderedPreviewStart:0, renderedPreviewDuration:5, previewPlaybackStart:0,
         previewCache:new Map(), previewCacheBytes:0, previewCacheState:'', fileToken:0, logEntries:[],
+        videoThumbs:new WeakMap(), videoThumbPending:new WeakSet(), videoThumbFailed:new WeakSet(),
         renderKind:'', fullRenderBlob:null, fullRenderUrl:'', fullRenderHash:'', fullRenderMs:null,
         outputFilename:'output.mp4', outputFilenameTouched:false, pendingRecovery:null, autosaveTimer:0,
         workspace:{viewport:{x:0,y:0,zoom:1},positions:{},initialized:false,fitQueued:false,graphWidth:650,graphHeight:420,pan:null,nodeDrag:null,marquee:null,connectionDrag:null,minimapVisible:true,minimapDrag:null,fileDragDepth:0,touchPoints:new Map(),pinch:null,suppressNodeClick:false,suppressPortClick:false}, selectedNodeIds:new Set(['input-1']), selectedEdgeId:''
@@ -2379,6 +2387,44 @@
         const category=nodeVisualCategory(node); let body=icons[type]||((category==='audio')?icons.audio:(category==='branch'?icons.split:icons.colorAdjust)); if(type==='input'){const kind=inputSourceKind(node);if(kind==='audio')body=icons.audio;else if(kind==='image')body='<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8" cy="9" r="1.5"/><path d="m5 17 5-5 3 3 2-2 4 4"/>';}
         return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
       }
+      // Generate only a small still frame; never persist it or upload the video.
+      function videoThumbnailContent(file){ const data=file&&state.videoThumbs.get(file); return data?`<img src="${data}" alt="" loading="lazy" decoding="async">`:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/></svg>'; }
+      function updateVideoThumbnailDisplays(file){
+        const data=state.videoThumbs.get(file);if(!data)return;
+        const populate=element=>{if(!element)return;const img=document.createElement('img');img.alt='';img.decoding='async';img.src=data;element.replaceChildren(img);};
+        for(const node of inputNodesForGraph(state.graph)){
+          if(inputExpectedKind(node)!=='video'||inputFileBinding(node.id)?.file!==file)continue;
+          const card=[...document.querySelectorAll('#nodeLayer .node-card')].find(item=>item.dataset.nodeId===node.id);
+          populate(card?.querySelector('.node-video-thumbnail'));
+          if(state.selectedNodeId===node.id)populate($('#inspectorBody .file-thumb.video-thumbnail'));
+        }
+      }
+      function requestVideoThumbnail(file){
+        if(!file||state.videoThumbs.has(file)||state.videoThumbPending.has(file)||state.videoThumbFailed.has(file))return;
+        state.videoThumbPending.add(file);
+        const video=document.createElement('video'),url=URL.createObjectURL(file);let finished=false,timer=0,target=0;
+        const finish=data=>{if(finished)return;finished=true;clearTimeout(timer);video.onloadedmetadata=null;video.onloadeddata=null;video.onseeked=null;video.onerror=null;video.removeAttribute('src');video.load();URL.revokeObjectURL(url);state.videoThumbPending.delete(file);if(data)state.videoThumbs.set(file,data);else state.videoThumbFailed.add(file);if(data)updateVideoThumbnailDisplays(file);};
+        const capture=()=>{if(video.readyState<2||!video.videoWidth||!video.videoHeight)return;try{
+          const canvas=document.createElement('canvas');canvas.width=160;canvas.height=90;
+          const ctx=canvas.getContext('2d');if(!ctx)throw new Error('Canvas 2D unavailable');
+          ctx.fillStyle='#202823';ctx.fillRect(0,0,160,90);
+          const scale=Math.min(160/video.videoWidth,90/video.videoHeight);
+          const width=video.videoWidth*scale,height=video.videoHeight*scale;
+          ctx.drawImage(video,(160-width)/2,(90-height)/2,width,height);
+          finish(canvas.toDataURL('image/jpeg',.7));
+        }catch{finish(null);}};
+        video.muted=true;video.playsInline=true;video.preload='auto';
+        video.onerror=()=>finish(null);
+        video.onloadedmetadata=()=>{target=Number.isFinite(video.duration)&&video.duration>.3?Math.min(.2,video.duration/4):0;if(target){try{video.currentTime=target;}catch{target=0;}}};
+        video.onseeked=capture;
+        video.onloadeddata=()=>{if(!target||!video.seeking&&video.currentTime>=target-.04)capture();};
+        timer=setTimeout(()=>finish(null),8000);
+        video.src=url;video.load();
+      }
+      function scheduleInputVideoThumbnails(){
+        if(state.rendering)return;
+        for(const node of inputNodesForGraph(state.graph)){if(inputExpectedKind(node)!=='video')continue;const file=inputFileBinding(node.id)?.file;if(file)requestVideoThumbnail(file);}
+      }
       function nodeCategoryLabel(node){ const category=nodeVisualCategory(node); return category==='input'?'INPUT':category==='output'?'OUTPUT':category==='text'?'TEXT':category==='audio'?'AUDIO':category==='branch'?'BRANCH':'VIDEO'; }
       function nodeSummary(node){
         const p=node.params||{}, n=value=>Number.isFinite(Number(value))?Number(value):0, pos=value=>String(value||'').replace(/-/g,' ');
@@ -2448,8 +2494,8 @@
           const inputHtml=inputs.map((port,index)=>{const top=portTop(inputs,index),label=portLabel(node,'input',port),stream=portStreamType(node,'input',port),name=stream===PORT_TYPES.AUDIO?t('audioPort'):t('videoPort'),pending=state.pendingConnection?.nodeId===id&&state.pendingConnection?.startSide==='input'&&state.pendingConnection?.portKey===port;return `${label?`<span class="port-caption input" style="top:${top}px">${label}</span>`:''}<button class="node-port input ${stream==='audio'?'audio':''}${pending?' pending':''}" style="top:${top}px" type="button" data-port="input" data-port-key="${escapeHtml(port)}" data-stream-type="${stream}" data-node-id="${escapeHtml(id)}" title="${escapeHtml(label||name)}" aria-label="${escapeHtml(label||name)} input"></button>`;}).join('');
           const outputHtml=outputs.map((port,index)=>{const top=portTop(outputs,index),label=portLabel(node,'output',port),stream=portStreamType(node,'output',port),name=stream===PORT_TYPES.AUDIO?t('audioPort'):t('videoPort'),pending=state.pendingConnection?.nodeId===id&&state.pendingConnection?.startSide==='output'&&state.pendingConnection?.portKey===port;return `${label?`<span class="port-caption output" style="top:${top}px">${label}</span>`:''}<button class="node-port output ${stream==='audio'?'audio':''}${pending?' pending':''}" style="top:${top}px" type="button" data-port="output" data-port-key="${escapeHtml(port)}" data-stream-type="${stream}" data-node-id="${escapeHtml(id)}" title="${escapeHtml(label||name)}" aria-label="${escapeHtml(label||name)} output"></button>`;}).join('');
           const visual=nodeVisualCategory(node),visualClass=visual==='audio'?'node-audio':visual==='branch'?'node-branch':(visual==='input'||visual==='output')?'node-io':visual==='text'?'node-text':'node-video',missingInput=inputNeedsBinding(node);
-          const displayTitle=node.type==='input'?inputDisplayTitle(node):(def?.title||node.type),mainBadge=node.type==='input'&&id===graphMainInputId()?'<span class="node-main-badge">MAIN</span>':'',missingBadge=missingInput?`<span class="node-missing-badge">${escapeHtml(t('inputMissingBadge'))}</span>`:'';
-          return `<div class="node-card ${visualClass}${selected?' selected':''}${hasError?' error':''}${missingInput?' input-missing':''}" data-node-id="${escapeHtml(id)}" style="left:${pos.x}px;top:${pos.y}px" tabindex="0" role="button" aria-label="${escapeHtml(displayTitle)}"><div class="node-header"><span class="node-icon">${nodeIconSvg(node)}</span><span class="node-heading"><span class="node-title">${escapeHtml(displayTitle)}</span><span class="node-category">${escapeHtml(nodeCategoryLabel(node))}</span></span>${mainBadge}</div><div class="node-body"><div class="node-summary">${escapeHtml(nodeSummary(node))}</div>${missingBadge}</div>${inputHtml}${outputHtml}</div>`;
+          const displayTitle=node.type==='input'?inputDisplayTitle(node):(def?.title||node.type),mainBadge=node.type==='input'&&id===graphMainInputId()?'<span class="node-main-badge">MAIN</span>':'',missingBadge=missingInput?`<span class="node-missing-badge">${escapeHtml(t('inputMissingBadge'))}</span>`:'',videoFile=node.type==='input'&&inputExpectedKind(node)==='video'?inputFileBinding(id)?.file:null,videoThumb=videoFile?`<span class="node-video-thumbnail" aria-hidden="true">${videoThumbnailContent(videoFile)}</span>`:'';
+          return `<div class="node-card ${visualClass}${selected?' selected':''}${hasError?' error':''}${missingInput?' input-missing':''}" data-node-id="${escapeHtml(id)}" style="left:${pos.x}px;top:${pos.y}px" tabindex="0" role="button" aria-label="${escapeHtml(displayTitle)}"><div class="node-header"><span class="node-icon">${nodeIconSvg(node)}</span><span class="node-heading"><span class="node-title">${escapeHtml(displayTitle)}</span><span class="node-category">${escapeHtml(nodeCategoryLabel(node))}</span></span>${mainBadge}</div><div class="node-body${videoThumb?' has-video-thumbnail':''}">${videoThumb}<div class="node-summary">${escapeHtml(nodeSummary(node))}</div>${missingBadge}</div>${inputHtml}${outputHtml}</div>`;
         }).join('');
         redrawGraphEdges();
         const status=$('#graphStatus'); status.className=`graph-status ${validation.valid?'valid':'invalid'}`; status.textContent=validation.valid?t('graphValid'):t('graphInvalid');
@@ -2466,7 +2512,7 @@
           const binding=inputFileBinding(node.id),source=node.source,expected=inputExpectedKind(node),displayFile=binding?.file||null,name=displayFile?.name||source?.name||'',hasSource=Boolean(name),bound=Boolean(displayFile),fileMeta=hasSource?inputSourceMetaText(node,binding):'',fileInput=`<input id="fileInput" type="file" accept="${escapeHtml(inputAccept(expected))}" hidden>`;
           const icon=expected==='audio'?'<path d="M4 12h3l2-6 3 12 3-12 2 6h3"/>':expected==='image'?'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8" cy="9" r="1.5"/><path d="m5 17 5-5 3 3 2-2 4 4"/>':'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/>';
           const missing=hasSource&&!bound,bulkRelink=missingInputNodes().length>1?`<button class="compact-button" type="button" data-action="relink-missing-all">${escapeHtml(t('relinkInputs'))}</button>`:'',missingCallout=missing?`<div class="input-missing-callout"><strong>${escapeHtml(t('inputMissingTitle'))}</strong>${escapeHtml(t('inputMissingHint'))}${bulkRelink?`<div class="input-source-actions">${bulkRelink}</div>`:''}</div>`:'';
-          const fileArea=hasSource?`${fileInput}<div class="file-card show"><div class="file-thumb" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${icon}</svg></div><div class="file-copy"><div class="file-name" title="${escapeHtml(name)}">${escapeHtml(name)}</div><div class="file-meta">${escapeHtml(fileMeta)}${bound?'':` · ${escapeHtml(t('inputUnbound'))}`}</div></div></div>${missingCallout}<div class="input-source-actions"><button class="compact-button" type="button" data-action="replace-input">${escapeHtml(t('replaceInput'))}</button><button class="compact-button" type="button" data-action="remove-file">${escapeHtml(t('removeFile'))}</button></div>`:`<label class="drop-zone" id="dropZone" for="fileInput">${fileInput}<svg class="drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4m0 0L8 8m4-4 4 4"/><path d="M5 14v5h14v-5"/></svg><div><div class="drop-title">${escapeHtml(t('inputDropTitle'))}</div><div class="drop-sub">${escapeHtml(t('inputDropSub'))}</div></div></label>`;
+          const thumbnailFile=expected==='video'&&bound?displayFile:null,thumbContent=thumbnailFile?videoThumbnailContent(thumbnailFile):`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${icon}</svg>`; const fileArea=hasSource?`${fileInput}<div class="file-card show"><div class="file-thumb${thumbnailFile?' video-thumbnail':''}" aria-hidden="true">${thumbContent}</div><div class="file-copy"><div class="file-name" title="${escapeHtml(name)}">${escapeHtml(name)}</div><div class="file-meta">${escapeHtml(fileMeta)}${bound?'':` · ${escapeHtml(t('inputUnbound'))}`}</div></div></div>${missingCallout}<div class="input-source-actions"><button class="compact-button" type="button" data-action="replace-input">${escapeHtml(t('replaceInput'))}</button><button class="compact-button" type="button" data-action="remove-file">${escapeHtml(t('removeFile'))}</button></div>`:`<label class="drop-zone" id="dropZone" for="fileInput">${fileInput}<svg class="drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4m0 0L8 8m4-4 4 4"/><path d="M5 14v5h14v-5"/></svg><div><div class="drop-title">${escapeHtml(t('inputDropTitle'))}</div><div class="drop-sub">${escapeHtml(t('inputDropSub'))}</div></div></label>`;
           const mainAction=node.id===graphMainInputId()?`<div class="main-input-note">${escapeHtml(t('mainInput'))}</div>`:`<div class="input-source-actions"><button class="compact-button" type="button" data-action="set-main-input">${escapeHtml(t('setMainInput'))}</button></div>`;
           form=`${fileArea}${mainAction}<div class="connection-box">${escapeHtml(t('inputConnectionInfo'))}</div>`;
         } else if(node.type==='trim'){
@@ -2541,7 +2587,7 @@
         syncPreviewEngineUi();
       }
       function syncRelinkInputsUi(){ const button=$('#relinkInputsButton'),count=$('#relinkInputsCount'),missing=missingInputNodes().length;if(button)button.hidden=missing===0;if(count)count.textContent=String(missing); }
-      function refreshGraph(){ state.validation=validateGraph(); state.compiled=state.validation.valid?compileGraph():null; renderGraph(); renderInspector(); renderCompiler(); updateRuntimeGuard(); updateHistoryButtons(); updateDisconnectButton(); syncRecipeUi(); syncRelinkInputsUi(); syncFullRenderUi(); }
+      function refreshGraph(){ state.validation=validateGraph(); state.compiled=state.validation.valid?compileGraph():null; renderGraph(); renderInspector(); renderCompiler(); updateRuntimeGuard(); updateHistoryButtons(); updateDisconnectButton(); syncRecipeUi(); syncRelinkInputsUi(); syncFullRenderUi(); scheduleInputVideoThumbnails(); }
       function updateDisconnectButton(){ const node=nodeById(state.selectedNodeId),disabled=state.rendering||!node||!nodeInputPorts(node).length||incomingEdges(node.id).length===0; $('#disconnectButton').disabled=disabled; $('#mobileDisconnectAction').disabled=disabled; }
       function updateRuntimeGuard(){ const blocked=!runtimeAllowed(),executionBlocked=!graphSupportsRuntimeExecution(); $('#runtimeWarning').classList.toggle('show',blocked); $('#runtimeBadge').classList.toggle('mt',RUNTIME_VARIANT==='multi-thread'); $('#runtimeMode').textContent=RUNTIME_VARIANT==='multi-thread'?'Multi-thread':'Single-thread'; $('#isolationValue').textContent=String(Boolean(globalThis.crossOriginIsolated)); $('#previewButton').disabled=!state.file||!state.validation?.valid||state.rendering||blocked||executionBlocked; $('#previewStartInput').disabled=state.rendering||!state.file||executionBlocked; document.querySelectorAll('[data-preview-duration]').forEach(button=>button.disabled=state.rendering||!state.file||executionBlocked); syncPreviewEngineUi(); syncFullRenderUi(); syncMobileActionBar(); }
       function clearOutput(){ revoke(state.outputUrl); state.outputUrl=''; state.previewGraphHash=''; state.previewStale=false; state.previewCacheState=''; state.renderedPreviewStart=state.previewStart; state.renderedPreviewDuration=state.previewDuration; state.previewPlaybackStart=0; const video=$('#previewVideo'),shell=$('#previewShell'); video.pause(); video.removeAttribute('src'); video.load(); video.hidden=true; shell?.classList.remove('has-video'); $('#previewEmpty').hidden=false; $('#previewStaleBadge').classList.remove('show'); $('#metricOutput').textContent='—'; $('#metricRender').textContent='—'; $('#progressBar').style.width='0%'; clearPreviewError(); syncPreviewEngineUi(); }
