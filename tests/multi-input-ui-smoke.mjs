@@ -4,7 +4,7 @@ import fs from 'node:fs';
 const source = fs.readFileSync(new URL('../src/index.template.html', import.meta.url), 'utf8');
 const app = JSON.parse(fs.readFileSync(new URL('../app.config.json', import.meta.url), 'utf8'));
 const repositoryCheck = fs.readFileSync(new URL('../scripts/check-repository.ps1', import.meta.url), 'utf8');
-assert.equal(app.version, '1.2.3', 'Multiple Input UI milestone version mismatch.');
+assert.equal(app.version, '1.2.4', 'Multiple Input UI milestone version mismatch.');
 assert.ok(repositoryCheck.includes("'function addInputWithFile(kind,file,'"), 'Repository preflight must track the current addInputWithFile signature prefix.');
 assert.ok(!repositoryCheck.includes("'function addInputWithFile(kind,file)'"), 'Repository preflight must not require the obsolete addInputWithFile signature.');
 
@@ -23,7 +23,7 @@ for (const marker of [
   'node-main-badge',
   'inputBindings:new Map()',
   'inputBindings:cloneInputBindings()',
-  'state.inputBindings=cloneInputBindings(snap.inputBindings)',
+  'snap.inputBindings?cloneInputBindings(snap.inputBindings):oldBindings',
 ]) {
   assert.ok(source.includes(marker), `Missing Multiple Input UI marker: ${marker}`);
 }

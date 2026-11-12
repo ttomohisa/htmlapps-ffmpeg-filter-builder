@@ -1,5 +1,40 @@
 # FFmpeg Filter Builder
 
+## v1.2.4: local Video Input thumbnails and merge release
+
+- When a video file is bound to an Input, show a small frame thumbnail in the Graph node and the Inspector file card if the browser can decode the source. Use local video/canvas APIs; never upload, persist, or export the image as part of project JSON. Keep the generic video icon if decoding fails or times out.
+- A single low-resolution frame (160 × 90 output canvas) is sufficient. Preserve portrait aspect ratio within the preview, limit work to one attempt per file, and free temporary object URLs after success/error/timeout. Do not decode new thumbnails while FFmpeg is actively rendering.
+- Guard against stale completions by comparing actual File object identity before changing any UI. Undo, Redo, input remove/replacement, Graph JSON import/relink and Recipe changes must never display a previous file's thumbnail on a different Input.
+- Do not change existing node dimensions, connection port geometry, MiniMap controls, keyboard access, or mobile bottom sheet behavior.
+- After the owner merges the PR to main, the main-branch Pages workflow must first pass production build validation and (when enabled) deployment, then create an immutable-version SemVer tag and GitHub Release from that same tested commit. Attach standard and self-extracting ST/MT one-file HTML, a ZIP, and SHA-256 checksums. Skip an existing release without overwriting it; reject a conflicting preexisting tag. Never create a tag or release on a PR build or preview run.
+
+## v1.2.4: smartphone Preview/Compiler width and copy
+
+- At 320, 342, 393 and 700 CSS pixels, both Preview and Compiler sections must remain within the panel's usable width. Do not rely on hiding page-level overflow to conceal non-shrinking grid children.
+- The single-column stacked grid must use `minmax(0,1fr)`, and its children and command tabs must permit shrinking. Three preview-duration choices must remain visible. Long commands may scroll **inside** their code block, never expand the entire panel.
+- On phones, the Japanese and English hero headings use identical 20px typography and concise copy. The Japanese subtitle and prominent Preview/Compiler labels should be natural Japanese instead of English technical fragments.
+- Regression checks must cover both languages, narrow and widened windows, generated commands, and both Compiler tabs, without breaking ST/MT or desktop layout.
+
+## v1.2.4: palette, Help and Overview refinement
+
+- On phone widths (700 px and narrower), hide only the hero local-processing badge and informational page footer. Keep privacy handling, Help explanations, functional mobile bar and desktop badge intact.
+- Place the five existing runtime diagnostics and the complete OFL-1.1 standard-font license in the Help dialog, in separate collapsed disclosures before the final build-info disclosure. The existing IDs and runtime/license text population must remain unchanged.
+- Maintain a uniform 10 px vertical gap among palette groups even where a hidden file-picker element interrupts the sibling order.
+- The desktop Graph Overview must display graph connections with audio distinction, selected-node colors and a visible viewport. Its header uses JA/EN translations. Use the SVG bounds (not the full container with its caption) when mapping clicks/drags to graph positions.
+- Preserve MiniMap node click and pan interactions, mobile minimap hiding, and all existing canvas features. Verify on desktop and phone widths in the browser.
+
+## v1.2.4: source lifecycle and desktop command correctness
+
+- Asynchronous media metadata reads may commit only while the original input node, graph and per-node read request still own that result and no render is underway. Reset, import, undo, and recipe replacement invalidate pending readers.
+- Undo/Redo must invalidate preview cache and both output URLs when any input File binding or the main input identity differs; purely visual/graph edits retain stale-preview behavior.
+- Recipe apply and Graph Reset remap are subject to the same source-binding check and must invalidate preview cache whenever the input files change IDs/identity.
+- When restoring Graph JSON, reuse each available File object at most once. Treat null/absent size and lastModified as unknown; never auto-link a file on name alone without a recorded matching size. The user may explicitly assign the file afterward.
+- One selected file may satisfy at most one Missing Input in an automatic batch relink. Manual assignment can intentionally reuse a file.
+- Desktop Draw Text emits a relative `MPLUS1p-Regular.ttf`, never a browser-only `/fonts/` path. Display POSIX or PowerShell shell quoting; provide bilingual font setup guidance.
+- Output filenames must retain `.mp4` and remain at most 120 characters. Draw Text virtual paths must be unique even when imported node IDs contain punctuation.
+- No change to graph schema, embedded runtime, privacy boundary, ST/MT availability or v1.2.3 release artifacts until a new build/release.
+
+
 ## Mobile informational layout
 
 - Hide only the informational page footer at the existing 700px phone-workspace breakpoint; retain Recipe / Add / Undo / More / Preview and their reserved space.

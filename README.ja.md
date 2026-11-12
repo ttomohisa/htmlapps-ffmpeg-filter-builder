@@ -10,7 +10,7 @@ MP4動画のFFmpeg Filter Graphをブラウザー上で組み立てるツール�
 
 ![FFmpeg Filter Builder スクリーンショット](assets/screenshot.png)
 
-> 現在の正式版: **v1.2.3**。Multiple Input、PiP、Logo Overlay、BGM / Audio Mix、Graph Restore / Auto Relink、PC / スマートフォン向けGraph Workspace、ST / MT単一HTMLを含むStable版です。
+> このブランチのバージョン: **v1.2.4**。Multiple Input、PiP、Logo Overlay、BGM / Audio Mix、Graph Restore / Auto Relink、PC / スマートフォン向けGraph Workspace、ST / MT単一HTMLを含むStable版です。
 
 ## 🚀 Live demo
 
@@ -23,6 +23,7 @@ GitHub Pagesから最初のHTMLを読み込んだ後、選択したMP4、Graph�
 
 ## Features
 
+- **動画Inputをサムネイルで区別** — ブラウザーで再生できるMP4は、Inputノードと設定欄に先頭付近の小さな画像が表示されます。対応しないコーデックでは従来のアイコンを表示します。画像は端末内で一時的に作成し、保存・送信しません。
 - **Recipeから始めてもGraphを直接作っても使える** — 24種類のRecipeはブラックボックスではなく、通常の編集可能なNode / Edgeへ展開されます。
 - **Graph Canvasを中心に編集** — Pan / Zoom / Fit、Node自由配置、複数選択、双方向drag-to-connect、MiniMapを備えたNode EditorとしてGraphを操作できます。
 - **よく使うVideo filterをGUIで編集** — Trim、Speed、FPS、Scale、Crop、Pad、Rotate、Flip、Aspect Ratio、Color Adjust、Hue、Blur、Sharpen、Fadeに対応します。
@@ -53,6 +54,13 @@ GitHub Pagesから最初のHTMLを読み込んだ後、選択したMP4、Graph�
 通常のアプリbuild自体にNode.jsは必要ありません。Windows PowerShellでbuildします。
 
 ## Usage
+
+スマートフォンの「プレビューとコマンド」欄は画面幅に合わせて表示し、確認時間の3つの選択肢とコマンド表示を横にはみ出さず利用できます。日本語・英語の見出しサイズも揃えています。
+
+Runtime情報とM PLUS 1pのライセンス全文は、ヘッダーの「使い方と注意事項」にまとめています。Graphの「全体図」には接続線と現在表示している範囲を表示します。スマホではヒーローの「完全ローカル処理」バッジを非表示にしますが、処理方式は変わりません。
+
+PCで生成した**FFmpegコマンド**を実行する場合は、コマンド欄で **macOS / Linux** または **PowerShell** を選択してください。Draw Textを含むコマンドでは、`MPLUS1p-Regular.ttf` をFFmpegの実行フォルダに置く必要があります。ブラウザ内の処理には引き続き内蔵フォントを使用します。Undo／Redoを含む素材の切り替えでは、以前の素材のプレビューを無効にします。
+
 
 ヘルプと初期化確認の表示中は背景ページをスクロールしません。高さが足りない画面ではダイアログ内をスクロールして最後の項目や初期化ボタンへ進めます。スマートフォンで一覧を閉じると「追加」へ、設定の「完了」では表示中の選択ノードへキーボードフォーカスが戻ります。初期化のキャンセルやGraph JSONの保存・読込では「Graph操作」（スマートフォンでは「その他」）へ戻ります。読込のファイル選択をキャンセルした場合も同じです。
 
@@ -98,7 +106,7 @@ Undo / RedoはGraph Toolbarから直接操作できます。旧バージョン�
 
 Autosaveが保存するのはGraph、Inputの素材メタデータ、出力ファイル名だけです。素材ファイル本体や絶対パス、生成動画は保存しません。復元後に**素材をまとめて再選択**すると、ファイル名とサイズが一致するMissing Inputへ自動で再関連付けします。Canvasへ複数ファイルをドロップした場合も、まず一致するMissing Inputへ再関連付けし、残りだけを新しいInputとして追加します。
 
-## 現在のruntime（v1.2.3）
+## 現在のruntime（v1.2.4）
 
 標準ビルドは公開済みBuilder v1.10.2のST/MT資産へ固定し、動画の最終フレームの長さと範囲指定Previewのタイミングを修正します。対応codec・Graph schema・GPL runtimeライセンス・ローカル処理の境界は変更しません。以下のバージョン別セクションは過去のリリース記録です。[runtime検証記録](docs/BUILDER_V1_10_2_RELEASE.md)を参照してください。
 
@@ -244,3 +252,8 @@ GitHub Pages版そのものを最初に開く通信と、ソースから初回bu
 Copyright © 2026 ttomohisa
 
 [MIT License](LICENSE)で公開しています。
+
+
+### リリース自動化
+
+PRを所有者が`main`へマージした後、GitHub Pagesのワークフローで標準版・高速版のビルドと検査を行います。成功すると、未公開のバージョンに限りSemVerタグとGitHub Releaseを自動作成し、4種類の単一HTML、ZIP、SHA-256チェックサムを添付します。PR段階ではタグやReleaseは作成しません。マージは所有者が実行します。

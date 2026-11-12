@@ -130,6 +130,14 @@ jobs:
       - name: Runtime cache repair smoke test
         run: node ./tests/runtime-cache-repair-smoke.mjs
 
+      - name: Test media source lifecycle and filename regressions
+        run: node ./tests/source-safety-regression.test.mjs
+      - name: Test Graph restore and recipe source identity
+        run: node ./tests/deep-source-restore-regression.test.mjs
+      - name: Test local Video Input thumbnails
+        run: node ./tests/video-input-thumbnail.test.mjs
+      - name: Validate post-merge Release workflow
+        run: node ./tests/release-publication.test.mjs
       - name: Test dialog layout, dismissal focus, and app metadata
         shell: pwsh
         run: node --test ./tests/dialog-layout-focus.test.mjs ./tests/release-metadata.test.mjs
@@ -207,3 +215,98 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
+  release:
+    name: Tag and publish verified standalone release
+    needs: [build, deploy]
+    if: ${{ always() && github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.build.result == 'success' && (needs.deploy.result == 'success' || needs.deploy.result == 'skipped') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout exact built commit
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Check version tag and existing GitHub Release
+        id: version
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          version="$(node -p "require('./app.config.json').version")"
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::app.config.json must contain a stable SemVer release version."
+            exit 1
+          fi
+          tag="v$version"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release $tag already exists; leaving it unchanged."
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          tag_sha="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --jq '.object.sha' 2>/dev/null || true)"
+          if [[ -n "$tag_sha" && "$tag_sha" != "$GITHUB_SHA" ]]; then
+            echo "::error::Tag $tag already references $tag_sha, not built commit $GITHUB_SHA."
+            exit 1
+          fi
+          echo "publish=true" >> "$GITHUB_OUTPUT"
+
+      - name: Download the tested ST and MT standalone artifact
+        if: steps.version.outputs.publish == 'true'
+        uses: actions/download-artifact@v7
+        with:
+          name: ffmpeg-filter-builder-${{ github.sha }}
+          path: release-input
+
+      - name: Package standalone HTML variants and checksums
+        if: steps.version.outputs.publish == 'true'
+        shell: bash
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          mkdir -p release-assets
+          base="htmlapps-ffmpeg-filter-builder-v$VERSION"
+          test -s release-input/ffmpeg-filter-builder.html
+          test -s release-input/ffmpeg-filter-builder.mt.html
+          test -s release-input/dist/index.self-extract.html
+          test -s release-input/dist/index.mt.self-extract.html
+          test -s release-input/dist/runtime-manifest.json
+          test -s release-input/dist/runtime-manifest.mt.json
+          cp release-input/ffmpeg-filter-builder.html "release-assets/$base.html"
+          cp release-input/ffmpeg-filter-builder.mt.html "release-assets/$base.mt.html"
+          cp release-input/dist/index.self-extract.html "release-assets/$base.self-extract.html"
+          cp release-input/dist/index.mt.self-extract.html "release-assets/$base.mt.self-extract.html"
+          (
+            cd release-assets
+            zip -q -9 -j "$base.zip" ./*.html ../release-input/dist/runtime-manifest.json ../release-input/dist/runtime-manifest.mt.json
+            sha256sum ./*.html ./*.zip > SHA256SUMS.txt
+          )
+          awk -v version="$VERSION" '
+            index($0, "## " version " ") == 1 { found=1; next }
+            found && /^## / { exit }
+            found { print }
+          ' CHANGELOG.md > release-notes.md
+          test -s release-notes.md
+          printf '\nRelease assets are built and tested from commit %s. Includes ST and MT standard/self-extracting HTML, ZIP and SHA-256 checksums.\n' "$GITHUB_SHA" >> release-notes.md
+
+      - name: Create tag and publish GitHub Release
+        if: steps.version.outputs.publish == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          set -euo pipefail
+          gh release create "$TAG" release-assets/* --repo "$GITHUB_REPOSITORY" \
+            --title "FFmpeg Filter Builder $TAG" \
+            --notes-file release-notes.md \
+            --target "$GITHUB_SHA"
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json tagName,url,assets \
+            --jq '{tag: .tagName, url: .url, assets: [.assets[].name]}'

@@ -10,7 +10,7 @@ A browser-based FFmpeg filter graph editor for MP4 video. Build Video / Audio / 
 
 ![FFmpeg Filter Builder screenshot](assets/screenshot-en.png)
 
-> Current release: **v1.2.3**. This stable release includes Multiple Input, PiP, Logo Overlay, BGM / Audio Mix, Graph Restore / Auto Relink, the desktop/mobile Graph Workspace, and ST / MT standalone builds.
+> Version in this branch: **v1.2.4**. This stable release includes Multiple Input, PiP, Logo Overlay, BGM / Audio Mix, Graph Restore / Auto Relink, the desktop/mobile Graph Workspace, and ST / MT standalone builds.
 
 ## 🚀 Live demo
 
@@ -21,6 +21,7 @@ GitHub Pages delivers the initial HTML. After the page loads, the selected MP4, 
 ## Features
 
 - **Start from a recipe or build the Graph yourself** — Twenty-four recipes expand into normal editable nodes and edges instead of hiding the processing behind a preset.
+- **Identify Video Inputs by thumbnail** — A small local frame appears on the Input node and in its settings when your browser can decode the video. Unsupported codecs fall back to the file icon; no thumbnail is uploaded or persisted.
 - **Edit around the Graph Canvas** — Pan / zoom / fit, manual node layout, multi-selection, bidirectional drag-to-connect, and a MiniMap make the Graph behave like a dedicated node editor.
 - **Edit common video filters visually** — Trim, Speed, FPS, Scale, Crop, Pad, Rotate, Flip, Aspect Ratio, Color Adjust, Hue, Blur, Sharpen, and Fade.
 - **Build branching video graphs** — Split and Overlay support branch / merge layouts such as Picture in Picture and blurred-background video.
@@ -50,6 +51,11 @@ Open the [GitHub Pages demo](https://ttomohisa.github.io/htmlapps-ffmpeg-filter-
 The normal build uses Windows PowerShell and does not require Node.js for the application build itself.
 
 ## Usage
+
+Runtime diagnostics and the full M PLUS 1p font license are in **How to use & notes**. The Graph Overview shows video/audio connections and which part of the graph is visible. On phones, the hero local-processing badge is hidden; processing still remains on the device.
+
+When copying a generated **FFmpeg command** to a computer, choose **macOS / Linux** or **PowerShell** in the command panel. Draw Text uses a relative `MPLUS1p-Regular.ttf` path in desktop commands: place that font alongside the working directory before running FFmpeg. The browser preview/render still uses its embedded font. Switching input files, including through Undo/Redo, invalidates previews from the previous media.
+
 
 Help and Reset keep the page behind them still. On short screens, scroll inside the dialog to reach the last item or Reset action. Closing the mobile Palette returns keyboard focus to Add; Inspector Done returns it to the selected visible node. Reset cancellation and Graph JSON Save/Load return it to Graph tools (More on mobile), including when the file picker is cancelled.
 
@@ -95,7 +101,7 @@ On smartphones, the Graph Canvas uses the available width and the main controls 
 
 Autosave stores the Graph, Input media metadata, and output filename in this browser's local storage. It does not store media bytes, absolute local paths, or rendered output. After restore, use **Re-select media in bulk** to choose the original files; matching filename and size are used to re-link Missing Inputs automatically. Dropping several files on the Canvas performs the same matching first, then adds only unmatched supported files as new Inputs.
 
-## Current runtime (v1.2.3)
+## Current runtime (v1.2.4)
 
 The default build pins the published Builder v1.10.2 ST/MT assets, correcting terminal video-frame duration and bounded-preview timing. Codec/catalog, graph schema, GPL runtime licensing, and offline boundaries are unchanged. The versioned sections below preserve earlier release history. See [runtime release verification](docs/BUILDER_V1_10_2_RELEASE.md).
 
@@ -241,3 +247,8 @@ Bug reports and feature proposals are welcome through GitHub Issues. See [CONTRI
 Copyright © 2026 ttomohisa
 
 Licensed under the [MIT License](LICENSE).
+
+
+### Release automation
+
+After a PR is merged into `main`, the GitHub Pages workflow validates/builds the pinned ST and MT standalone variants and deploys the site where Pages is enabled. On success, it creates the version tag and GitHub Release only when that version does not already have a release; it attaches both one-file variants, self-extract versions, ZIP, and SHA-256 sums. PR checks and previews never publish a release. Merges remain owner-controlled.

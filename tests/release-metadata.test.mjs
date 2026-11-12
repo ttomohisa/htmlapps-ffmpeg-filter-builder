@@ -6,7 +6,7 @@ const version = JSON.parse(read('app.config.json')).version;
 const check = read('scripts/check-repository.ps1');
 
 test('layout repair is one app patch while Builder stays pinned', () => {
-  assert.equal(version, '1.2.3');
+  assert.equal(version, '1.2.4');
   assert.equal(JSON.parse(read('runtime.lock.json')).builderVersion, '1.10.2');
 });
 

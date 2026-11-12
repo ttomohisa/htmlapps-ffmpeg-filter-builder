@@ -4,8 +4,8 @@ import fs from 'node:fs';
 const source = fs.readFileSync(new URL('../src/index.template.html', import.meta.url), 'utf8');
 const app = JSON.parse(fs.readFileSync(new URL('../app.config.json', import.meta.url), 'utf8'));
 
-assert.equal(app.version, '1.2.3', 'Workspace build must report v1.2.3.');
-assert.ok(source.includes('<span class="version-badge" id="versionBadge">v1.2.3</span>'), 'Source version badge is not v1.2.3.');
+assert.equal(app.version, '1.2.4', 'Workspace build must report v1.2.4.');
+assert.ok(source.includes('<span class="version-badge" id="versionBadge">v1.2.4</span>'), 'Source version badge is not v1.2.4.');
 assert.ok(source.includes('grid-template-columns:230px minmax(0,1fr) 300px; gap:0'), 'Workspace must keep flush sidebars around the canvas.');
 assert.ok(source.includes('.graph-panel { display:flex; flex-direction:column; grid-column:2; grid-row:1;'), 'Graph Canvas must occupy the center column.');
 assert.ok(source.includes('.editor-grid.palette-collapsed'), 'Palette collapse state is missing.');

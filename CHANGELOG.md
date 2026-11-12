@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.2.4 - 2026-11-12
+
+- Generate a small local Video Input thumbnail in both the Graph node and Inspector when browser decoding succeeds; keep the original icon when decoding is unavailable. Thumbnails stay in memory and cannot outlive the bound file identity.
+- Publish the tested v1.2.4 ST/MT standalone files, SHA256SUMS and release ZIP as a GitHub Release with SemVer tag automatically after a successful main-branch deployment; never publish from a PR or retag an existing release.
+
+- Fix narrow viewport clipping in Preview and Compiler caused by a non-shrinking single-column CSS Grid track; allow the command toolbar to wrap, keep duration buttons and metadata within phone width.
+- Use a consistent 20px smartphone heading size across JA/EN, shorter localized hero titles, and clearer Japanese copy for the preview workflow and compiler controls.
+
+- Move all runtime diagnostics and the complete embedded M PLUS 1p license into Help, preserving the existing detailed build information at the end.
+- Hide the local-processing badge on phone layouts; keep all data-local processing guarantees unchanged.
+- Keep consistent spacing between every palette disclosure, including Input and Video filters separated by the hidden media picker.
+- Redesign the Graph Overview (MiniMap) with visible video/audio connections, a distinct viewport, and a separate localized header while retaining node targeting and drag navigation.
+
+- Reject late media metadata results after source replacement, graph reset/import, recipe changes, or rendering begins; keep automatic relinking one-to-one for independently selected files.
+- Invalidate output and preview cache when Undo/Redo restores a different bound media file or main input, without discarding preview on unrelated graph edits.
+- Likewise invalidate source-owned previews when a Recipe or Graph Reset remaps Input bindings, preserving cache when the files are unchanged.
+- Restore Graph JSON Input bindings at most once per selected File object. Preserve unknown file-size metadata as null and require explicit relinking where size is unavailable rather than guessing by filename.
+- Generate desktop Draw Text commands with a relative font path instead of the browser virtual filesystem path. Add PowerShell quoting and a selectable shell in the command panel.
+- Keep the `.mp4` extension when output filenames exceed 120 characters. Keep distinct Draw Text node IDs mapped to distinct virtual textfile paths.
+- Keep the pinned v1.10.2 ST/MT runtime, graph schema, and local-processing boundary unchanged. This is the v1.2.4 patch; runtime assets are unchanged. The published v1.2.3 artifacts remain available until v1.2.4 is released.
+
 ## 1.2.3 - 2026-10-10
 
 - Lock background scrolling only while a native modal is open, retain the existing Help shell, and make short Reset confirmations scroll internally below a fixed header.
