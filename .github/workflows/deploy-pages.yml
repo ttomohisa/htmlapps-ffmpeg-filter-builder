@@ -250,7 +250,24 @@ jobs:
             echo "publish=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          tag_sha="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --jq '.object.sha' 2>/dev/null || true)"
+          # gh api can write a JSON 404 body to stdout on a nonzero exit.
+          # Never treat that error document as a Git SHA; other API failures
+          # must fail closed instead of creating an unverified release.
+          tag_response=""
+          tag_status=0
+          tag_response="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" 2>/dev/null)" || tag_status=$?
+          if [[ "$tag_status" -eq 0 ]]; then
+            tag_sha="$(jq -r '.object.sha // empty' <<< "$tag_response")"
+            if [[ ! "$tag_sha" =~ ^[[:xdigit:]]{40}$ ]]; then
+              echo "::error::Tag lookup returned invalid data for $tag."
+              exit 1
+            fi
+          elif jq -e '(.status | tostring) == "404" and .message == "Not Found"' <<< "$tag_response" >/dev/null 2>&1; then
+            tag_sha=""
+          else
+            echo "::error::Unable to verify the tag reference for $tag (gh exit $tag_status)."
+            exit 1
+          fi
           if [[ -n "$tag_sha" && "$tag_sha" != "$GITHUB_SHA" ]]; then
             echo "::error::Tag $tag already references $tag_sha, not built commit $GITHUB_SHA."
             exit 1
