@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { verifyReleaseTag } from '../scripts/verify-release-tag.mjs';
 
 const read=path=>fs.readFileSync(new URL('../'+path,import.meta.url),'utf8');
 const workflow=read('.github/workflows/deploy-pages.yml');
@@ -16,14 +17,10 @@ assert.match(workflow,/needs\.deploy\.result == 'success'.*needs\.deploy\.result
 const release=workflow.slice(workflow.indexOf('\n  release:'));
 assert.match(release,/permissions:\s*\n\s+contents: write/);
 assert.match(release,/gh release view "\$tag"/,'Skip an already published release');
-assert.match(release,/gh api "repos\/\$GITHUB_REPOSITORY\/git\/ref\/tags\/\$tag"/,'Check conflicting existing tags');
-assert.match(release,/tag_sha.*GITHUB_SHA/,'Do not move an existing tag');
-// gh api may emit an HTTP 404 JSON body even when the requested tag is missing.
-// Filter it to an empty SHA instead of treating the error JSON as an existing tag.
-assert.ok(release.includes("--jq '.object.sha // empty'"),
-  'Missing ref response must not be mistaken for a conflicting tag');
-assert.ok(!release.includes("--jq '.object.sha'"),
-  'Do not use an unfiltered sha lookup for optional tag references');
+assert.ok(release.includes('node ./scripts/verify-release-tag.mjs "$tag" "$GITHUB_SHA"'),
+  'Check actual GitHub exit status and JSON through the tested verifier');
+assert.ok(!release.includes('gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --jq'),
+  'Do not infer tag SHA from an HTTP error response');
 assert.match(release,/if: steps\.version\.outputs\.publish == 'true'/);
 assert.match(release,/actions\/download-artifact@v7/);
 assert.match(release,/name: ffmpeg-filter-builder-\$\{\{ github\.sha \}\}/,'Consume the exact tested build');
@@ -40,3 +37,29 @@ assert.ok(!preview.includes('gh release create'),'PR preview must not create a r
 const versionSection=read('CHANGELOG.md').split(/^## /m).find(s=>s.startsWith(app.version+' '));
 assert.ok(versionSection?.length>400,'Release version needs substantive changelog notes');
 console.log('[OK] Merge-only, tested-asset, idempotent SemVer tag + GitHub Release workflow');
+
+// Regression: gh api emits JSON on stdout with a nonzero exit for missing refs.
+const repository = 'ttomohisa/htmlapps-ffmpeg-filter-builder';
+const tag = 'v1.2.4';
+const expectedSha = 'a'.repeat(40);
+const existing = JSON.stringify({ ref:'refs/tags/v1.2.4', object:{ type:'commit', sha:expectedSha } });
+const missing = JSON.stringify({ message:'Not Found', status:'404' });
+const check = (status, stdout, error) => verifyReleaseTag({
+  repository, tag, expectedSha,
+  run: args => {
+    assert.deepEqual(args, ['api', 'repos/'+repository+'/git/ref/tags/'+tag]);
+    return { status, stdout, error };
+  },
+});
+assert.equal(check(1, missing), 'missing', 'A 404 allows a new release');
+assert.equal(check(0, existing), 'existing', 'An existing matching ref is preserved');
+assert.throws(() => check(0, missing), /valid Git SHA/, 'A successful lookup must contain a SHA');
+assert.throws(() => check(0, JSON.stringify({ object:{sha:'bad'} })), /valid Git SHA/);
+assert.throws(() => check(0, JSON.stringify({ object:{sha:'b'.repeat(40)} })), /already points to/);
+assert.throws(() => check(1, JSON.stringify({message:'Forbidden',status:'403'})), /API lookup failed/);
+assert.throws(() => check(1, JSON.stringify({message:'Server Error',status:500})), /API lookup failed/);
+assert.throws(() => check(1, ''), /invalid or empty JSON/);
+assert.throws(() => check(null, '', new Error('gh unavailable')), /CLI could not run/);
+assert.throws(() => verifyReleaseTag({ repository, tag:'../v1.2.4', expectedSha,
+  run: () => ({status:1,stdout:missing}) }), /Invalid stable version/);
+console.log('[OK] Release-tag regression: HTTP 404, matching/mismatched tags and API errors');
