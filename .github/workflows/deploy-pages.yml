@@ -250,7 +250,8 @@ jobs:
             echo "publish=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          tag_sha="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --jq '.object.sha' 2>/dev/null || true)"
+          # A missing ref can return a JSON 404 body on stdout. Extract only a valid SHA.
+          tag_sha="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --jq '.object.sha // empty' 2>/dev/null || true)"
           if [[ -n "$tag_sha" && "$tag_sha" != "$GITHUB_SHA" ]]; then
             echo "::error::Tag $tag already references $tag_sha, not built commit $GITHUB_SHA."
             exit 1

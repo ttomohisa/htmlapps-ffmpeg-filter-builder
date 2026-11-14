@@ -2,6 +2,8 @@
 
 ## 1.2.4 - 2026-11-12
 
+- Correct the GitHub Release tag preflight: an absent v1.2.4 tag may return a JSON 404 body on stdout; treat only a valid .object.sha as an existing tag and publish after the verified main build.
+
 - Generate a small local Video Input thumbnail in both the Graph node and Inspector when browser decoding succeeds; keep the original icon when decoding is unavailable. Thumbnails stay in memory and cannot outlive the bound file identity.
 - Publish the tested v1.2.4 ST/MT standalone files, SHA256SUMS and release ZIP as a GitHub Release with SemVer tag automatically after a successful main-branch deployment; never publish from a PR or retag an existing release.
 
