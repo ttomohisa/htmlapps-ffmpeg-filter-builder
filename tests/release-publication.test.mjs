@@ -19,7 +19,8 @@ assert.match(release,/permissions:\s*\n\s+contents: write/);
 assert.match(release,/gh release view "\$tag"/,'Skip an already published release');
 assert.ok(release.includes('node ./scripts/verify-release-tag.mjs "$tag" "$GITHUB_SHA"'),
   'Check actual GitHub exit status and JSON through the tested verifier');
-assert.ok(!release.includes('--jq'), 'Do not infer tag SHA from an HTTP error response');
+assert.ok(!release.includes('gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --jq'),
+  'Do not infer tag SHA from an HTTP error response');
 assert.match(release,/if: steps\.version\.outputs\.publish == 'true'/);
 assert.match(release,/actions\/download-artifact@v7/);
 assert.match(release,/name: ffmpeg-filter-builder-\$\{\{ github\.sha \}\}/,'Consume the exact tested build');
